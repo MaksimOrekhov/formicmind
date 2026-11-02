@@ -1,10 +1,13 @@
 # FormicMind
 
-Headless-симулятор L0 (Python, только stdlib). Сейчас реализован **только фундамент** (FOR-9):
-модель мира, `reset`, RNG, каноническая сериализация, SHA-256 хэши. Тика, движения, экономики,
-боя, политик, реплея и CLI пока нет.
+Headless-симулятор L0 (Python, только stdlib). Реализовано:
 
-Подробности и список инженерных выборов: [docs/foundation.md](docs/foundation.md).
+* фундамент (FOR-9): модель мира, `reset`, RNG, каноническая сериализация, SHA-256 хэши —
+  [docs/foundation.md](docs/foundation.md);
+* граница агента (FOR-10): ObservationV2 (223 float32), ActionMaskV2 (30 bool), приватная разведка,
+  общий decoder 17 logits → ActionV2, policy-интерфейс — [docs/agent_boundary.md](docs/agent_boundary.md).
+
+Тика, движения, экономики, боя, runner, реплея и CLI пока нет.
 
 ## Запуск тестов
 
