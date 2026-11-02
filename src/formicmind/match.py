@@ -21,7 +21,7 @@ Rules for the harness:
 from __future__ import annotations
 
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 from .config import SimConfig
@@ -32,7 +32,7 @@ from .rules import SOLDIER, WORKER
 from .runstate import RunState
 from .serialization import checkpoint_hash, config_hash, state_hash
 from .terminal import EpisodeOutcome
-from .tick import Controller, step_tick
+from .tick import Controller, TickResult, step_tick
 
 
 @dataclass(frozen=True, slots=True)
@@ -88,11 +88,13 @@ def play(
     *,
     check_invariants: bool = False,
     stop_before_tick: int | None = None,
+    on_tick: Callable[[SimState, RunState, TickResult], None] | None = None,
 ) -> tuple[list[Event], int]:
     """Step until an outcome, ``max_ticks`` executed ticks, or ``state.tick == stop_before_tick``.
 
     Returns ``(events, executed ticks)``. ``stop_before_tick`` stops *before* executing that tick, e.g. to
-    checkpoint right before a lethal combat.
+    checkpoint right before a lethal combat. ``on_tick(state, run, result)`` is called after every executed tick
+    with the state *after* it (the replay recorder, FOR-15); it only observes and must not change the state.
     """
     limit = state.config.t_max if max_ticks is None else max_ticks
     if limit < 0 or limit > state.config.t_max:
@@ -102,8 +104,11 @@ def play(
     while run.outcome is None and executed < limit and state.tick < state.config.t_max:
         if stop_before_tick is not None and state.tick >= stop_before_tick:
             break
-        events.extend(step_tick(state, run, controllers, check_invariants=check_invariants).events)
+        result = step_tick(state, run, controllers, check_invariants=check_invariants)
+        events.extend(result.events)
         executed += 1
+        if on_tick is not None:
+            on_tick(state, run, result)
     return events, executed
 
 

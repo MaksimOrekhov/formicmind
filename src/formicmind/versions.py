@@ -93,3 +93,12 @@ HASH_DOMAIN_STATE = "formicmind/state/v1"
 HASH_DOMAIN_CHECKPOINT = "formicmind/checkpoint/v3"
 HASH_DOMAIN_EVENTS = "formicmind/events/v1"
 HASH_DOMAIN_RNG_STREAM = "formicmind/rng-stream/v1"
+
+# Replay v1 (FOR-15) has its own schema version, independent of the rules, balance, observation, action, decoder
+# and checkpoint versions. ``REPLAY_ENGINE_PIN`` is a static human-readable pin (no git hash, no timestamp).
+REPLAY_FORMAT = "formicmind.replay"
+REPLAY_SCHEMA_VERSION = "v1"
+REPLAY_ENGINE_PIN = "formicmind-l0/0.0.1+for15"
+HASH_DOMAIN_REPLAY_RECORD = "formicmind/replay-record/v1"
+HASH_DOMAIN_REPLAY_VIEW = "formicmind/replay-view/v1"
+HASH_DOMAIN_OBSERVATION = "formicmind/observation-f32le/v1"
