@@ -12,7 +12,7 @@ SRC = Path(__file__).resolve().parents[1] / "src"
 # Regression hashes of this exact scenario (produced by this implementation, default candidate balance).
 EXPECTED_EVENTS_HASH = "907e1fbef9e815d138438b0ac7ef8062306764828a5cd14117c72151b6f122bf"
 EXPECTED_STATE_HASH = "a4df02a5da0144a90f77f311986295e8dbc12f6bc714459f395a63bc3a0e229f"
-EXPECTED_CHECKPOINT_HASH = "4b35c370efc86e183adf1a72407a13e98731499a3c7cec51430a720c3bead842"
+EXPECTED_CHECKPOINT_HASH = "52856e0c80240136872b7ab90c9047a3ee4bdca2f5b188f224163a181e1f4b47"
 
 
 def test_smoke_is_labelled_partial_and_runs_100_to_150_ticks_with_a_closed_food_ledger():

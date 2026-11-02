@@ -1,5 +1,6 @@
-"""Typed events: movement (``order``, ``retarget``, ``depart``, ``arrive``, FOR-11) and economy
-(``hatch``, ``harvest``, ``upkeep``, ``starvation``, ``lay``, ``regenerate``, FOR-12).
+"""Typed events: movement (``order``, ``retarget``, ``depart``, ``arrive``, FOR-11), economy
+(``hatch``, ``harvest``, ``upkeep``, ``starvation``, ``lay``, ``regenerate``, FOR-12) and combat /
+terminal (``combat``, ``wound``, ``death``, ``queen_damage``, ``terminal``, FOR-13).
 
 Boundary and ordering
 ---------------------
@@ -17,7 +18,9 @@ rank order. Movement kinds sort by ``(unit_id, side)``: all ``order`` events (by
 Economy kinds: ``hatch`` by unit id; ``harvest`` by ``(node, side)``; ``upkeep`` by side;
 ``starvation`` by ``(side, seq)`` where ``seq`` is the victim order (soldiers first, see
 ``economy.starvation_victim_key``), which is *not* ascending unit id; ``lay`` by side;
-``regenerate`` by node. Events hold only data the omniscient log may hold; nothing here is
+``regenerate`` by node. Combat kinds: ``combat`` (one summary per node and attacking side) by
+``(node, attacker_side)``, then ``wound`` and ``death`` by ``(unit_id, side)``, then ``queen_damage`` by side;
+``terminal`` closes the episode. Events hold only data the omniscient log may hold; nothing here is
 ever shown to a policy.
 
 ``to_canonical`` gives plain int/str/bool/list/dict values (canonical-JSON safe), so a
@@ -248,7 +251,7 @@ class UpkeepEvent:
 
 @dataclass(frozen=True, slots=True)
 class StarvationEvent:
-    """One adult removed by starvation (the only way an adult disappears in this PR)."""
+    """One adult removed by starvation (the other way an adult disappears is a combat ``death``)."""
 
     kind: ClassVar[str] = "starvation"
     kind_rank: ClassVar[int] = 7
@@ -338,9 +341,172 @@ class RegenerateEvent:
         }
 
 
+TARGET_SOLDIER = "soldier"
+TARGET_WORKER = "worker"
+TARGET_QUEEN = "queen"
+
+
+@dataclass(frozen=True, slots=True)
+class CombatEvent:
+    """Summary of one attack: the soldiers of ``attacker_side`` standing in ``node`` against one target caste.
+
+    ``damage`` is computed from the pre-combat state of the tick (``attacker_soldiers`` alive when the phase
+    began, ``base_damage = soldiers * soldier_damage``, home bonus ``base * num // den`` when the attackers
+    stand in their own home). It is applied to exactly one target category (soldiers, else workers, else the
+    queen of the defender's own home) in ascending ``unit_id`` order; ``applied`` is what was absorbed and
+    ``wasted`` what remained once that category was exhausted. Wasted damage is never carried to the next
+    category or to the next tick (FOR-1 section 6).
+    """
+
+    kind: ClassVar[str] = "combat"
+    kind_rank: ClassVar[int] = 10
+    tick: int
+    phase: int
+    node: int
+    attacker_side: int
+    defender_side: int
+    attacker_soldiers: int
+    base_damage: int
+    home_bonus: bool  # attackers stand in their own home: floor(base * 5 / 4)
+    damage: int
+    target: str  # "soldier" | "worker" | "queen"
+    target_units: int  # units of the category stationed in the node before the phase (1 for the queen)
+    target_hp_total: int  # their summed hp (queen hp for the queen)
+    applied: int
+    wasted: int
+
+    side: ClassVar[int] = -1
+
+    def sort_tail(self) -> tuple[int, ...]:
+        return (self.node, self.attacker_side)
+
+    def to_canonical(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind, "tick": self.tick, "phase": int(self.phase), "node": self.node,
+            "attacker_side": self.attacker_side, "defender_side": self.defender_side,
+            "attacker_soldiers": self.attacker_soldiers, "base_damage": self.base_damage,
+            "home_bonus": self.home_bonus, "damage": self.damage, "target": self.target,
+            "target_units": self.target_units, "target_hp_total": self.target_hp_total,
+            "applied": self.applied, "wasted": self.wasted,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class WoundEvent:
+    """A unit that took combat damage and survived (``hp_after > 0``). ``side`` owns the wounded unit."""
+
+    kind: ClassVar[str] = "wound"
+    kind_rank: ClassVar[int] = 11
+    tick: int
+    phase: int
+    side: int
+    unit_id: int
+    caste: int
+    node: int
+    attacker_side: int
+    hp_before: int
+    damage: int
+    hp_after: int
+
+    def sort_tail(self) -> tuple[int, ...]:
+        return (self.unit_id, self.side)
+
+    def to_canonical(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind, "tick": self.tick, "phase": int(self.phase), "side": self.side,
+            "unit_id": self.unit_id, "caste": self.caste, "node": self.node,
+            "attacker_side": self.attacker_side, "hp_before": self.hp_before,
+            "damage": self.damage, "hp_after": self.hp_after,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class DeathEvent:
+    """A unit killed in combat (``hp_after == 0``); ``damage == hp_before``. Starvation has its own event."""
+
+    kind: ClassVar[str] = "death"
+    kind_rank: ClassVar[int] = 12
+    tick: int
+    phase: int
+    side: int
+    unit_id: int
+    caste: int
+    node: int
+    attacker_side: int
+    hp_before: int
+    damage: int
+    hp_after: int
+
+    def sort_tail(self) -> tuple[int, ...]:
+        return (self.unit_id, self.side)
+
+    def to_canonical(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind, "tick": self.tick, "phase": int(self.phase), "side": self.side,
+            "unit_id": self.unit_id, "caste": self.caste, "node": self.node,
+            "attacker_side": self.attacker_side, "hp_before": self.hp_before,
+            "damage": self.damage, "hp_after": self.hp_after,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class QueenDamageEvent:
+    """Combat damage to a queen. ``queen_hp_after`` is the absolute value (for a future spectator)."""
+
+    kind: ClassVar[str] = "queen_damage"
+    kind_rank: ClassVar[int] = 13
+    tick: int
+    phase: int
+    side: int  # owner of the queen
+    node: int  # her home node
+    attacker_side: int
+    damage: int
+    queen_hp_before: int
+    queen_hp_after: int
+
+    def sort_tail(self) -> tuple[int, ...]:
+        return (-1, self.side)
+
+    def to_canonical(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind, "tick": self.tick, "phase": int(self.phase), "side": self.side,
+            "node": self.node, "attacker_side": self.attacker_side, "damage": self.damage,
+            "queen_hp_before": self.queen_hp_before, "queen_hp_after": self.queen_hp_after,
+        }
+
+
+@dataclass(frozen=True, slots=True)
+class TerminalEvent:
+    """The episode ended. ``phase`` is QueenTerminal (mid-tick) or Terminal/Log (end of a full tick)."""
+
+    kind: ClassVar[str] = "terminal"
+    kind_rank: ClassVar[int] = 14
+    tick: int
+    phase: int
+    reason: str  # "queen_death" | "economic_collapse" | "timeout"
+    winner: str  # "A" | "B" | "draw"
+    sides: tuple[int, ...]  # sides whose queen died / whose economy collapsed (empty for a timeout)
+    phases_executed: int  # phases of this tick reached, the terminal one included
+    queen_hp: tuple[int, int]  # absolute, by side
+    tick_completed: bool  # False: the tick was cut at QueenTerminal and state.tick stays at it
+
+    side: ClassVar[int] = -1
+
+    def sort_tail(self) -> tuple[int, ...]:
+        return (-1, -1)
+
+    def to_canonical(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind, "tick": self.tick, "phase": int(self.phase), "reason": self.reason,
+            "winner": self.winner, "sides": list(self.sides), "phases_executed": self.phases_executed,
+            "queen_hp": list(self.queen_hp), "tick_completed": self.tick_completed,
+        }
+
+
 Event = (
     OrderEvent | RetargetEvent | DepartEvent | ArriveEvent
     | HatchEvent | HarvestEvent | UpkeepEvent | StarvationEvent | LayEvent | RegenerateEvent
+    | CombatEvent | WoundEvent | DeathEvent | QueenDamageEvent | TerminalEvent
 )
 
 

@@ -9,7 +9,9 @@ any contradicting text in the document bodies.
 (equal-cost routes tie-break by the mover's side-local node order, FOR-11 review).
 It is not a frozen balance: all numbers are candidates until the economic pilot
 (FOR-1 errata F / FOR-4) picks them, see ``BALANCE_VERSION``. Observation, action and
-decoder versions are unaffected by R1.
+decoder versions are unaffected by R1. FOR-13 (combat, terminal rules, runner) changes neither the rules nor the
+balance version: it implements the phases FOR-1 v0.2.1 already specified. Only the checkpoint format moved to v3
+(``HASH_DOMAIN_CHECKPOINT``) because the episode outcome is now part of the run state.
 """
 
 from __future__ import annotations
@@ -62,6 +64,13 @@ CONTRACT_PINS: tuple[ContractPin, ...] = (
         updated_at="2026-11-02T17:21:10.542Z",
         role="overrides any world-id tie-break wording in FOR-2 v0.2/v0.2.1",
     ),
+    ContractPin(
+        key="FOR-1-FOR12-economy-decisions",
+        title="FOR-1 comment: decisions on the FOR-12 interpretations (starvation order, debt reset, newborn tie-break)",
+        url="https://linear.app/generation17/issue/FOR-1#comment-b5512302-d884-4541-adcf-1666a0b4767e",
+        updated_at="2026-11-02T17:55:58.679Z",
+        role="mandatory economy interpretations; implemented in FOR-12, unchanged by FOR-13",
+    ),
 )
 
 # Strings taken verbatim from the FOR-4 manifest template.
@@ -79,7 +88,8 @@ STREAM_DERIVATION_VERSION = "sha256-lenprefixed-v1"
 # Domain-separation prefixes for SHA-256 (see canonical.domain_hash).
 HASH_DOMAIN_CONFIG = "formicmind/config/v1"
 HASH_DOMAIN_STATE = "formicmind/state/v1"
-# v2: the checkpoint now carries the per-side WindowStats (FOR-11); v1 checkpoints are rejected.
-HASH_DOMAIN_CHECKPOINT = "formicmind/checkpoint/v2"
+# v2: the checkpoint carries the per-side WindowStats (FOR-11). v3: it also carries the episode outcome
+# (FOR-13); v1/v2 checkpoints are rejected by the schema tag.
+HASH_DOMAIN_CHECKPOINT = "formicmind/checkpoint/v3"
 HASH_DOMAIN_EVENTS = "formicmind/events/v1"
 HASH_DOMAIN_RNG_STREAM = "formicmind/rng-stream/v1"

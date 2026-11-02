@@ -1,32 +1,30 @@
-"""Tick orchestrator (partial: movement skeleton FOR-11 + economy and brood FOR-12).
+"""Tick orchestrator: the one ordered rule system of L0 (FOR-11 movement, FOR-12 economy, FOR-13 combat).
 
-One ordered rule system, ``Policy -> Completion -> Arrival -> Combat -> QueenTerminal ->
-Harvest -> Upkeep -> Lay -> Regeneration -> AutomaticDepart -> Terminal/Log``
-(FOR-1 v0.2.1 errata A). There is a single implementation of the tick; the two *development
-modes* below only choose which entries of the one phase table are filled:
+``Policy -> Completion -> Arrival -> Combat -> QueenTerminal -> Harvest -> Upkeep -> Lay -> Regeneration ->
+AutomaticDepart -> Terminal/Log`` (FOR-1 v0.2.1 errata A). There is a single implementation of the tick.
 
-* ``movement_only=True`` (FOR-11): Policy, Arrival (with the post-arrival intel sensor),
-  AutomaticDepart and the window accounting of Terminal/Log. No economy, no brood.
-* ``partial_economy=True`` (FOR-12, label ``PARTIAL (NO COMBAT/TERMINAL)``): additionally
-  Completion, Harvest, Upkeep/Starvation, Lay and Regeneration.
+* ``step_tick(state, run, controllers)`` with no flags executes **all** phases (``TickMode.FULL``) and
+  returns ``physics_complete=True``. This is the only mode in which a run is a match.
+* ``movement_only=True`` and ``partial_economy=True`` are kept as explicitly **incomplete development modes**
+  (no Combat, no QueenTerminal, no terminal check; ``physics_complete=False``). They fill fewer entries of the
+  same phase table and use the same phase functions; they exist for the FOR-11/FOR-12 comparison tests.
 
-**Combat, QueenTerminal and the Terminal check (queen death, economic collapse, timeout) are not
-implemented in any mode**; a run is therefore never a match. ``TickResult.physics_complete`` is
-always ``False`` and ``step_tick`` refuses to run unless the caller names a development mode.
+Boundary: ``step_tick`` takes the state *at the start of tick t* (``state.tick == t``, before ``PRE_POLICY``),
+executes tick ``t`` and leaves ``state.tick == t + 1`` - ``state.tick`` counts **completed** ticks.
 
-Boundary: ``step_tick`` takes the state *at the start of tick t* (``state.tick == t``,
-before ``PRE_POLICY``), executes tick ``t`` and leaves ``state.tick == t + 1``.
-
-If a phase reports a terminal outcome (none does yet) the remaining phases of that tick
-are not executed and ``state.tick`` is **not** advanced; ``TickResult.terminal`` names the
-reason.
+Terminal handling (``terminal.py``): when ``QueenTerminal`` ends the episode the remaining phases of the tick are
+not executed, ``state.tick`` stays ``t`` (the tick is incomplete) and ``run.outcome`` is set. When Terminal/Log
+ends it (economic collapse, timeout) the tick is complete, ``state.tick == t + 1`` and ``run.outcome`` is set.
+After that ``step_tick`` raises ``EpisodeFinishedError``: there is no "next" tick. ``state.tick >= T_max`` is
+also refused, so an episode never runs beyond ticks ``0 .. T_max - 1``.
 
 Policy phase (only when ``t % K == 0``): ``PRE_POLICY`` for both sides -> one frozen
 ``PolicySnapshot`` (windows come from ``RunState``) -> both observations -> both
 controllers decide on those observations -> only then orders are applied atomically,
 the available units are dispatched, and the policy windows restart. If any controller or
-validator fails, the state, the run state and the RNG streams are restored untouched.
-Between policy ticks the standing orders persist and no controller is called.
+validator fails, the state, the run state and the RNG streams are restored untouched (a technical
+failure of a controller is an error, never a loss). Between policy ticks the standing orders persist
+and no controller is called.
 """
 
 from __future__ import annotations
@@ -37,6 +35,7 @@ from dataclasses import dataclass, field
 from typing import Protocol
 
 from .actions import ActionV2, ValidatedActionV2, get_action_mask, validate_action
+from .combat import resolve_combat
 from .economy import complete_hatching, harvest, lay, regenerate, upkeep
 from .events import Event, Phase
 from .intel import IntelPhase, update_local_intel
@@ -49,15 +48,17 @@ from .policy import Policy, decide
 from .rules import Q_TOTAL, SIDES
 from .runstate import RunState
 from .snapshot import WindowStats, begin_policy_phase
+from .terminal import EpisodeOutcome, evaluate_terminal, terminal_event
 
 
-class IncompleteRulesError(RuntimeError):
-    """Combat and the terminal check do not exist; name a development mode to acknowledge it."""
+class EpisodeFinishedError(RuntimeError):
+    """The episode already has an outcome: there is no further tick to execute."""
 
 
 class TickMode(enum.Enum):
-    """Explicit development modes of the (still incomplete) tick engine."""
+    """``FULL`` is the match; the other two are explicitly incomplete development modes."""
 
+    FULL = "FULL (ALL PHASES)"
     MOVEMENT_ONLY = "MOVEMENT ONLY (NO ECONOMY/COMBAT/TERMINAL)"
     PARTIAL_ECONOMY = "PARTIAL (NO COMBAT/TERMINAL)"
 
@@ -104,9 +105,10 @@ class TickResult:
     tick: int  # the tick that was executed
     events: tuple[Event, ...]
     phases: tuple[PhaseRecord, ...]  # phases reached, in order
-    terminal: str | None = None
-    physics_complete: bool = False  # always False until every phase is implemented
-    mode: TickMode | None = None  # the development mode this tick was executed in
+    terminal: str | None = None  # reason of a terminal outcome (``outcome.reason.value``), else None
+    physics_complete: bool = False  # True only for a FULL tick whose reached phases are all implemented
+    mode: TickMode | None = None  # the mode this tick was executed in
+    outcome: EpisodeOutcome | None = None  # set when this tick ended the episode
 
     @property
     def missing_phases(self) -> tuple[Phase, ...]:
@@ -122,6 +124,7 @@ class TickContext:
     tick: int
     events: list[Event] = field(default_factory=list)
     terminal: str | None = None
+    outcome: EpisodeOutcome | None = None
 
 
 def _phase_policy(ctx: TickContext) -> None:
@@ -185,12 +188,39 @@ def _phase_automatic_depart(ctx: TickContext) -> None:
     ctx.events.extend(dispatch_available(ctx.state, Phase.AUTOMATIC_DEPART))
 
 
-def _phase_terminal_log(ctx: TickContext) -> None:
-    # Window accounting only; the terminal check itself needs combat (not implemented).
+def _phase_combat(ctx: TickContext) -> None:
+    ctx.events.extend(resolve_combat(ctx.state, Phase.COMBAT))
+
+
+def _end(ctx: TickContext, outcome: EpisodeOutcome) -> None:
+    ctx.outcome = outcome
+    ctx.terminal = outcome.reason.value
+    ctx.events.append(terminal_event(ctx.state, outcome))
+
+
+def _phase_queen_terminal(ctx: TickContext) -> None:
+    outcome = evaluate_terminal(ctx.state, ctx.tick, Phase.QUEEN_TERMINAL)
+    if outcome is not None:
+        _end(ctx, outcome)
+
+
+def _account_window_tick(ctx: TickContext) -> None:
     ctx.run.windows = [
         WindowStats(w.harvest, w.upkeep_paid, w.egg_spend, w.starvation_debt_delta, w.window_ticks + 1)
         for w in ctx.run.windows
     ]
+
+
+def _phase_terminal_log(ctx: TickContext) -> None:
+    # Development modes: window accounting only; the terminal check needs Combat (FULL mode).
+    _account_window_tick(ctx)
+
+
+def _phase_terminal_log_full(ctx: TickContext) -> None:
+    _account_window_tick(ctx)  # this tick was executed completely, whatever follows
+    outcome = evaluate_terminal(ctx.state, ctx.tick, Phase.TERMINAL_LOG)
+    if outcome is not None:
+        _end(ctx, outcome)
 
 
 PhaseFunc = Callable[[TickContext], None]
@@ -209,7 +239,8 @@ MOVEMENT_ONLY_PHASES: dict[Phase, PhaseFunc | None] = {
     Phase.AUTOMATIC_DEPART: _phase_automatic_depart,
     Phase.TERMINAL_LOG: _phase_terminal_log,
 }
-# Partial economy mode (FOR-12): only Combat, QueenTerminal and the terminal check are missing.
+# Partial economy mode (FOR-12): Completion, Harvest, Upkeep, Lay and Regeneration are added; still no
+# Combat, QueenTerminal or terminal check.
 PARTIAL_ECONOMY_PHASES: dict[Phase, PhaseFunc | None] = {
     **MOVEMENT_ONLY_PHASES,
     Phase.COMPLETION: _phase_completion,
@@ -218,7 +249,15 @@ PARTIAL_ECONOMY_PHASES: dict[Phase, PhaseFunc | None] = {
     Phase.LAY: _phase_lay,
     Phase.REGENERATION: _phase_regeneration,
 }
+# The match (FOR-13): every phase is implemented.
+FULL_PHASES: dict[Phase, PhaseFunc | None] = {
+    **PARTIAL_ECONOMY_PHASES,
+    Phase.COMBAT: _phase_combat,
+    Phase.QUEEN_TERMINAL: _phase_queen_terminal,
+    Phase.TERMINAL_LOG: _phase_terminal_log_full,
+}
 PHASE_TABLES: dict[TickMode, dict[Phase, PhaseFunc | None]] = {
+    TickMode.FULL: FULL_PHASES,
     TickMode.MOVEMENT_ONLY: MOVEMENT_ONLY_PHASES,
     TickMode.PARTIAL_ECONOMY: PARTIAL_ECONOMY_PHASES,
 }
@@ -238,11 +277,7 @@ def resolve_mode(movement_only: bool, partial_economy: bool) -> TickMode:
         return TickMode.PARTIAL_ECONOMY
     if movement_only:
         return TickMode.MOVEMENT_ONLY
-    raise IncompleteRulesError(
-        "Combat, QueenTerminal and the Terminal check are not implemented, so a tick is not a match step; "
-        "pass partial_economy=True (PARTIAL: NO COMBAT/TERMINAL) or movement_only=True "
-        "(movement comparison; also no Completion/Harvest/Upkeep/Lay/Regeneration)"
-    )
+    return TickMode.FULL
 
 
 def step_tick(
@@ -255,11 +290,17 @@ def step_tick(
     phases: Mapping[Phase, PhaseFunc | None] | None = None,
     check_invariants: bool = False,
 ) -> TickResult:
-    """Execute tick ``state.tick``. ``check_invariants`` re-verifies the food ledger and the unit rules
-    of the finished tick against its events (``ledger.check_transition``); it is for tests and smoke runs."""
+    """Execute tick ``state.tick``. Without flags every phase runs (``TickMode.FULL``) and the tick may end the
+    episode (``run.outcome``). ``check_invariants`` re-verifies the food ledger, the unit rules and the combat
+    damage conservation of the finished tick against its events (``ledger.check_transition``); it is for tests
+    and smoke runs."""
     mode = resolve_mode(movement_only, partial_economy)
     if len(controllers) != len(SIDES):
         raise ValueError("one controller per side")
+    if run.outcome is not None:
+        raise EpisodeFinishedError(
+            f"the episode ended ({run.outcome.reason.value}, winner {run.outcome.winner.value}, "
+            f"tick {run.outcome.terminal_tick}): there is no next tick")
     if state.tick >= state.config.t_max:
         raise ValueError("the episode horizon T_max has been reached")
     table = PHASE_TABLES[mode] if phases is None else phases
@@ -271,10 +312,20 @@ def step_tick(
         reached.append(PhaseRecord(phase, func is not None))
         if func is not None:
             func(ctx)
-            if ctx.terminal is not None:
-                return TickResult(ctx.tick, tuple(ctx.events), tuple(reached),
-                                  terminal=ctx.terminal, mode=mode)
+            if ctx.terminal is not None and phase != Phase.TERMINAL_LOG:
+                # Mid-tick terminal: the rest of the tick does not run and the tick is not completed.
+                run.outcome = ctx.outcome
+                if before is not None and ctx.outcome is not None:
+                    check_transition(before, state, ctx.events)
+                return _result(ctx, reached, mode)
     state.tick = ctx.tick + 1
+    run.outcome = ctx.outcome  # Terminal/Log ended the episode (or None: it goes on)
     if before is not None:
         check_transition(before, state, ctx.events)
-    return TickResult(ctx.tick, tuple(ctx.events), tuple(reached), mode=mode)
+    return _result(ctx, reached, mode)
+
+
+def _result(ctx: TickContext, reached: list[PhaseRecord], mode: TickMode) -> TickResult:
+    complete = mode is TickMode.FULL and all(r.implemented for r in reached)
+    return TickResult(ctx.tick, tuple(ctx.events), tuple(reached), terminal=ctx.terminal,
+                      physics_complete=complete, mode=mode, outcome=ctx.outcome)

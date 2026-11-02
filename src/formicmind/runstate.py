@@ -9,6 +9,10 @@ consume no randomness; the registry exists so that harness-level choices
 ``windows`` holds each side's ``WindowStats`` (FOR-2 own_global[25..29]). It is the single
 serialized source of truth for those counters: the tick engine feeds them to the policy
 snapshot and the checkpoint stores them, so a restored run builds the same observation.
+
+``outcome`` is the serializable end of the episode (FOR-13): ``None`` while the match runs, an
+``EpisodeOutcome`` once a terminal rule fired. It is run state, not game state, so ``state_hash`` stays the
+mechanics and only ``checkpoint_hash`` changes when the episode ends. ``step_tick`` refuses to run when it is set.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ from dataclasses import dataclass, field
 
 from .rng import WORLD_STREAM_ID, Pcg32, check_stream_id, new_stream
 from .snapshot import WindowStats
+from .terminal import EpisodeOutcome
 
 
 @dataclass(slots=True)
@@ -25,6 +30,7 @@ class RunState:
     root_seed: int
     streams: dict[str, Pcg32] = field(default_factory=dict)
     windows: list[WindowStats] = field(default_factory=lambda: [WindowStats(), WindowStats()])
+    outcome: EpisodeOutcome | None = None
 
     @classmethod
     def new(cls, root_seed: int, stream_ids: Iterable[str] = ()) -> "RunState":
@@ -53,4 +59,5 @@ class RunState:
             self.root_seed,
             {k: v.clone() for k, v in self.streams.items()},
             list(self.windows),  # WindowStats is frozen
+            self.outcome,  # EpisodeOutcome is frozen
         )
