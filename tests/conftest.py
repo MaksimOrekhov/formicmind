@@ -22,3 +22,11 @@ def config():
 def fresh(config):
     state, run = reset(config, TEST_SEED, ["policy:alpha:0", "policy:beta:0"])
     return state, run
+
+
+@pytest.fixture(scope="session")
+def replays(tmp_path_factory):
+    """The four public dev smoke matches plus a cutoff and an RNG-consuming-policy match, recorded once."""
+    from replay_helpers import record_all
+
+    return record_all(tmp_path_factory.mktemp("replays"))

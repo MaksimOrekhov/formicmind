@@ -13,12 +13,16 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
   food ledger — [docs/economy.md](docs/economy.md).
 * бой, терминальные условия и runner (FOR-13): одновременный Combat, урон солдатам/рабочим, защита и гибель матки,
   экономический коллапс, таймаут, `EpisodeOutcome` в checkpoint v3, `run_episode` — [docs/combat_terminal.md](docs/combat_terminal.md).
-  `step_tick` без флагов исполняет все фазы; `movement_only`/`partial_economy` — неполные dev-режимы. Реплея JSONL, ML и
-  турниров нет.
+  `step_tick` без флагов исполняет все фазы; `movement_only`/`partial_economy` — неполные dev-режимы. ML и турниров нет.
 
 * надёжность (FOR-14): GitHub Actions CI (**только Windows, Python 3.12**), матрица «контракт → тесты», строгий horizon-check
   загрузчика checkpoint — [docs/reliability.md](docs/reliability.md). CI подтверждает **correctness regression**, а не performance
   readiness и не научные Gate 1/2/3.
+
+* Replay v1 (FOR-15): версионированный JSONL полного матча (hash-chain, решения с RNG-состояниями политик, события, omniscient
+  `ViewFrame` + дисплейные патчи), `seek` на любом тике без исполнения правил, `verify` через тот же `step_tick` и CLI
+  `python -m formicmind.replay --verify FILE` / `sim replay --verify FILE` — [docs/replay_v1.md](docs/replay_v1.md).
+  Записи smoke-матчей: `python -m formicmind.replay_smoke --out replays`.
 
 Smoke-прогоны: движения (90 тиков) `python -m formicmind.smoke`; экономики (120 тиков, PARTIAL) `python -m formicmind.economy_smoke`;
 **полные матчи** (4 сценария, функциональная проверка) `python -m formicmind.match_smoke`.

@@ -66,8 +66,9 @@ mid-tick queen-terminal (`state.tick = t`, `tick_completed = false`) не мен
 | Симметрия сторон: целые трассы событий при обмене мест (бой, экономика, голод, маршруты, ничья) | `test_reliability.py` §4, `test_economy_system.py`, `test_movement.py`, `test_terminal.py` |
 | Версии: `rules_version`, `balance_version`, checkpoint v3, golden-хэши reset | `test_reliability.py::test_contract_and_format_versions_are_pinned`, `test_tick.py`, `test_serialization.py` |
 | CI-файл (только Windows, Python 3.12, read-only) | `test_reliability.py::test_ci_workflow_…` |
+| Replay v1 (FOR-15): формат, цепочка хэшей, `seek` против кадров движка, `verify` по `step_tick`, RNG-политики, checkpoint+суффикс, матрица порчи, CLI — [replay_v1.md](replay_v1.md) | `test_replay_format.py`, `test_replay.py`, `test_replay_rng_checkpoint.py`, `test_replay_corruption.py`, `test_replay_cli.py` |
 
 ## Что сознательно не делается
 
-Нет бенчмарка и профилирования, нет калибровки баланса, baselines/ES/MLP, турниров, sealed-данных, JSONL replay, UI, генератора
+Нет бенчмарка и профилирования, нет калибровки баланса, baselines/ES/MLP, турниров, sealed-данных, UI (Replay v1 как файл есть, см. [replay_v1.md](replay_v1.md); viewer — нет), генератора
 случайных миров. Найденная в будущем настоящая ошибка физики — отдельный issue с минимальным воспроизведением, а не молчаливая правка.

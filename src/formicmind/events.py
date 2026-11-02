@@ -23,8 +23,8 @@ Economy kinds: ``hatch`` by unit id; ``harvest`` by ``(node, side)``; ``upkeep``
 ``terminal`` closes the episode. Events hold only data the omniscient log may hold; nothing here is
 ever shown to a policy.
 
-``to_canonical`` gives plain int/str/bool/list/dict values (canonical-JSON safe), so a
-later replay writer needs no extra conversion. JSONL replay itself is not implemented.
+``to_canonical`` gives plain int/str/bool/list/dict values (canonical-JSON safe); the Replay v1 writer
+(``formicmind.replay``, FOR-15, docs/replay_v1.md) records exactly these dicts in this order.
 """
 
 from __future__ import annotations

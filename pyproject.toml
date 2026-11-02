@@ -9,6 +9,9 @@ description = "FormicMind L0 headless simulator: foundation (model, reset, RNG, 
 requires-python = ">=3.12"
 dependencies = []
 
+[project.scripts]
+sim = "formicmind.cli:main"
+
 [project.optional-dependencies]
 dev = ["pytest>=8"]
 
