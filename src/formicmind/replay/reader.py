@@ -51,6 +51,7 @@ from .format import (
     SeekError,
     bad,
     check_event,
+    event_sort_key,
     contract_versions,
     need,
     need_hex64,
@@ -332,15 +333,16 @@ class ReplayReader:
             else:
                 need(rtype != "decision", f"{where}: tick {tick} is not a policy tick but has a decision")
             first_event = len(self._events)
-            last_key = (-1, -1)
+            last_key: tuple[int, ...] = ()
             while pos < total and records[pos].get("type") == "event":
                 er = records[pos]
                 where = f"line {pos}"
                 need_keys(er, {"type", "seq", "i", "e"}, where)
                 need(same(er["i"], event_index), f"{where}: event index {er['i']!r}, expected {event_index}")
-                schema = check_event(er["e"], tick, where)
-                key = (er["e"]["phase"], schema.rank)
-                need(key >= last_key, f"{where}: event out of engine order")
+                check_event(er["e"], tick, where)
+                key = event_sort_key(er["e"])
+                need(not last_key or key > last_key,
+                     f"{where}: event out of engine order or repeated (sort key {key} after {last_key})")
                 last_key = key
                 need(terminal_event is None, f"{where}: an event after the terminal event")
                 if er["e"]["kind"] == "terminal":

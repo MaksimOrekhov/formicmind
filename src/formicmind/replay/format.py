@@ -296,6 +296,25 @@ EVENT_SCHEMA: dict[str, EventSchema] = {
     "terminal": _schema(14, (_P.QUEEN_TERMINAL, _P.TERMINAL_LOG), "tick phase reason:s winner:s sides:I "
                                                                   "phases_executed queen_hp:J tick_completed:b"),
 }
+# ``sort_tail`` of events.py as field names ("" = the constant -1): inside one (phase, kind) the engine emits events in
+# strictly ascending tail order, so a recorded stream must too. ``starvation`` is (side, seq), not unit_id.
+_SORT_TAIL: dict[str, tuple[str, str]] = {
+    "order": ("", "side"), "retarget": ("unit_id", "side"), "depart": ("unit_id", "side"),
+    "arrive": ("unit_id", "side"), "hatch": ("unit_id", "side"), "harvest": ("node", "side"),
+    "upkeep": ("", "side"), "starvation": ("side", "seq"), "lay": ("", "side"), "regenerate": ("node", ""),
+    "combat": ("node", "attacker_side"), "wound": ("unit_id", "side"), "death": ("unit_id", "side"),
+    "queen_damage": ("", "side"), "terminal": ("", ""),
+}
+assert set(_SORT_TAIL) == set(EVENT_SCHEMA)
+
+
+def event_sort_key(event: dict) -> tuple[int, ...]:
+    """``events.event_sort_key`` computed from a canonical event dict: ``(phase, kind rank, *sort_tail)``."""
+    first, second = _SORT_TAIL[event["kind"]]
+    return (event["phase"], EVENT_SCHEMA[event["kind"]].rank,
+            event[first] if first else -1, event[second] if second else -1)
+
+
 EVENT_KEYS = {kind: frozenset({"kind", *(name for name, _ in s.fields)}) for kind, s in EVENT_SCHEMA.items()}
 _TERMINAL_PHASES = (int(Phase.QUEEN_TERMINAL), int(Phase.TERMINAL_LOG))
 

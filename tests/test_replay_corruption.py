@@ -551,3 +551,84 @@ def test_bools_and_other_lookalikes_are_not_accepted_as_recorded_integers(small,
 
     for edit in (ticks_executed, event_count):
         fails_format(forge(zero.read_bytes(), edit), "result")
+
+
+# --- full engine sort key: (phase, kind rank, *sort_tail), strictly ascending ----------------------------------------------
+
+def _swap_adjacent(records, first, second):
+    i, j = index_of(records, first), index_of(records, second)
+    assert j == i + 1
+    records[i], records[j] = records[j], records[i]
+    fix_event_totals(records)  # a careful forger: seq, event index, event_count and events_hash all repaired
+
+
+def test_sort_key_computed_from_canonical_events_equals_the_engines(replays):
+    from formicmind.events import event_sort_key as engine_key
+    from formicmind.replay.format import event_sort_key
+
+    for name in ("raid_win", "mutual_raid_draw", "collapse", "timeout_draw"):
+        events = replays[name].result.events
+        assert {e.kind for e in events} >= {"upkeep", "harvest"}
+        assert all(event_sort_key(e.to_canonical()) == engine_key(e)[:2] + engine_key(e)[2:4] for e in events)
+        keys = [event_sort_key(e.to_canonical()) for e in events]
+        for a, b, ea, eb in zip(keys, keys[1:], events, events[1:]):
+            if ea.tick == eb.tick:
+                assert a < b, (ea, eb)  # strictly ascending inside a tick: the premise of the reader's check
+
+
+def test_swapped_upkeep_of_side_a_and_b_in_one_tick_is_refused_without_verify(small):
+    def swap(r):
+        a = find_event(r, "upkeep", 0, tick=4, side=0)
+        b = find_event(r, "upkeep", 0, tick=4, side=1)
+        _swap_adjacent(r, a, b)
+
+    fails_format(forge(small, swap), "out of engine order")
+
+
+def test_swapped_events_of_other_kinds_are_refused_without_verify(small):
+    def harvest(r):  # same tick, same phase and kind: ordered by (node, side)
+        hs = [x for x in r if x["type"] == "event" and x["e"]["kind"] == "harvest" and x["e"]["tick"] == 6]
+        _swap_adjacent(r, hs[0], hs[1])
+
+    def regenerate(r):
+        rs = [x for x in r if x["type"] == "event" and x["e"]["kind"] == "regenerate" and x["e"]["tick"] == 6]
+        _swap_adjacent(r, rs[0], rs[1])
+
+    def combat(r):  # (node, attacker_side)
+        cs = [x for x in r if x["type"] == "event" and x["e"]["kind"] == "combat" and x["e"]["tick"] == 38]
+        assert len(cs) >= 2
+        _swap_adjacent(r, cs[0], cs[1])
+
+    def queen_damage(r):
+        qs = [x for x in r if x["type"] == "event" and x["e"]["kind"] == "queen_damage" and x["e"]["tick"] == 38]
+        _swap_adjacent(r, qs[0], qs[1])
+
+    for edit in (harvest, regenerate, combat, queen_damage):
+        fails_format(forge(small, edit), "out of engine order")
+
+
+def test_starvation_keeps_its_side_seq_order_not_unit_id(collapse):
+    stv = [x for x in parse(collapse) if x["type"] == "event" and x["e"]["kind"] == "starvation"]
+    assert len(stv) >= 2
+    reads(collapse)  # the real order is (side, seq) and passes ...
+
+    def swap(r):
+        s = [x for x in r if x["type"] == "event" and x["e"]["kind"] == "starvation" and x["e"]["tick"] == stv[0]["e"]["tick"]]
+        _swap_adjacent(r, s[0], s[1])
+
+    fails_format(forge(collapse, swap), "out of engine order")  # ... and swapping two victims does not
+
+
+def test_a_duplicated_unique_event_is_refused_without_verify(small):
+    def upkeep(r):
+        e = find_event(r, "upkeep", 0, tick=4, side=0)
+        r.insert(index_of(r, e) + 1, {**e, "e": dict(e["e"])})
+        fix_event_totals(r)
+
+    def harvest(r):
+        e = find_event(r, "harvest", 0, tick=6)
+        r.insert(index_of(r, e) + 1, {**e, "e": dict(e["e"])})
+        fix_event_totals(r)
+
+    for edit in (upkeep, harvest):
+        fails_format(forge(small, edit), "out of engine order or repeated")
