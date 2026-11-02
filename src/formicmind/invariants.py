@@ -166,6 +166,7 @@ def validate_state(state: SimState) -> None:
                 0 <= b.laid_tick <= state.tick and b.hatch_tick == b.laid_tick + hatch_delay[b.caste],
                 f"{tag}: brood {b.unit_id} has inconsistent ticks",
             )
+            _require(b.hatch_tick >= state.tick, f"{tag}: brood {b.unit_id} missed its hatch tick")
             seen_ids.add(b.unit_id)
 
         intel = colony.intel
