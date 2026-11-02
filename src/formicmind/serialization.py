@@ -388,13 +388,17 @@ def checkpoint_to_bytes(state: SimState, run: RunState) -> bytes:
     })
 
 
-def checkpoint_from_bytes(data: bytes, config: SimConfig) -> tuple[SimState, RunState]:
+def checkpoint_from_bytes(
+    data: bytes, config: SimConfig, *, dev_mode: bool = False
+) -> tuple[SimState, RunState]:
+    """Strict loader. ``dev_mode=True`` additionally accepts an unfinished run standing exactly on ``T_max``
+    (what an incomplete development mode leaves behind); it never accepts ``tick > T_max`` or invents an outcome."""
     top = _obj(canonical_loads(data), {"schema", "serialization_version", "state", "run"}, "checkpoint")
     _schema(top, SCHEMA_CHECKPOINT)
     state = state_from_canonical(top["state"], config)
     run = run_state_from_canonical(top["run"])
     try:
-        validate_outcome(state, run.outcome)
+        validate_outcome(state, run.outcome, dev_mode=dev_mode)
     except InvariantError as exc:
         raise CanonicalError(str(exc)) from exc
     return state, run
