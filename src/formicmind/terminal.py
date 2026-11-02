@@ -141,15 +141,30 @@ def terminal_event(state: SimState, outcome: EpisodeOutcome) -> TerminalEvent:
         tick_completed=outcome.tick_completed)
 
 
-def validate_outcome(state: SimState, outcome: EpisodeOutcome | None) -> None:
+def validate_outcome(state: SimState, outcome: EpisodeOutcome | None, *, dev_mode: bool = False) -> None:
     """Check that ``outcome`` (``None`` = episode still running) is consistent with ``state``.
 
     Used when a checkpoint is restored: a terminal flag that disagrees with the mechanics is rejected.
+
+    A running episode (``outcome is None``) must have a live queen on both sides and must not stand on or
+    beyond the horizon: a FULL episode always ends in a timeout at the end of tick ``T_max - 1``, so
+    ``state.tick >= T_max`` without an outcome is a forged or corrupted "finished: false" checkpoint
+    (FOR-14). The only legitimate way to reach ``state.tick == T_max`` without an outcome is an incomplete
+    development mode (``movement_only`` / ``partial_economy``), which never decides anything; such a state
+    can only be restored with ``dev_mode=True`` (no outcome is invented for it). ``state.tick > T_max`` is
+    impossible in every mode (``step_tick`` refuses to run at the horizon) and is always rejected.
     """
     dead = dead_queens(state)
     if outcome is None:
         if dead:
             raise InvariantError("a queen is dead but the run records no terminal outcome")
+        t_max = state.config.t_max
+        if state.tick > t_max:
+            raise InvariantError(f"state.tick {state.tick} is beyond the horizon T_max {t_max}")
+        if state.tick == t_max and not dev_mode:
+            raise InvariantError(
+                f"state.tick == T_max ({t_max}) but the run records no outcome: a full episode ends "
+                "with a timeout in tick T_max - 1 (restore a development-mode run with dev_mode=True)")
         return
 
     def need(condition: bool, message: str) -> None:

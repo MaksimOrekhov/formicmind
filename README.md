@@ -16,6 +16,10 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
   `step_tick` без флагов исполняет все фазы; `movement_only`/`partial_economy` — неполные dev-режимы. Реплея JSONL, ML и
   турниров нет.
 
+* надёжность (FOR-14): GitHub Actions CI (**только Windows, Python 3.12**), матрица «контракт → тесты», строгий horizon-check
+  загрузчика checkpoint — [docs/reliability.md](docs/reliability.md). CI подтверждает **correctness regression**, а не performance
+  readiness и не научные Gate 1/2/3.
+
 Smoke-прогоны: движения (90 тиков) `python -m formicmind.smoke`; экономики (120 тиков, PARTIAL) `python -m formicmind.economy_smoke`;
 **полные матчи** (4 сценария, функциональная проверка) `python -m formicmind.match_smoke`.
 
