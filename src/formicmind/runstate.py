@@ -1,10 +1,14 @@
-"""Run-level state outside the game model: the named RNG stream registry.
+"""Run-level state outside the game model: RNG stream registry and policy-window counters.
 
 Streams are keyed by role (``world``, ``policy:<policy_id>:<replicate>``), never
 by seat. A stream is created only by an explicit ``add_stream`` call, so the
 checkpoint content never depends on hidden lazy creation. The rules of L0 v0.2.1
 consume no randomness; the registry exists so that harness-level choices
 (opponent archetype, random policies) get independent, restorable streams.
+
+``windows`` holds each side's ``WindowStats`` (FOR-2 own_global[25..29]). It is the single
+serialized source of truth for those counters: the tick engine feeds them to the policy
+snapshot and the checkpoint stores them, so a restored run builds the same observation.
 """
 
 from __future__ import annotations
@@ -13,12 +17,14 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 
 from .rng import WORLD_STREAM_ID, Pcg32, check_stream_id, new_stream
+from .snapshot import WindowStats
 
 
 @dataclass(slots=True)
 class RunState:
     root_seed: int
     streams: dict[str, Pcg32] = field(default_factory=dict)
+    windows: list[WindowStats] = field(default_factory=lambda: [WindowStats(), WindowStats()])
 
     @classmethod
     def new(cls, root_seed: int, stream_ids: Iterable[str] = ()) -> "RunState":
@@ -43,4 +49,8 @@ class RunState:
             raise KeyError(f"stream not registered: {stream_id!r}") from None
 
     def clone(self) -> "RunState":
-        return RunState(self.root_seed, {k: v.clone() for k, v in self.streams.items()})
+        return RunState(
+            self.root_seed,
+            {k: v.clone() for k, v in self.streams.items()},
+            list(self.windows),  # WindowStats is frozen
+        )

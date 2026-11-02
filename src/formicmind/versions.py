@@ -63,5 +63,7 @@ STREAM_DERIVATION_VERSION = "sha256-lenprefixed-v1"
 # Domain-separation prefixes for SHA-256 (see canonical.domain_hash).
 HASH_DOMAIN_CONFIG = "formicmind/config/v1"
 HASH_DOMAIN_STATE = "formicmind/state/v1"
-HASH_DOMAIN_CHECKPOINT = "formicmind/checkpoint/v1"
+# v2: the checkpoint now carries the per-side WindowStats (FOR-11); v1 checkpoints are rejected.
+HASH_DOMAIN_CHECKPOINT = "formicmind/checkpoint/v2"
+HASH_DOMAIN_EVENTS = "formicmind/events/v1"
 HASH_DOMAIN_RNG_STREAM = "formicmind/rng-stream/v1"
