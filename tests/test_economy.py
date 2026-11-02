@@ -28,7 +28,6 @@ from formicmind.tick import (
     ECONOMY_IMPLEMENTED_PHASES,
     ECONOMY_NOT_IMPLEMENTED_PHASES,
     PARTIAL_ECONOMY_PHASES,
-    IncompleteRulesError,
     TickMode,
     step_tick,
 )
@@ -53,11 +52,9 @@ def test_partial_economy_mode_fills_exactly_the_non_combat_non_terminal_phases()
     assert [r.phase for r in result.phases] == list(Phase)
 
 
-def test_a_tick_still_refuses_to_run_without_naming_a_development_mode():
+def test_the_two_development_modes_cannot_be_combined():
+    # FOR-13: a tick without flags is now the full match tick (see test_tick); the dev modes are exclusive.
     state, run, ctrl = new_run()
-    with pytest.raises(IncompleteRulesError) as info:
-        step_tick(state, run, ctrl)
-    assert "partial_economy" in str(info.value) and "Combat" in str(info.value)
     with pytest.raises(ValueError):
         step_tick(state, run, ctrl, movement_only=True, partial_economy=True)
     assert state.tick == 0

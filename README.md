@@ -10,10 +10,14 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
 * каркас тика и движение (FOR-11): оркестратор фаз, применение приказов, квоты рабочих, маршруты, прибытия,
   события, `WindowStats` в checkpoint v2 — [docs/tick_movement.md](docs/tick_movement.md).
 * экономика и расплод (FOR-12): Harvest, Upkeep/Starvation, Lay (партии яиц), Completion/Hatch, Regeneration,
-  food ledger, режим `PARTIAL (NO COMBAT/TERMINAL)` — [docs/economy.md](docs/economy.md). Боя, terminal-проверок,
-  runner, реплея и CLI пока нет.
+  food ledger — [docs/economy.md](docs/economy.md).
+* бой, терминальные условия и runner (FOR-13): одновременный Combat, урон солдатам/рабочим, защита и гибель матки,
+  экономический коллапс, таймаут, `EpisodeOutcome` в checkpoint v3, `run_episode` — [docs/combat_terminal.md](docs/combat_terminal.md).
+  `step_tick` без флагов исполняет все фазы; `movement_only`/`partial_economy` — неполные dev-режимы. Реплея JSONL, ML и
+  турниров нет.
 
-Smoke-прогон движения (90 тиков): `python -m formicmind.smoke`; экономики (120 тиков): `python -m formicmind.economy_smoke`.
+Smoke-прогоны: движения (90 тиков) `python -m formicmind.smoke`; экономики (120 тиков, PARTIAL) `python -m formicmind.economy_smoke`;
+**полные матчи** (4 сценария, функциональная проверка) `python -m formicmind.match_smoke`.
 
 ## Запуск тестов
 

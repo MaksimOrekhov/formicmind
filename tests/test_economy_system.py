@@ -305,7 +305,7 @@ def test_reset_hashes_are_untouched_by_the_economy_work():
     state, run = reset(default_config(), 20261102)
     assert config_hash(state.config) == "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d"
     assert state_hash(state) == "675116b1ac021868d41fd234ed9642c7bae5b59377daa239355913602555f3d3"
-    assert checkpoint_hash(state, run) == "5a122bd4993d878b10fc9798bd9c90016ec8e95a091644b945226ebc5eac525d"
+    assert checkpoint_hash(state, run) == "bd2418474f225b83a9c81ee067ba65a05d72b39b8b11731508a0ac92419bd0b9"
 
 
 def test_new_event_kinds_are_canonical_json_safe_and_sorted_per_tick():

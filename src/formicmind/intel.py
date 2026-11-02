@@ -11,9 +11,10 @@ counts stationed there (enemy units on edges are never visible). If the enemy ho
 is among the observed nodes, the enemy queen HP is stored too. Nothing else is read:
 no unobserved node, no enemy orders, brood, food or RNG.
 
-Called by the tick engine (a later PR) at the start of every tick before the policy
-snapshot (``PRE_POLICY``) and after Arrival, before Combat
-(``POST_ARRIVAL_PRE_COMBAT``). Both phases apply the same sensor rule; the phase
+Called by the tick engine at the start of every Policy tick before the policy
+snapshot (``PRE_POLICY``) and in every tick after Arrival, before Combat
+(``POST_ARRIVAL_PRE_COMBAT``). There is deliberately no post-Combat call (FOR-13): what Combat did becomes
+visible at the next sensor moment, so the record is never fresher than the sensor rule allows. Both phases apply the same sensor rule; the phase
 only documents the call site. A region whose last observer dies in Combat keeps its
 pre-combat record and ages, because no later call observes it.
 """

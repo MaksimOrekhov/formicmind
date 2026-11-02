@@ -12,8 +12,10 @@ Three hashes (all SHA-256, lowercase hex, domain-separated, see ``versions``):
 * ``state_hash``       - canonical ``SimState`` bytes (game model only; includes
   ``next_unit_id`` and the config hash, not the RNG);
 * ``checkpoint_hash``  - canonical ``{state, run}`` bytes: the state plus every RNG
-  stream state and both sides' ``WindowStats``, i.e. everything needed to resume a run.
-  Format v2 (FOR-11); v1 checkpoints (no windows) fail fast on the schema tag.
+  stream state, both sides' ``WindowStats`` and the episode ``outcome`` (``{"finished": false}`` while it runs),
+  i.e. everything needed to resume a run or to know that it is over.
+  Format v3 (FOR-13; v2 added the windows in FOR-11); v1/v2 checkpoints fail fast on the schema tag. On load
+  the outcome is cross-checked against the state (``terminal.validate_outcome``).
 """
 
 from __future__ import annotations
@@ -36,11 +38,12 @@ from .config import (
     SimConfig,
     Topology,
 )
-from .invariants import validate_config, validate_state
+from .invariants import InvariantError, validate_config, validate_state
 from .model import BroodRecord, ColonyState, IntelMemory, NodeIntel, SimState, Unit
 from .rng import Pcg32, check_stream_id
 from .runstate import RunState
 from .snapshot import WindowStats
+from .terminal import outcome_from_canonical, validate_outcome
 from .versions import (
     HASH_DOMAIN_CHECKPOINT,
     HASH_DOMAIN_CONFIG,
@@ -52,8 +55,8 @@ from .versions import (
 
 SCHEMA_CONFIG = "formicmind.sim_config/1"
 SCHEMA_STATE = "formicmind.sim_state/1"
-SCHEMA_RUN = "formicmind.run_state/2"
-SCHEMA_CHECKPOINT = "formicmind.checkpoint/2"
+SCHEMA_RUN = "formicmind.run_state/3"
+SCHEMA_CHECKPOINT = "formicmind.checkpoint/3"
 
 
 # --- strict readers ---------------------------------------------------------
@@ -335,12 +338,13 @@ def run_state_to_canonical(run: RunState) -> dict[str, Any]:
              "starvation_debt_delta": w.starvation_debt_delta, "window_ticks": w.window_ticks}
             for w in run.windows
         ],
+        "outcome": {"finished": False} if run.outcome is None else {"finished": True, **run.outcome.to_canonical()},
     }
 
 
 def run_state_from_canonical(data: Any) -> RunState:
     top = _obj(data, {"schema", "serialization_version", "rng_version",
-                      "stream_derivation_version", "root_seed", "streams", "windows"}, "run")
+                      "stream_derivation_version", "root_seed", "streams", "windows", "outcome"}, "run")
     _schema(top, SCHEMA_RUN)
     if top["rng_version"] != RNG_VERSION or top["stream_derivation_version"] != STREAM_DERIVATION_VERSION:
         raise CanonicalError("unsupported RNG / stream derivation version")
@@ -365,7 +369,14 @@ def run_state_from_canonical(data: Any) -> RunState:
         ]
     except (TypeError, ValueError) as exc:
         raise CanonicalError(f"bad window stats: {exc}") from exc
-    return RunState(root_seed=u64_from_str(top["root_seed"]), streams=streams, windows=windows)
+    raw = top["outcome"]
+    if type(raw) is dict and raw == {"finished": False}:  # no None in canonical data
+        outcome = None
+    elif type(raw) is dict and raw.get("finished") is True:
+        outcome = outcome_from_canonical({k: v for k, v in raw.items() if k != "finished"})
+    else:
+        raise CanonicalError("run.outcome: expected {'finished': false} or a finished outcome object")
+    return RunState(root_seed=u64_from_str(top["root_seed"]), streams=streams, windows=windows, outcome=outcome)
 
 
 def checkpoint_to_bytes(state: SimState, run: RunState) -> bytes:
@@ -380,7 +391,13 @@ def checkpoint_to_bytes(state: SimState, run: RunState) -> bytes:
 def checkpoint_from_bytes(data: bytes, config: SimConfig) -> tuple[SimState, RunState]:
     top = _obj(canonical_loads(data), {"schema", "serialization_version", "state", "run"}, "checkpoint")
     _schema(top, SCHEMA_CHECKPOINT)
-    return state_from_canonical(top["state"], config), run_state_from_canonical(top["run"])
+    state = state_from_canonical(top["state"], config)
+    run = run_state_from_canonical(top["run"])
+    try:
+        validate_outcome(state, run.outcome)
+    except InvariantError as exc:
+        raise CanonicalError(str(exc)) from exc
+    return state, run
 
 
 def checkpoint_hash(state: SimState, run: RunState) -> str:

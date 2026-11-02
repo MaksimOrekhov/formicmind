@@ -28,7 +28,7 @@ from formicmind.tick import (
     DEFAULT_PHASES,
     IMPLEMENTED_PHASES,
     NOT_IMPLEMENTED_PHASES,
-    IncompleteRulesError,
+    TickMode,
     PolicyController,
     ScriptedController,
     step_tick,
@@ -93,12 +93,19 @@ def test_phase_order_and_explicitly_unimplemented_phases():
     assert result.physics_complete is False and result.terminal is None
 
 
-def test_step_refuses_to_run_as_a_full_match_and_leaves_the_state_alone():
+def test_step_without_flags_is_the_full_match_tick_and_the_dev_modes_stay_incomplete():
+    # FOR-13: no flags -> every phase is implemented and physics is complete; the old modes are explicit
+    # development modes (no Combat/QueenTerminal/terminal check) and are never "complete".
     state, run, ctrl = new_run()
-    before = (state_hash(state), checkpoint_hash(state, run))
-    with pytest.raises(IncompleteRulesError):
-        step_tick(state, run, ctrl)
-    assert (state_hash(state), checkpoint_hash(state, run)) == before
+    result = step_tick(state, run, ctrl)
+    assert result.mode is TickMode.FULL and result.physics_complete is True
+    assert result.missing_phases == () and result.terminal is None and result.outcome is None
+    assert [r.phase for r in result.phases] == list(Phase) and all(r.implemented for r in result.phases)
+    assert state.tick == 1
+    for kw in ({"movement_only": True}, {"partial_economy": True}):
+        s2, r2, c2 = new_run()
+        dev = step_tick(s2, r2, c2, **kw)
+        assert dev.physics_complete is False and dev.mode is not TickMode.FULL
 
 
 def test_tick_boundary_state_tick_is_start_of_tick_and_events_carry_the_executed_tick():
@@ -256,7 +263,8 @@ def test_golden_hashes_after_routing_errata_r1_and_checkpoint_v2():
     # checkpoint format v2 (domain checkpoint/v2, schema /2, windows) changes the checkpoint hash.
     assert config_hash(state.config) == "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d"
     assert state_hash(state) == "675116b1ac021868d41fd234ed9642c7bae5b59377daa239355913602555f3d3"
-    assert checkpoint_hash(state, run) == "5a122bd4993d878b10fc9798bd9c90016ec8e95a091644b945226ebc5eac525d"
+    # FOR-13: checkpoint format v3 (schema /3, domain checkpoint/v3, outcome) changes the checkpoint hash only.
+    assert checkpoint_hash(state, run) == "bd2418474f225b83a9c81ee067ba65a05d72b39b8b11731508a0ac92419bd0b9"
 
 
 def test_state_and_config_from_the_previous_rules_version_are_rejected():
@@ -280,6 +288,7 @@ def test_contract_pins_record_routing_errata_r1():
     from formicmind.versions import CONTRACT_PINS, RULES_VERSION, BALANCE_VERSION, OBSERVATION_VERSION
     keys = [p.key for p in CONTRACT_PINS]
     assert "FOR-1-routing-errata-R1" in keys and "FOR-2-routing-errata-R1-sync" in keys
+    assert "FOR-1-FOR12-economy-decisions" in keys
     assert all(p.url.startswith("https://linear.app/") and p.updated_at.endswith("Z") for p in CONTRACT_PINS)
     assert RULES_VERSION == "l0-proto-FOR1-v0.2.2"
     # R1 touches neither balance nor the agent contract versions

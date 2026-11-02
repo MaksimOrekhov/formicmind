@@ -1,14 +1,16 @@
 # L0 экономика и расплод (FOR-12)
 
 Поверх движущегося мира (FOR-11) реализованы фазы `Completion → Harvest → Upkeep/Starvation → Lay → Regeneration`
-по FOR-1 v0.2.1 (+ errata A–G, R1). Режим исполнения тика — **`PARTIAL (NO COMBAT/TERMINAL)`**: боя, `QueenTerminal`
-и terminal-проверки (гибель матки, экономический коллапс, таймаут) **нет**, матч не заканчивается, `physics_complete`
-всегда `False`. Баланс остаётся кандидатским (`candidate-FOR1-v0.2.1-unvalidated`) и **не калибровался**; `Gate 0`/`Gate 1`
-не пройдены. Версии (`rules_version`, `balance_version`, observation/action) и золотые хэши `reset` не менялись.
+по FOR-1 v0.2.1 (+ errata A–G, R1). С FOR-13 эти фазы — часть полного тика (`step_tick` без флагов, см.
+[combat_terminal.md](combat_terminal.md)); режим **`PARTIAL (NO COMBAT/TERMINAL)`** (`partial_economy=True`) сохранён как
+явно неполный dev-режим: боя, `QueenTerminal` и terminal-проверки в нём нет, `physics_complete` всегда `False`. Баланс остаётся
+кандидатским (`candidate-FOR1-v0.2.1-unvalidated`) и **не калибровался**; `Gate 0`/`Gate 1` не пройдены. Версии
+(`rules_version`, `balance_version`, observation/action) и золотые хэши `reset` не менялись.
 
 ## Режимы тика
 
-Одна реализация тика, две явные таблицы фаз (`tick.PHASE_TABLES`). Без выбора режима `step_tick` бросает `IncompleteRulesError`.
+Одна реализация тика, три таблицы фаз (`tick.PHASE_TABLES`). Без флагов `step_tick` исполняет **все** фазы (`TickMode.FULL`,
+FOR-13); `IncompleteRulesError` удалён, неполные режимы выбираются только явно.
 
 | Режим | Вызов | Исполняется |
 |---|---|---|
@@ -99,8 +101,8 @@ python -m formicmind.economy_smoke
    несимметрично (для B «C» < «N4»). Требует подтверждения как расширение R1 на errata E.
 4. **Порядок `unit_id` между сторонами при одновременной кладке** (A, затем B) нельзя сделать зеркальным; ID значимы только внутри
    стороны, тесты симметрии сравнивают состояния без ID.
-5. **Без боя блокировка вечная:** два солдата противников в одном узле навсегда блокируют добычу и выход друг друга до
-   реализации Combat.
+5. **Блокировка без боя (только dev-режимы):** в `movement_only`/`partial_economy` два солдата противников в одном узле навсегда
+   блокируют добычу и выход друг друга. В полном тике (FOR-13) Combat убирает блокировку, как только вражеский солдат умирает.
 6. **Кладка при `queen_hp == 0`** запрещена; вылупление не проверяет матку (по спецификации эпизод уже завершён).
 
-Не входит: Combat/урон матке/terminal, коллапс и таймаут, runner/турниры, ML, JSONL, UI.
+Бой, терминальные условия и runner — в [combat_terminal.md](combat_terminal.md). Не входит: турниры, ML, JSONL, UI.

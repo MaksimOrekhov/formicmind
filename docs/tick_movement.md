@@ -2,8 +2,9 @@
 
 Реализован первый движущийся мир: **policy → приказы → движение → следующий тик**. Это описание режима
 `movement_only=True`; с FOR-12 тот же `step_tick` умеет `partial_economy=True` (экономика и расплод, см.
-[economy.md](economy.md)). Боя, terminal-проверок, JSONL replay и ML нет ни в одном режиме. Прогон `step_tick` — **не матч**:
-без указания режима функция бросает `IncompleteRulesError`, а `TickResult.physics_complete` всегда `False`.
+[economy.md](economy.md)). С FOR-13 `step_tick` без флагов исполняет все фазы и возвращает `physics_complete=True` (бой,
+QueenTerminal и terminal-проверки — [combat_terminal.md](combat_terminal.md)); оба описанных здесь режима остались
+**неполными dev-режимами** (`physics_complete=False`, не матч).
 
 ## Фазы и граница тика
 
@@ -17,11 +18,12 @@ Upkeep → Lay → Regeneration → AutomaticDepart → Terminal/Log` (`events.P
 | AutomaticDepart | реализована |
 | Terminal/Log | только учёт `window_ticks`; terminal-проверки нет |
 | Completion, Harvest, Upkeep, Lay, Regeneration | в `movement_only` — заглушки (`implemented=False`); реализованы в `partial_economy` (FOR-12) |
-| Combat, QueenTerminal | **не реализованы ни в одном режиме**, помечены `implemented=False` |
+| Combat, QueenTerminal | в `movement_only`/`partial_economy` не реализованы (`implemented=False`); реализованы в полном тике (FOR-13) |
 
 **Граница:** `step_tick` получает состояние *в начале тика t* (`state.tick == t`, до `PRE_POLICY`), исполняет тик `t`
-и оставляет `state.tick == t + 1`. Если фаза сообщит terminal (пока ни одна не может), остальные фазы тика не
-исполняются, `state.tick` **не** увеличивается, `TickResult.terminal` содержит причину (тест с подставной фазой).
+и оставляет `state.tick == t + 1` (`state.tick` считает **завершённые** тики). Если фаза сообщит terminal до Terminal/Log
+(в полном тике — QueenTerminal), остальные фазы тика не исполняются, `state.tick` **не** увеличивается,
+`TickResult.terminal` содержит причину; завершение в Terminal/Log (коллапс, таймаут) — полный тик, `state.tick == t + 1`.
 
 ## Policy-тик
 
@@ -58,8 +60,9 @@ mirror(route_A(u, v))` для всех `(side, src, dst, avoid)`; расстоя
 `avoid_center` запрещает C как промежуточный/конечный узел, но не как текущий (D1b).
 
 **Блокировка:** юнит в узле со стоящим вражеским солдатом не уходит (свои солдаты и вражеские рабочие не мешают);
-доступность считается по состоянию до диспетчеризации для обеих сторон одновременно. Боя нет, поэтому две
-встретившиеся армии остаются заблокированными навсегда — известное ограничение скелета.
+доступность считается по состоянию до диспетчеризации для обеих сторон одновременно. В dev-режимах боя нет, поэтому две
+встретившиеся армии остаются заблокированными навсегда; в полном тике Combat идёт до AutomaticDepart, и выжившие
+освобождаются в тот же тик, когда погиб последний вражеский солдат узла.
 
 ## События
 
@@ -73,8 +76,9 @@ mirror(route_A(u, v))` для всех `(side, src, dst, avoid)`; расстоя
 Единственный источник истины — `RunState.windows` (по стороне). Движок передаёт их в снимок; `window_ticks`
 растёт в Terminal/Log каждого тика и обнуляется после построения наблюдений на policy-тике (в t=30 наблюдение
 содержит `window_ticks = 30`, `own_global[17] = 1`). Будущие `harvest/upkeep_paid/egg_spend/debt_delta`
-будут писать туда же. Формат **checkpoint v2**: схемы `formicmind.run_state/2` и `formicmind.checkpoint/2`,
-домен хэша `formicmind/checkpoint/v2`; v1 отвергается по тегу схемы. `state_hash` и `config_hash` не изменились.
+будут писать туда же. Формат **checkpoint v2** (FOR-11) добавил окна; с FOR-13 — **v3** (схемы `formicmind.run_state/3`,
+`formicmind.checkpoint/3`, домен `formicmind/checkpoint/v3`, поле `outcome`); v1/v2 отвергаются по тегу схемы.
+`state_hash` и `config_hash` не менялись.
 Дефолтные нули в `begin_policy_phase(state, windows=None)` остались только для фикстур; живой путь их не использует.
 
 ## F2
