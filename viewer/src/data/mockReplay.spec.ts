@@ -12,17 +12,17 @@ describe('MockReplayDataSource', () => {
   })
 
   it('filters recorded events by category and side without inventing events', () => {
-    expect(mockReplay.getEvents({ category: 'combat' }).map((event) => event.kind)).toEqual(['queen_damage', 'combat', 'death'])
+    expect(mockReplay.getEvents({ category: 'combat' }).map((event) => event.kind)).toEqual(['death', 'combat', 'queen_damage'])
     expect(mockReplay.getEvents({ side: 'B' }).every((event) => event.side === 'B')).toBe(true)
-    expect(mockReplay.getEvents({ category: 'economy', side: 'A' }).map((event) => event.kind)).toEqual(['upkeep', 'lay'])
+    expect(mockReplay.getEvents({ category: 'economy', side: 'A' }).map((event) => event.kind)).toEqual(['lay', 'upkeep'])
   })
 
   it('keeps a mid-tick terminal tick separate from its presentation cursor', () => {
     expect(mockReplay.getCursorForTick(7)).toBe(7)
     expect(mockReplay.getCursorForTick(8)).toBeUndefined()
     expect(mockReplay.getMetadata().terminal).toMatchObject({ cursor: 8, terminalTick: 7, stateTick: 7, tickCompleted: false, stage: 'combat' })
-    expect(mockReplay.getFrame(7).state).toEqual({ tick: 7, tickCompleted: true })
-    expect(mockReplay.getFrame(8).state).toEqual({ tick: 7, tickCompleted: false })
+    expect(mockReplay.getFrame(7).state).toEqual({ tick: 7, tickCompleted: true, boundary: 'start' })
+    expect(mockReplay.getFrame(8).state).toEqual({ tick: 7, tickCompleted: false, boundary: 'terminal' })
     expect(mockReplay.getCursorForTick(99)).toBeUndefined()
   })
 })

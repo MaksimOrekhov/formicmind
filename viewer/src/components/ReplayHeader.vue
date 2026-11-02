@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { ReplayMetadata } from '../domain/replay'
 
-defineProps<{ metadata: ReplayMetadata; currentCursor: number }>()
+defineProps<{ metadata: ReplayMetadata; currentCursor: number; isLoading: boolean; isDemo: boolean }>()
+const emit = defineEmits<{ openReplay: []; returnDemo: [] }>()
 </script>
 
 <template>
@@ -14,13 +15,15 @@ defineProps<{ metadata: ReplayMetadata; currentCursor: number }>()
     </a>
     <div class="topbar-meta">
       <span class="recording-dot"></span>
-      <span class="topbar-id">{{ metadata.id }}</span>
+      <span class="topbar-id">{{ metadata.fileName ?? metadata.id }}</span>
       <span class="topbar-divider"></span>
-      <span class="topbar-date">{{ metadata.recordedAt }}</span>
+      <span class="topbar-date">{{ metadata.seedLabel }}</span>
     </div>
     <div class="topbar-right">
-      <span class="demo-chip"><span class="demo-chip-dot"></span>{{ metadata.sourceLabel }}</span>
+      <span class="demo-chip" :class="{ 'replay-chip': !isDemo }"><span class="demo-chip-dot"></span>{{ metadata.sourceLabel }}</span>
       <span class="cursor-chip" :aria-label="`Кадр ${String(currentCursor).padStart(2, '0')}`">КАДР {{ String(currentCursor).padStart(2, '0') }}</span>
+      <button class="open-replay-button" :disabled="isLoading" @click="emit('openReplay')">{{ isLoading ? 'ПРОВЕРКА…' : 'ОТКРЫТЬ REPLAY' }}</button>
+      <button v-if="!isDemo" class="return-demo-button" :disabled="isLoading" @click="emit('returnDemo')">ДЕМО</button>
     </div>
   </header>
 </template>

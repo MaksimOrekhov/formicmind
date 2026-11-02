@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { NODE_LAYOUT, WORLD_EDGES, type NodeView, type TimelineFrame } from '../domain/replay'
+import { NODE_LAYOUT, type NodeView, type ReplayMetadata, type TimelineFrame } from '../domain/replay'
 
-const props = defineProps<{ frame: TimelineFrame; selectedNodeId: number | null }>()
+const props = defineProps<{ frame: TimelineFrame; world: ReplayMetadata['world']; sourceKind: ReplayMetadata['sourceKind']; selectedNodeId: number | null }>()
 const emit = defineEmits<{ selectNode: [nodeId: number] }>()
 
 const positions = new Map<number, (typeof NODE_LAYOUT)[number]>(NODE_LAYOUT.map((node) => [node.id, node]))
 const nodeById = computed(() => new Map(props.frame.nodes.map((node) => [node.id, node])))
+const mapNodes = computed(() => props.world.nodes.map((node) => ({ ...positions.get(node.id)!, ...node })))
 const transitMarkers = computed(() => props.frame.transits.map((group) => {
   const from = positions.get(group.from)!
   const to = positions.get(group.to)!
@@ -35,7 +36,7 @@ function keySelect(event: KeyboardEvent, nodeId: number) {
         <span class="legend-item"><i class="legend-dot side-b-bg"></i>КОЛОНИЯ B</span>
         <span class="legend-item"><i class="legend-line"></i>ДЛИНА РЕБРА</span>
       </div>
-      <span class="map-dimensions">7 УЗЛОВ <b>·</b> 9 СВЯЗЕЙ</span>
+      <span class="map-dimensions">{{ world.nodes.length }} УЗЛОВ <b>·</b> {{ world.edges.length }} СВЯЗЕЙ</span>
     </div>
     <svg class="world-map" viewBox="0 0 1112 550" role="img" aria-labelledby="map-title map-desc">
       <title id="map-title">Карта мира из семи узлов</title>
@@ -56,7 +57,7 @@ function keySelect(event: KeyboardEvent, nodeId: number) {
       <rect width="1112" height="550" fill="url(#map-grid)" />
       <ellipse cx="556" cy="285" rx="470" ry="250" fill="url(#map-wash)" />
       <g class="map-edge-layer">
-        <g v-for="edge in WORLD_EDGES" :key="`${edge.a}-${edge.b}`" class="map-edge">
+        <g v-for="edge in world.edges" :key="`${edge.a}-${edge.b}`" class="map-edge">
           <line :x1="positions.get(edge.a)!.x" :y1="positions.get(edge.a)!.y" :x2="positions.get(edge.b)!.x" :y2="positions.get(edge.b)!.y" />
           <g class="edge-length" :transform="`translate(${(positions.get(edge.a)!.x + positions.get(edge.b)!.x) / 2} ${(positions.get(edge.a)!.y + positions.get(edge.b)!.y) / 2})`">
             <rect x="-16" y="-11" width="32" height="22" rx="7" />
@@ -64,7 +65,7 @@ function keySelect(event: KeyboardEvent, nodeId: number) {
           </g>
         </g>
       </g>
-      <g v-for="node in NODE_LAYOUT" :key="node.id" class="map-node" :class="[`node-${node.isHome?.toLowerCase() ?? 'resource'}`, { selected: selectedNodeId === node.id, contact: nodeById.get(node.id)?.alert === 'contact' }]" :transform="`translate(${node.x} ${node.y})`" role="button" tabindex="0" :aria-label="`Узел ${node.name}, еда ${nodeById.get(node.id)?.food ?? 0} из ${nodeById.get(node.id)?.capacity ?? 0}. Открыть инспектор`" :aria-pressed="selectedNodeId === node.id" @click="emit('selectNode', node.id)" @keydown="keySelect($event, node.id)">
+      <g v-for="node in mapNodes" :key="node.id" class="map-node" :class="[`node-${node.isHome?.toLowerCase() ?? 'resource'}`, { selected: selectedNodeId === node.id, contact: nodeById.get(node.id)?.alert === 'contact' }]" :transform="`translate(${node.x} ${node.y})`" role="button" tabindex="0" :aria-label="`Узел ${node.name}, еда ${nodeById.get(node.id)?.food ?? 0} из ${nodeById.get(node.id)?.capacity ?? 0}. Открыть инспектор`" :aria-pressed="selectedNodeId === node.id" @click="emit('selectNode', node.id)" @keydown="keySelect($event, node.id)">
         <rect class="node-card" x="-72" y="-53" width="144" height="106" rx="15" />
         <circle class="node-halo" cx="-54" cy="-35" r="5" />
         <text class="node-overline" x="-42" y="-31">{{ node.isHome ? `ДОМ · КОЛОНИЯ ${node.name}` : 'КОРМОВЫЙ УЗЕЛ' }}</text>
@@ -84,6 +85,6 @@ function keySelect(event: KeyboardEvent, nodeId: number) {
         <g transform="translate(17 -27)"><rect width="48" height="20" rx="7" /><text x="24" y="13" text-anchor="middle">{{ group.count }} · {{ group.etaTicks }}т</text></g>
       </g>
     </svg>
-    <div class="map-footnote"><span class="footnote-key">i</span><span>Координаты и транзит — значения демонстрационных кадров. Схема рёбер соответствует L0.</span><span class="map-north">N <i>↑</i></span></div>
+    <div class="map-footnote"><span class="footnote-key">i</span><span>{{ sourceKind === 'demo' ? 'Демонстрационные данные · транзит показан условным маркером на середине ребра.' : 'Координаты — схема L0; положение в транзите условное, ETA рассчитано по Replay кадру.' }}</span><span class="map-north">N <i>↑</i></span></div>
   </div>
 </template>
