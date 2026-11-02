@@ -7,7 +7,11 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
 * граница агента (FOR-10): ObservationV2 (223 float32), ActionMaskV2 (30 bool), приватная разведка,
   общий decoder 17 logits → ActionV2, policy-интерфейс — [docs/agent_boundary.md](docs/agent_boundary.md).
 
-Тика, движения, экономики, боя, runner, реплея и CLI пока нет.
+* каркас тика и движение (FOR-11): оркестратор фаз, применение приказов, квоты рабочих, маршруты, прибытия,
+  события, `WindowStats` в checkpoint v2 — [docs/tick_movement.md](docs/tick_movement.md). Только движение:
+  экономики, боя, кладки, runner, реплея и CLI пока нет.
+
+Smoke-прогон движения (90 тиков): `python -m formicmind.smoke`.
 
 ## Запуск тестов
 

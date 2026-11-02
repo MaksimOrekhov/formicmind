@@ -19,11 +19,25 @@ Representation choices (engineering choices, not FOR-1 decisions):
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 
 from .config import SimConfig
 
 NOWHERE = -1
+
+
+def _assign_fields(dst: object, src: object) -> None:
+    for f in fields(dst):  # type: ignore[arg-type]
+        setattr(dst, f.name, getattr(src, f.name))
+
+
+def _restore_records(dst: list, src: list, key: str) -> None:
+    """In-place copy of a record list; keeps object identity when the ids line up."""
+    if [getattr(r, key) for r in dst] == [getattr(r, key) for r in src]:
+        for mine, theirs in zip(dst, src):
+            _assign_fields(mine, theirs)
+    else:
+        dst[:] = [r.clone() for r in src]
 
 
 @dataclass(slots=True)
@@ -99,6 +113,18 @@ class ColonyState:
     brood: list[BroodRecord]  # sorted by unit_id
     intel: IntelMemory
 
+    def restore_from(self, other: "ColonyState") -> None:
+        for name in ("side", "food", "queen_hp", "next_lay_tick", "upkeep_remainder10",
+                     "starvation_debt", "lay_order", "army_choice", "avoid_center"):
+            setattr(self, name, getattr(other, name))
+        self.forage_q[:] = other.forage_q
+        _restore_records(self.units, other.units, "unit_id")
+        _restore_records(self.brood, other.brood, "unit_id")
+        for mine, theirs in zip(self.intel.nodes, other.intel.nodes):
+            _assign_fields(mine, theirs)
+        self.intel.enemy_queen_hp_last = other.intel.enemy_queen_hp_last
+        self.intel.enemy_queen_seen_tick = other.intel.enemy_queen_seen_tick
+
     def clone(self) -> "ColonyState":
         return ColonyState(
             side=self.side,
@@ -129,6 +155,19 @@ class SimState:
         unit_id = self.next_unit_id
         self.next_unit_id += 1
         return unit_id
+
+    def restore_from(self, other: "SimState") -> None:
+        """Overwrite this state in place with ``other`` (rollback of a failed phase).
+
+        Objects held by callers (colonies, units, intel entries) keep their identity when
+        the shape is unchanged, which holds for every phase that can fail today.
+        """
+        self.config = other.config
+        self.tick = other.tick
+        self.next_unit_id = other.next_unit_id
+        self.node_food[:] = other.node_food
+        for mine, theirs in zip(self.colonies, other.colonies):
+            mine.restore_from(theirs)
 
     def clone(self) -> "SimState":
         return SimState(

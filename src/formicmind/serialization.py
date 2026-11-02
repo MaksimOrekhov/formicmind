@@ -12,7 +12,8 @@ Three hashes (all SHA-256, lowercase hex, domain-separated, see ``versions``):
 * ``state_hash``       - canonical ``SimState`` bytes (game model only; includes
   ``next_unit_id`` and the config hash, not the RNG);
 * ``checkpoint_hash``  - canonical ``{state, run}`` bytes: the state plus every RNG
-  stream state, i.e. everything needed to resume a run.
+  stream state and both sides' ``WindowStats``, i.e. everything needed to resume a run.
+  Format v2 (FOR-11); v1 checkpoints (no windows) fail fast on the schema tag.
 """
 
 from __future__ import annotations
@@ -39,6 +40,7 @@ from .invariants import validate_config, validate_state
 from .model import BroodRecord, ColonyState, IntelMemory, NodeIntel, SimState, Unit
 from .rng import Pcg32, check_stream_id
 from .runstate import RunState
+from .snapshot import WindowStats
 from .versions import (
     HASH_DOMAIN_CHECKPOINT,
     HASH_DOMAIN_CONFIG,
@@ -50,8 +52,8 @@ from .versions import (
 
 SCHEMA_CONFIG = "formicmind.sim_config/1"
 SCHEMA_STATE = "formicmind.sim_state/1"
-SCHEMA_RUN = "formicmind.run_state/1"
-SCHEMA_CHECKPOINT = "formicmind.checkpoint/1"
+SCHEMA_RUN = "formicmind.run_state/2"
+SCHEMA_CHECKPOINT = "formicmind.checkpoint/2"
 
 
 # --- strict readers ---------------------------------------------------------
@@ -328,12 +330,17 @@ def run_state_to_canonical(run: RunState) -> dict[str, Any]:
         "stream_derivation_version": STREAM_DERIVATION_VERSION,
         "root_seed": u64_to_str(run.root_seed),
         "streams": {sid: stream.to_canonical() for sid, stream in run.streams.items()},
+        "windows": [
+            {"harvest": w.harvest, "upkeep_paid": w.upkeep_paid, "egg_spend": w.egg_spend,
+             "starvation_debt_delta": w.starvation_debt_delta, "window_ticks": w.window_ticks}
+            for w in run.windows
+        ],
     }
 
 
 def run_state_from_canonical(data: Any) -> RunState:
     top = _obj(data, {"schema", "serialization_version", "rng_version",
-                      "stream_derivation_version", "root_seed", "streams"}, "run")
+                      "stream_derivation_version", "root_seed", "streams", "windows"}, "run")
     _schema(top, SCHEMA_RUN)
     if top["rng_version"] != RNG_VERSION or top["stream_derivation_version"] != STREAM_DERIVATION_VERSION:
         raise CanonicalError("unsupported RNG / stream derivation version")
@@ -347,7 +354,18 @@ def run_state_from_canonical(data: Any) -> RunState:
         except ValueError as exc:
             raise CanonicalError(str(exc)) from exc
         streams[sid] = Pcg32.from_canonical(streams_raw[sid])
-    return RunState(root_seed=u64_from_str(top["root_seed"]), streams=streams)
+    windows_raw = _list(top, "windows", "run")
+    if len(windows_raw) != 2:
+        raise CanonicalError("run.windows must hold one entry per side")
+    keys = {"harvest", "upkeep_paid", "egg_spend", "starvation_debt_delta", "window_ticks"}
+    try:
+        windows = [
+            WindowStats(**{k: _int(w, k, "window") for k in keys})
+            for w in (_obj(x, keys, "window") for x in windows_raw)
+        ]
+    except (TypeError, ValueError) as exc:
+        raise CanonicalError(f"bad window stats: {exc}") from exc
+    return RunState(root_seed=u64_from_str(top["root_seed"]), streams=streams, windows=windows)
 
 
 def checkpoint_to_bytes(state: SimState, run: RunState) -> bytes:

@@ -131,9 +131,20 @@ def quantize_shares(weights: Sequence[float | int | Decimal], total: int = Q_TOT
 
 
 def encode_float_shares(weights: Sequence[float]) -> tuple[int, ...]:
-    """Common encoder for strategies that produce float shares (FOR-2 section 4.1)."""
+    """Common encoder for strategies that produce float shares (FOR-2 section 4.1).
+
+    Fails fast (``PolicyOutputError``) on more than 3 positive weights; use
+    ``quantize_shares`` for generic quantization without the action-support contract.
+    """
     if len(weights) != FORAGE_CATEGORIES:
         raise PolicyOutputError("expected 6 share weights")
+    positive = sum(1 for w in weights if type(w) in (int, float, Decimal) and w > 0)
+    if positive > FORAGE_SUPPORT_MAX:
+        # ActionV2 allows at most 3 positive shares; silently dropping or merging weights
+        # would be a hidden redistribution, so the caller must select its support first.
+        raise PolicyOutputError(
+            f"{positive} positive share weights exceed forage_support_max={FORAGE_SUPPORT_MAX}"
+        )
     return quantize_shares(list(weights))
 
 

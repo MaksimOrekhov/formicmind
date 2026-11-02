@@ -304,3 +304,22 @@ def test_decoding_is_deterministic_and_side_independent():
     first = decode_action_logits(logits, mask0)
     assert first == decode_action_logits(logits, mask0) == decode_action_logits(logits, mask1)
     assert math.isfinite(sum(first.forage_share_q))
+
+
+# --- F2: the float-share encoder must not produce more than 3 positive shares -----------------------
+
+@pytest.mark.parametrize("positives", [4, 5, 6])
+def test_encode_float_shares_fails_fast_on_more_than_three_positive_weights(positives):
+    weights = [1.0] * positives + [0.0] * (6 - positives)
+    with pytest.raises(PolicyOutputError):
+        encode_float_shares(weights)
+    with pytest.raises(PolicyOutputError):
+        encode_float_shares([Decimal(1)] * positives + [Decimal(0)] * (6 - positives))
+
+
+def test_encode_float_shares_accepts_up_to_three_positive_weights_and_zero_weights_do_not_count():
+    assert encode_float_shares([1, 1, 1, 0, 0, 0]) == (21845, 21845, 21845, 0, 0, 0)
+    assert encode_float_shares([0, 0.0, 0, 5, 0, 0]) == (0, 0, 0, 65535, 0, 0)
+    assert encode_float_shares([1e-300, 0, 1, 0, 0, 1e-20])[2] == 65535       # tiny but positive: 3 allowed
+    # the generic quantizer is unchanged and still accepts any support; only the encoder guards ActionV2
+    assert sum(quantize_shares([1, 1, 1, 1, 1, 1])) == 65535
