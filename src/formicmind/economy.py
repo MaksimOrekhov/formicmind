@@ -9,7 +9,8 @@ could depend on that order (the contested split, the food ledger) is computed sy
 Decisions that are interpretations of the specification (also listed in ``docs/economy.md``):
 
 * **Contested harvest (errata B, C).** A side claims ``min(workers stationed at the node,
-  max_harvest)``. A side whose node holds a stationed enemy soldier (own soldiers do not help)
+  max_harvest)``; ``max_harvest`` is a limit *per colony* (FOR-1 section 3: "Максимальный сбор одной
+  колонией"), not a node-wide cap, so two colonies can take 2 * max_harvest from a rich node. A side whose node holds a stationed enemy soldier (own soldiers do not help)
   claims nothing. If both claims fit the stock both are paid in full; otherwise the stock is
   split as ``floor(stock * claim_i / total)`` and the (at most one) leftover unit goes to the side
   with the strictly larger fractional part, and **stays in the node** on an exact tie.

@@ -154,6 +154,65 @@ def test_harvest_never_exceeds_the_physical_stock():
     assert e.harvested == 0 and state.colonies[0].food == 65
 
 
+# --- max_harvest is a per-colony limit (FOR-1 section 3 table and 3.1, errata C) ------------------------------
+
+def _stand_at_n1(state, a_workers, b_workers):
+    """Workers of both sides standing in N1 with N1 as their target (no policy tick, nobody leaves)."""
+    for side, count, first in ((0, a_workers, 1), (1, b_workers, 17)):
+        for i in range(count):
+            unit = unit_of(state, side, first + i)
+            place(unit, N1)
+            unit.target_node = N1
+
+
+def test_max_harvest_is_per_colony_so_two_colonies_with_8_workers_each_take_16_from_a_rich_node():
+    # FOR-1 section 3 table: "Максимальный сбор одной колонией (при отсутствии конкуренции)" = 8 for N1;
+    # section 3.1: demand(node, w) = min(w, 8) for "w живых рабочих стороны на узле"; errata C: with
+    # stock >= total demand "обе стороны получают весь свой спрос". The cap is not a node-wide cap.
+    state, run, ctrl = new_run()
+    state.tick = 1                                                    # not a policy tick
+    _stand_at_n1(state, 8, 8)
+    assert state.node_food[N1] == 60
+    events = tick(state, run, ctrl)                                   # full tick incl. ledger check
+    harvests = [e for e in of_kind(events, "harvest") if e.node == N1]
+    assert [(e.side, e.workers, e.demand, e.claim, e.harvested) for e in harvests] == [
+        (0, 8, 8, 8, 8), (1, 8, 8, 8, 8)]
+    assert all((e.stock_before, e.stock_after) == (60, 44) for e in harvests)   # 16 left the node in total
+    assert [c.food for c in state.colonies] == [60 + 8 - 8, 60 + 8 - 8]        # +8 harvest, -8 upkeep
+    assert state.node_food[N1] == 44 + 8                                       # then regeneration
+    assert [w.harvest for w in run.windows] == [8, 8]
+
+
+def test_the_per_colony_cap_applies_before_the_competition():
+    state, run, ctrl = new_run()
+    state.tick = 1
+    _stand_at_n1(state, 12, 8)                                        # A has 12 workers, the cap is still 8
+    events = tick(state, run, ctrl)
+    assert [(e.workers, e.demand, e.harvested) for e in of_kind(events, "harvest") if e.node == N1] == [
+        (12, 8, 8), (8, 8, 8)]
+    # scarce stock 12: claims are 8 and 8 (not 12 and 8) -> 6 each, nothing left over
+    state2, run2, ctrl2 = new_run()
+    state2.tick = 1
+    _stand_at_n1(state2, 12, 8)
+    state2.node_food[N1] = 12
+    events2 = tick(state2, run2, ctrl2)
+    assert [(e.claim, e.harvested) for e in of_kind(events2, "harvest") if e.node == N1] == [(8, 6), (8, 6)]
+
+
+def test_three_to_one_at_a_rich_and_at_a_scarce_node_with_the_per_colony_cap():
+    state, run, ctrl = new_run()
+    state.tick = 1
+    _stand_at_n1(state, 3, 1)
+    events = tick(state, run, ctrl)
+    assert [e.harvested for e in of_kind(events, "harvest") if e.node == N1] == [3, 1]   # rich: full demand
+    state2, run2, ctrl2 = new_run()
+    state2.tick = 1
+    _stand_at_n1(state2, 3, 1)
+    state2.node_food[N1] = 3
+    events2 = tick(state2, run2, ctrl2)
+    assert [e.harvested for e in of_kind(events2, "harvest") if e.node == N1] == [2, 1]  # scarce: errata C
+
+
 # --- contested split (errata C) --------------------------------------------------------------------------
 
 @pytest.mark.parametrize("stock, claims, expected", [
