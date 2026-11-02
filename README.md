@@ -8,10 +8,12 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
   общий decoder 17 logits → ActionV2, policy-интерфейс — [docs/agent_boundary.md](docs/agent_boundary.md).
 
 * каркас тика и движение (FOR-11): оркестратор фаз, применение приказов, квоты рабочих, маршруты, прибытия,
-  события, `WindowStats` в checkpoint v2 — [docs/tick_movement.md](docs/tick_movement.md). Только движение:
-  экономики, боя, кладки, runner, реплея и CLI пока нет.
+  события, `WindowStats` в checkpoint v2 — [docs/tick_movement.md](docs/tick_movement.md).
+* экономика и расплод (FOR-12): Harvest, Upkeep/Starvation, Lay (партии яиц), Completion/Hatch, Regeneration,
+  food ledger, режим `PARTIAL (NO COMBAT/TERMINAL)` — [docs/economy.md](docs/economy.md). Боя, terminal-проверок,
+  runner, реплея и CLI пока нет.
 
-Smoke-прогон движения (90 тиков): `python -m formicmind.smoke`.
+Smoke-прогон движения (90 тиков): `python -m formicmind.smoke`; экономики (120 тиков): `python -m formicmind.economy_smoke`.
 
 ## Запуск тестов
 

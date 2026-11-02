@@ -1,4 +1,4 @@
-"""FormicMind L0 headless simulator: foundation (FOR-9), agent boundary (FOR-10), tick skeleton and movement (FOR-11)."""
+"""FormicMind L0 headless simulator: foundation (FOR-9), agent boundary (FOR-10), tick skeleton and movement (FOR-11), economy and brood (FOR-12)."""
 
 from .actions import (
     ActionMaskV2,
@@ -22,7 +22,7 @@ from .events import Event, Phase, events_hash
 from .orders import apply_joint_orders, worker_quotas
 from .routing import next_hop, shortest_path
 from .snapshot import PolicySnapshot, WindowStats, begin_policy_phase, freeze_policy_snapshot
-from .tick import PolicyController, ScriptedController, TickResult, step_tick
+from .tick import PolicyController, ScriptedController, TickMode, TickResult, step_tick
 from .serialization import (
     checkpoint_from_bytes,
     checkpoint_hash,
@@ -53,6 +53,7 @@ __all__ = [
     "SimConfig",
     "ScriptedController",
     "SimState",
+    "TickMode",
     "TickResult",
     "ValidatedActionV2",
     "WindowStats",

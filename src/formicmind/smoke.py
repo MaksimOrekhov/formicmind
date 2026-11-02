@@ -7,7 +7,8 @@ Scripted scenario (side B keeps the reset orders: all workers home, garrison):
         current node, so they may leave through it (audit D1b).
 * t=60  A repeats the same orders.
 
-There is no combat, economy or hatching: the raiding soldiers reach B and stand there next
+There is no combat, economy or hatching in this movement-only mode (the economy smoke is
+``formicmind.economy_smoke``): the raiding soldiers reach B and stand there next
 to B's own soldiers; each side's soldiers keep the other's units blocked, which is only an
 artifact of combat not being implemented. Run it with ``python -m formicmind.smoke``.
 """

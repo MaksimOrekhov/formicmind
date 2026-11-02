@@ -1,8 +1,9 @@
 # L0 tick skeleton и движение (FOR-11)
 
-Реализован первый движущийся мир: **policy → приказы → движение → следующий тик**. Экономики, боя,
-кладки, регенерации, terminal-проверок, JSONL replay и ML здесь нет. Прогон `step_tick` — **не матч**:
-без `movement_only=True` функция бросает `IncompleteRulesError`, а `TickResult.physics_complete` всегда `False`.
+Реализован первый движущийся мир: **policy → приказы → движение → следующий тик**. Это описание режима
+`movement_only=True`; с FOR-12 тот же `step_tick` умеет `partial_economy=True` (экономика и расплод, см.
+[economy.md](economy.md)). Боя, terminal-проверок, JSONL replay и ML нет ни в одном режиме. Прогон `step_tick` — **не матч**:
+без указания режима функция бросает `IncompleteRulesError`, а `TickResult.physics_complete` всегда `False`.
 
 ## Фазы и граница тика
 
@@ -15,7 +16,8 @@ Upkeep → Lay → Regeneration → AutomaticDepart → Terminal/Log` (`events.P
 | Arrival (+ сенсор `POST_ARRIVAL_PRE_COMBAT`) | реализована |
 | AutomaticDepart | реализована |
 | Terminal/Log | только учёт `window_ticks`; terminal-проверки нет |
-| Completion, Combat, QueenTerminal, Harvest, Upkeep, Lay, Regeneration | **не реализованы**, ничего не делают, помечены `implemented=False` в `TickResult.phases` |
+| Completion, Harvest, Upkeep, Lay, Regeneration | в `movement_only` — заглушки (`implemented=False`); реализованы в `partial_economy` (FOR-12) |
+| Combat, QueenTerminal | **не реализованы ни в одном режиме**, помечены `implemented=False` |
 
 **Граница:** `step_tick` получает состояние *в начале тика t* (`state.tick == t`, до `PRE_POLICY`), исполняет тик `t`
 и оставляет `state.tick == t + 1`. Если фаза сообщит terminal (пока ни одна не может), остальные фазы тика не
