@@ -29,7 +29,7 @@ EXPECTED_POSITIONS = (
 )
 # Regression hashes of this exact scenario (produced by this implementation).
 EXPECTED_EVENTS_HASH = "ad06d68fb3b116727cfc4340ac30782061fcddb4e75b3dae128c77354813477a"
-EXPECTED_STATE_HASH = "2ea1a467b6eef95de59aaf0c413131816ecab6bce2936169fedbf1d6c5feb457"
+EXPECTED_STATE_HASH = "17e7e19e339a6a74c567ee6bcb935add397b9f4c3fb299da6c37b25a416bdc3a"
 
 
 def test_smoke_prints_ten_readable_movement_events_and_final_positions():

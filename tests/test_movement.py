@@ -251,3 +251,55 @@ def test_arrive_and_dispatch_primitives_validate_the_state():
         arrive_units(state)
     state = fresh_state(5)
     assert arrive_units(state) == [] and dispatch_available(state, Phase.AUTOMATIC_DEPART) == []
+
+
+# --- routing errata R1: identical local situations behave identically on both seats ------------------
+
+def test_identical_local_scripts_give_mirrored_event_traces_including_equal_cost_ties():
+    """Both sides run the same own-frame orders; B's whole trace must be A's mirrored.
+
+    Workers go to local N1 and then to local N2: N1 -> N2 is an equal-cost tie (via home or
+    via C). Under R1 each side routes through *its own home* (A through A, B through B); the old
+    world-id rule sent B through C instead.
+    """
+    script = {0: act(forage_share_q=(0, Q, 0, 0, 0, 0), army_choice=1),
+              30: act(forage_share_q=(0, 0, Q, 0, 0, 0), army_choice=2)}
+    state, run, ctrl = new_run(script, script)
+    events = advance(state, run, ctrl, 70)
+
+    def trace(side, offset):
+        return [(e.kind, e.tick, e.phase, e.unit_id - offset, e.caste,
+                 getattr(e, "from_node", None), getattr(e, "to_node", None),
+                 getattr(e, "node", None), getattr(e, "arrival_tick", None),
+                 getattr(e, "target_node", None))
+                for e in events if e.kind in ("depart", "arrive", "retarget") and e.side == side]
+
+    def mirror_row(row):
+        m = lambda n: n if n is None else MIRROR[n]  # noqa: E731
+        kind, tick, phase, uid, caste, frm, to, node, arr, target = row
+        return (kind, tick, phase, uid, caste, m(frm), m(to), m(node), arr, m(target))
+
+    a, b = trace(0, 0), trace(1, 16)
+    assert a and [mirror_row(r) for r in a] == b
+    # the tie pair really was exercised: A's workers go N1 -> A -> N2, B's go N4 -> B -> N5
+    assert [(r[5], r[6]) for r in a if r[0] == "depart" and r[1] >= 30 and r[3] == 1] == [(N1, A), (A, N2)]
+    assert [(r[5], r[6]) for r in b if r[0] == "depart" and r[1] >= 30 and r[3] == 1] == [(N4, B), (B, N5)]
+    for uid in (1, 17):
+        assert unit_of(state, 0 if uid == 1 else 1, uid).node == (N2 if uid == 1 else N5)
+
+
+def test_mirrored_states_with_mirrored_orders_stay_mirrored_through_a_checkpoint():
+    from formicmind import checkpoint_from_bytes, checkpoint_to_bytes
+    script = {0: act(forage_share_q=(0, Q, 0, 0, 0, 0), army_choice=1),
+              30: act(forage_share_q=(0, 0, Q, 0, 0, 0), army_choice=2)}
+    state, run, ctrl = new_run(script, script)
+    advance(state, run, ctrl, 31)
+    state2, run2 = checkpoint_from_bytes(checkpoint_to_bytes(state, run), state.config)
+    tail_a = advance(state, run, ctrl, 20)
+    tail_b = advance(state2, run2, ctrl, 20)
+    assert [e.to_canonical() for e in tail_a] == [e.to_canonical() for e in tail_b]
+    # every unit of side B stands exactly where the mirrored unit of side A stands
+    for ua, ub in zip(state.colonies[0].units, state.colonies[1].units):
+        assert (ub.node, ub.from_node, ub.to_node) == tuple(
+            n if n == -1 else MIRROR[n] for n in (ua.node, ua.from_node, ua.to_node))
+        assert ub.arrival_tick == ua.arrival_tick

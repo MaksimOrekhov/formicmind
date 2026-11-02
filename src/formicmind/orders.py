@@ -1,8 +1,8 @@
 """Applying orders: worker quotas (FOR-2 section 4.2) and unit targets.
 
 ``apply_joint_orders`` is atomic: both sides' plans are computed from the unmodified
-state first and only then committed; it accepts only ``ValidatedActionV2`` objects, so
-an invalid action can never reach it. It sets standing orders and unit ``target_node``;
+state first and only then committed; it accepts only ``ValidatedActionV2`` objects and re-checks their
+structure before planning (mask legality is checked by the caller with the observation). It sets standing orders and unit ``target_node``;
 it does **not** move anybody (dispatch is ``movement.dispatch_available``).
 
 Worker assignment follows FOR-2 section 4.2 literally:
@@ -26,10 +26,10 @@ only; workers always take the plain shortest path.
 
 from __future__ import annotations
 
-from .actions import ValidatedActionV2
+from .actions import InvalidAction, ValidatedActionV2, check_action_structure
 from .events import OrderEvent, RetargetEvent, Phase
 from .model import NOWHERE, ColonyState, SimState, Unit
-from .rules import FORAGE_CATEGORIES, Q_TOTAL, SIDES, SOLDIER, WORKER, local_to_world
+from .rules import ARMY_GARRISON_HOME, FORAGE_CATEGORIES, Q_TOTAL, SIDES, SOLDIER, WORKER, local_to_world
 
 
 def worker_quotas(worker_count: int, shares_q: tuple[int, ...] | list[int]) -> tuple[int, ...]:
@@ -82,6 +82,11 @@ def apply_joint_orders(
         isinstance(a, ValidatedActionV2) for a in actions
     ):
         raise TypeError("apply_joint_orders needs one ValidatedActionV2 per side")
+
+    for validated in actions:  # a hand-built wrapper must not smuggle in a malformed action
+        check_action_structure(validated.action)
+        if validated.action.army_choice == ARMY_GARRISON_HOME and validated.action.avoid_center:
+            raise InvalidAction("garrison_home cannot set avoid_center")  # FOR-2 section 4.1
 
     plans = [
         _plan_side(state, side, actions[side].action.forage_share_q, actions[side].action.army_choice)

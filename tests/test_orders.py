@@ -145,9 +145,9 @@ def test_assignment_follows_the_literal_sequence_and_pins_audit_d5():
     topo = state.config.topology
     moves = [(unit_of(state, 0, uid).node, t[uid]) for uid in range(1, 13)]
     assert moves == [(N2, N1)] * 6 + [(C, N2)] * 6                  # the first six (in N2) go to N1
-    literal = sum(path_cost(topo, shortest_path(topo, a, b)) for a, b in moves)
+    literal = sum(path_cost(topo, shortest_path(topo, a, b, side=0)) for a, b in moves)
     assert literal == 6 * 5 + 6 * 3 == 48
-    minimal = 6 * path_cost(topo, shortest_path(topo, C, N1))       # C workers to N1, N2 workers stay
+    minimal = 6 * path_cost(topo, shortest_path(topo, C, N1, side=0))       # C workers to N1, N2 workers stay
     assert minimal == 12
 
 

@@ -1,12 +1,15 @@
-"""Canonical shortest paths on the public topology (FOR-1 v0.2.1 errata A, FOR-2 section 2).
+"""Canonical shortest paths (FOR-1 v0.2.1 errata A + routing errata R1, FOR-2 section 2).
 
 * Cost is the sum of edge lengths in ticks.
-* Among equal-cost paths the lexicographically smallest sequence of node ids wins.
-  The engine uses **world** node ids, as FOR-1/FOR-2 literally state. That tie-break is
-  *not* mirror-symmetric for a few equal-cost pairs (e.g. N1->N2 goes through A, but the
-  mirrored N4->N5 goes through C); see ``docs/tick_movement.md``. ``side_local_rank``
-  implements the symmetric alternative (ties by the side's own canonical order) for
-  comparison tests; the engine does not use it.
+* **R1 (rules_version ``l0-proto-FOR1-v0.2.2``):** among equal-cost paths the mover picks
+  the lexicographically smallest sequence of node ids in **its own colony's canonical
+  local order** ``[home, N1, N2, C, N4, N5, enemy_home]`` (``side_local_rank``), not the
+  global world id. Hence ``route_B(mirror(u), mirror(v)) == mirror(route_A(u, v))`` for
+  every pair, with and without ``avoid_center``. Distances, edges and ``avoid_center``
+  are unchanged.
+* ``shortest_path_world_id`` keeps the superseded world-id tie-break only so tests can
+  show why R1 was needed (it is asymmetric for six ordered pairs); the engine never
+  uses it.
 * ``avoid_center`` forbids C as an *intermediate or final* node. It never forbids the
   unit's current node: a unit standing in C may leave through C's edges.
 """
@@ -19,7 +22,7 @@ from functools import lru_cache
 from .config import Topology
 from .rules import NODE_C, NODE_COUNT, local_to_world
 
-ROUTE_TIE_BREAK = "world-node-id-lexicographic"
+ROUTE_TIE_BREAK = "side-local-lexicographic"  # routing errata R1
 
 
 class RoutingError(ValueError):
@@ -59,15 +62,9 @@ def side_local_rank(side: int) -> tuple[int, ...]:
     return tuple(local_to_world(side, n) for n in range(NODE_COUNT))  # an involution
 
 
-def shortest_path(
-    topology: Topology,
-    src: int,
-    dst: int,
-    *,
-    avoid_center: bool = False,
-    rank: tuple[int, ...] | None = None,
+def _search(
+    topology: Topology, src: int, dst: int, avoid_center: bool, rank: tuple[int, ...] | None
 ) -> tuple[int, ...]:
-    """Node sequence ``src .. dst`` (both included); ``(src,)`` when ``src == dst``."""
     if not (0 <= src < NODE_COUNT and 0 <= dst < NODE_COUNT):
         raise RoutingError(f"bad node ids {src}, {dst}")
     banned = frozenset({NODE_C}) if avoid_center else frozenset()
@@ -86,15 +83,31 @@ def shortest_path(
     return tuple(path)
 
 
+def shortest_path(
+    topology: Topology, src: int, dst: int, *, side: int, avoid_center: bool = False
+) -> tuple[int, ...]:
+    """Route of a unit of ``side``: node sequence ``src .. dst``; ``(src,)`` when equal."""
+    if side not in (0, 1):
+        raise RoutingError(f"bad side {side!r}")
+    return _search(topology, src, dst, avoid_center, side_local_rank(side))
+
+
+def shortest_path_world_id(
+    topology: Topology, src: int, dst: int, *, avoid_center: bool = False
+) -> tuple[int, ...]:
+    """Superseded world-id tie-break (pre-R1). For comparison tests only."""
+    return _search(topology, src, dst, avoid_center, None)
+
+
 def path_cost(topology: Topology, path: tuple[int, ...]) -> int:
     length = {(e.a, e.b): e.length for e in topology.edges}
     return sum(length[(min(a, b), max(a, b))] for a, b in zip(path, path[1:]))
 
 
 def next_hop(
-    topology: Topology, src: int, dst: int, *, avoid_center: bool = False
+    topology: Topology, src: int, dst: int, *, side: int, avoid_center: bool = False
 ) -> int:
-    path = shortest_path(topology, src, dst, avoid_center=avoid_center)
+    path = shortest_path(topology, src, dst, side=side, avoid_center=avoid_center)
     if len(path) < 2:
         raise RoutingError("already at the destination")
     return path[1]

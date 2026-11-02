@@ -5,9 +5,11 @@ Linear documents are mutable, so each pin records the document URL and the
 errata (A-G, appended to the FOR-1 document) and the FOR-2 errata v0.2.1 win over
 any contradicting text in the document bodies.
 
-``RULES_VERSION`` names the *prototype* rules (mechanics as written in FOR-1
-v0.2.1). It is not a frozen balance: all numbers are candidates until the
-economic pilot (FOR-1 errata F / FOR-4) picks them, see ``BALANCE_VERSION``.
+``RULES_VERSION`` names the *prototype* rules: FOR-1 v0.2.1 plus routing errata R1
+(equal-cost routes tie-break by the mover's side-local node order, FOR-11 review).
+It is not a frozen balance: all numbers are candidates until the economic pilot
+(FOR-1 errata F / FOR-4) picks them, see ``BALANCE_VERSION``. Observation, action and
+decoder versions are unaffected by R1.
 """
 
 from __future__ import annotations
@@ -46,6 +48,20 @@ CONTRACT_PINS: tuple[ContractPin, ...] = (
         updated_at="2026-11-02T13:22:38.736Z",
         role="mandatory; takes precedence over FOR-2 v0.2",
     ),
+    ContractPin(
+        key="FOR-1-routing-errata-R1",
+        title="FOR-1 comment: routing errata R1 (side-local tie-break for equal-cost routes)",
+        url="https://linear.app/generation17/issue/FOR-1#comment-b136cfe9-0917-4867-9ac0-5a6f20ecd318",
+        updated_at="2026-11-02T17:20:56.487Z",
+        role="topmost errata to FOR-1 v0.2.1; defines rules_version l0-proto-FOR1-v0.2.2",
+    ),
+    ContractPin(
+        key="FOR-2-routing-errata-R1-sync",
+        title="FOR-2 comment: sync of routing errata R1 (overrides world-id tie-break wording)",
+        url="https://linear.app/generation17/issue/FOR-2#comment-3b5bf610-8b97-4ade-8592-b066da87fa77",
+        updated_at="2026-11-02T17:21:10.542Z",
+        role="overrides any world-id tie-break wording in FOR-2 v0.2/v0.2.1",
+    ),
 )
 
 # Strings taken verbatim from the FOR-4 manifest template.
@@ -54,7 +70,7 @@ ACTION_VERSION = "ActionV2"
 DECODER_VERSION = "FOR-2-decoder-v0.2.1"
 
 # Engineering choices of this repository (not decisions of FOR-1/FOR-2).
-RULES_VERSION = "l0-proto-FOR1-v0.2.1"
+RULES_VERSION = "l0-proto-FOR1-v0.2.2"
 BALANCE_VERSION = "candidate-FOR1-v0.2.1-unvalidated"
 SERIALIZATION_VERSION = "formicmind-canonical-json-v1"
 RNG_VERSION = "pcg32-xsh-rr-64-32-v1"

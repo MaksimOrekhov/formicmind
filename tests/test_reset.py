@@ -75,7 +75,7 @@ def test_resource_table_matches_spec(config):
 
 
 def test_config_versions_are_prototype_not_frozen_balance(config):
-    assert config.rules_version == RULES_VERSION == "l0-proto-FOR1-v0.2.1"
+    assert config.rules_version == RULES_VERSION == "l0-proto-FOR1-v0.2.2"
     assert config.balance_version == BALANCE_VERSION
     assert "unvalidated" in config.balance_version
     assert (config.policy_interval_k, config.t_max) == (30, 3000)

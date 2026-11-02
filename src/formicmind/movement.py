@@ -14,8 +14,9 @@
   the dispatch step for both sides at once, so the result does not depend on side order.
   Combat does not exist yet, so enemy soldiers never die: two armies that meet stay
   blocked until a fixture changes the state (see ``docs/tick_movement.md``).
-* Routing is recomputed from the unit's current node and ``target_node`` every time; with
-  ``avoid_center`` the soldier's *current* node may still be C (D1b).
+* Routing is recomputed from the unit's current node and ``target_node`` every time, with the
+  mover's own side-local tie-break (routing errata R1); with ``avoid_center`` the soldier's
+  *current* node may still be C (D1b).
 """
 
 from __future__ import annotations
@@ -65,7 +66,7 @@ def dispatch_available(state: SimState, phase: int) -> list[DepartEvent]:
             if unit.node == NOWHERE or unit.node == unit.target_node or unit.node in blocked:
                 continue
             avoid = colony.avoid_center and unit.caste == SOLDIER
-            hop = next_hop(topology, unit.node, unit.target_node, avoid_center=avoid)
+            hop = next_hop(topology, unit.node, unit.target_node, side=side, avoid_center=avoid)
             departures.append(DepartEvent(
                 tick=tick, phase=int(phase), side=side, unit_id=unit.unit_id, caste=unit.caste,
                 from_node=unit.node, to_node=hop,

@@ -55,7 +55,12 @@ class ActionV2:
 
 @dataclass(frozen=True, slots=True)
 class ValidatedActionV2:
-    """An ``ActionV2`` that passed ``validate_action`` against a given mask."""
+    """An ``ActionV2`` that passed ``validate_action`` against a given mask.
+
+    Python cannot make this unforgeable: anybody can construct it directly. The tick
+    engine therefore never trusts the wrapper; it re-validates every action against the
+    side's own observation and mask (see ``tick._phase_policy``).
+    """
 
     action: ActionV2
 
@@ -152,15 +157,14 @@ def get_action_mask(obs: ObservationV2) -> ActionMaskV2:
     return ActionMaskV2(lay, forage, tuple(army), tuple(avoid))
 
 
-def validate_action(
-    obs: ObservationV2, mask: ActionMaskV2, action: ActionV2
-) -> ValidatedActionV2:
-    """Whole-action validation. No fallback, no partial result."""
-    if not isinstance(obs, ObservationV2) or not isinstance(mask, ActionMaskV2):
-        raise TypeError("validate_action needs an ObservationV2 and an ActionMaskV2")
+def check_action_structure(action: ActionV2) -> list[int]:
+    """Mask-independent contract checks; returns the positive forage categories.
+
+    Raises ``InvalidAction``. Used by ``validate_action`` and, as a last line of defence,
+    by ``apply_joint_orders`` (a ``ValidatedActionV2`` can be constructed by hand).
+    """
     if not isinstance(action, ActionV2):
         raise InvalidAction("not an ActionV2")
-
     if type(action.lay_order) is not int or not LAY_NONE <= action.lay_order <= LAY_SOLDIER:
         raise InvalidAction(f"invalid lay_order {action.lay_order!r}")
     if type(action.army_choice) is not int or not (
@@ -179,7 +183,16 @@ def validate_action(
     positive = [i for i, v in enumerate(q) if v > 0]
     if not 1 <= len(positive) <= FORAGE_SUPPORT_MAX:
         raise InvalidAction(f"forage support must be 1..{FORAGE_SUPPORT_MAX}, got {len(positive)}")
+    return positive
 
+
+def validate_action(
+    obs: ObservationV2, mask: ActionMaskV2, action: ActionV2
+) -> ValidatedActionV2:
+    """Whole-action validation. No fallback, no partial result."""
+    if not isinstance(obs, ObservationV2) or not isinstance(mask, ActionMaskV2):
+        raise TypeError("validate_action needs an ObservationV2 and an ActionMaskV2")
+    positive = check_action_structure(action)
     if not mask.lay[action.lay_order]:
         raise InvalidAction("lay_order is masked out")
     if any(not mask.forage_target[i] for i in positive):

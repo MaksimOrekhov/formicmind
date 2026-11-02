@@ -106,22 +106,31 @@ def _phase_policy(ctx: TickContext) -> None:
     state, run = ctx.state, ctx.run
     if ctx.tick % state.config.policy_interval_k != 0:
         return
-    intel_backup = [c.intel.clone() for c in state.colonies]
+    state_backup = state.clone()
     run_backup = run.clone()
+    events_mark = len(ctx.events)
     try:
         snapshot = begin_policy_phase(state, (run.windows[0], run.windows[1]))
         observations = [build_observation(snapshot, side) for side in SIDES]  # before any decision
-        actions = tuple(ctx.controllers[side].act(ctx.tick, observations[side], run) for side in SIDES)
-        if not all(isinstance(a, ValidatedActionV2) for a in actions):
+        masks = [get_action_mask(obs) for obs in observations]
+        answers = tuple(ctx.controllers[side].act(ctx.tick, observations[side], run) for side in SIDES)
+        if not all(isinstance(a, ValidatedActionV2) for a in answers):
             raise TypeError("controllers must return ValidatedActionV2")
+        # ValidatedActionV2 can be forged by hand: never trust the wrapper, re-validate each
+        # action against its own side's observation and mask before anything is applied.
+        actions = tuple(
+            validate_action(observations[side], masks[side], answers[side].action) for side in SIDES
+        )
+        ctx.events.extend(apply_joint_orders(state, actions, Phase.POLICY))
+        ctx.events.extend(dispatch_available(state, Phase.POLICY))
+        run.windows = [WindowStats(), WindowStats()]  # a new policy window starts
     except BaseException:
-        for colony, backup in zip(state.colonies, intel_backup):
-            colony.intel = backup
+        # Whatever failed (controller, validator, commit or dispatch), the policy phase is
+        # all-or-nothing: state (incl. intel), RNG streams, windows and events are restored.
+        state.restore_from(state_backup)
         run.streams, run.windows = run_backup.streams, run_backup.windows
+        del ctx.events[events_mark:]
         raise
-    ctx.events.extend(apply_joint_orders(state, actions, Phase.POLICY))
-    ctx.events.extend(dispatch_available(state, Phase.POLICY))
-    run.windows = [WindowStats(), WindowStats()]  # a new policy window starts
 
 
 def _phase_arrival(ctx: TickContext) -> None:

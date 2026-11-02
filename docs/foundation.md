@@ -14,6 +14,8 @@ Linear-документы изменяемы, поэтому записаны UR
 | `FOR-1-v0.2.1` | World Specification v0.2.1 (тело v0.2 + errata A–G) | 2026-11-02T12:31:31.981Z |
 | `FOR-2-v0.2` | Agent Contract v0.2 | 2026-11-02T13:03:45.716Z |
 | `FOR-2-errata-v0.2.1` | Agent Contract errata v0.2.1 (обязательна, приоритет над v0.2) | 2026-11-02T13:22:38.736Z |
+| `FOR-1-routing-errata-R1` | комментарий FOR-1: routing errata R1 (side-local tie-break) | 2026-11-02T17:20:56.487Z |
+| `FOR-2-routing-errata-R1-sync` | комментарий FOR-2: синхронизация R1 | 2026-11-02T17:21:10.542Z |
 
 Методология FOR-4 и архитектура FOR-5 — справочные основания, к коду не привязаны.
 SHA-256 выгруженного markdown документов **не** записан (текст получен через Linear API и в
@@ -21,7 +23,8 @@ SHA-256 выгруженного markdown документов **не** запи
 
 Версии (строки FOR-4 взяты буквально): `observation_version = FOR-2-v0.2+errata-v0.2.1`,
 `action_version = ActionV2`, `decoder_version = FOR-2-decoder-v0.2.1`.
-Версии этого репозитория: `rules_version = l0-proto-FOR1-v0.2.1` (механика прототипа),
+Версии этого репозитория: `rules_version = l0-proto-FOR1-v0.2.2` (механика прототипа: FOR-1 v0.2.1 + routing errata R1,
+см. `docs/tick_movement.md`; до FOR-11 было `…-v0.2.1`),
 `balance_version = candidate-FOR1-v0.2.1-unvalidated` (числа до экономического пилота),
 `serialization_version = formicmind-canonical-json-v1`, `rng_version = pcg32-xsh-rr-64-32-v1`.
 `rules_version` и баланс разделены: смена кандидатных чисел не должна выдавать себя за смену механики.

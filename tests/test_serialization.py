@@ -28,8 +28,8 @@ from conftest import OTHER_TEST_SEED, TEST_SEED
 # canonical byte layout; they are produced by this implementation and become
 # authoritative only after review of the foundation PR. Any change to the schema,
 # defaults or serialization must update them consciously.
-GOLDEN_CONFIG_HASH = "c93de10ef90cc2b77ad11f635dac5cf2c5d9a8984524b0898caaaa26f63f6274"
-GOLDEN_INITIAL_STATE_HASH = "38852d486c85adce5b97c0bdcf9c036621cdc62a82ce69c0335c5f93539dde07"
+GOLDEN_CONFIG_HASH = "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d"
+GOLDEN_INITIAL_STATE_HASH = "675116b1ac021868d41fd234ed9642c7bae5b59377daa239355913602555f3d3"
 GOLDEN_INITIAL_STATE_BYTES = 5234
 
 

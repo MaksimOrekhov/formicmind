@@ -248,13 +248,43 @@ def test_continuing_after_restore_equals_the_uninterrupted_run():
     assert (state_hash(state), checkpoint_hash(state, run)) == (state_hash(state2), checkpoint_hash(state2, run2))
 
 
-def test_checkpoint_format_v2_changes_only_the_checkpoint_not_state_or_config_hashes():
+def test_golden_hashes_after_routing_errata_r1_and_checkpoint_v2():
     from formicmind import config_hash
     state, run = reset(default_config(), 20261102)
-    assert state_hash(state) == "38852d486c85adce5b97c0bdcf9c036621cdc62a82ce69c0335c5f93539dde07"
-    assert config_hash(state.config) == "c93de10ef90cc2b77ad11f635dac5cf2c5d9a8984524b0898caaaa26f63f6274"
-    # intentional diff versus FOR-9 (domain checkpoint/v2, schema /2, windows added)
-    assert checkpoint_hash(state, run) == "11ea03795dd1d90767cb2a210c25ecf903bc5270185523a55aac5413d835e73a"
+    assert state.config.rules_version == "l0-proto-FOR1-v0.2.2"
+    # Intentional diffs: rules_version bumped to v0.2.2 (R1) changes config/state hashes;
+    # checkpoint format v2 (domain checkpoint/v2, schema /2, windows) changes the checkpoint hash.
+    assert config_hash(state.config) == "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d"
+    assert state_hash(state) == "675116b1ac021868d41fd234ed9642c7bae5b59377daa239355913602555f3d3"
+    assert checkpoint_hash(state, run) == "5a122bd4993d878b10fc9798bd9c90016ec8e95a091644b945226ebc5eac525d"
+
+
+def test_state_and_config_from_the_previous_rules_version_are_rejected():
+    from formicmind.config import SimConfig  # noqa: F401
+    from formicmind.invariants import InvariantError
+    from formicmind.serialization import config_from_bytes, config_to_canonical
+    state, run = reset(default_config(), 1)
+    old_rules = "l0-proto-FOR1-v0.2.1"
+    doc = json.loads(checkpoint_to_bytes(state, run))
+    doc["state"]["rules_version"] = old_rules
+    doc["state"]["config_sha256"] = "c93de10ef90cc2b77ad11f635dac5cf2c5d9a8984524b0898caaaa26f63f6274"
+    with pytest.raises(CanonicalError):
+        checkpoint_from_bytes(canonical_dumps(doc), state.config)
+    cfg = config_to_canonical(state.config)
+    cfg["rules_version"] = old_rules
+    with pytest.raises(InvariantError):
+        config_from_bytes(canonical_dumps(cfg))
+
+
+def test_contract_pins_record_routing_errata_r1():
+    from formicmind.versions import CONTRACT_PINS, RULES_VERSION, BALANCE_VERSION, OBSERVATION_VERSION
+    keys = [p.key for p in CONTRACT_PINS]
+    assert "FOR-1-routing-errata-R1" in keys and "FOR-2-routing-errata-R1-sync" in keys
+    assert all(p.url.startswith("https://linear.app/") and p.updated_at.endswith("Z") for p in CONTRACT_PINS)
+    assert RULES_VERSION == "l0-proto-FOR1-v0.2.2"
+    # R1 touches neither balance nor the agent contract versions
+    assert BALANCE_VERSION == "candidate-FOR1-v0.2.1-unvalidated"
+    assert OBSERVATION_VERSION == "FOR-2-v0.2+errata-v0.2.1"
 
 
 def test_old_checkpoint_format_fails_fast_and_bad_windows_are_rejected():
