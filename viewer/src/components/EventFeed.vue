@@ -47,7 +47,7 @@ function eventIcon(event: ViewerEvent) {
       <button v-for="event in visibleEvents" :key="event.id" class="event-item" :class="[`event-${event.category}`, { current: event.cursor === currentCursor }]" @click="emit('selectEvent', event)">
         <span class="event-rail"><span class="event-symbol">{{ eventIcon(event) }}</span><span class="event-connector"></span></span>
         <span class="event-content">
-          <span class="event-meta"><span class="event-tick">T{{ String(event.cursor).padStart(2, '0') }}</span><span v-if="event.side" class="event-side" :class="`event-side-${event.side.toLowerCase()}`">{{ event.side }}</span><span class="event-kind">{{ event.kind.replace('_', ' ') }}</span></span>
+          <span class="event-meta"><span class="event-tick">КАДР {{ String(event.cursor).padStart(2, '0') }}</span><span v-if="event.side" class="event-side" :class="`event-side-${event.side.toLowerCase()}`">{{ event.side }}</span><span class="event-kind">{{ event.kind.replace('_', ' ') }}</span></span>
           <strong>{{ event.summary }}</strong>
           <span class="event-detail">{{ event.detail }}</span>
         </span>

@@ -9,6 +9,7 @@ import WorldMap from './components/WorldMap.vue'
 import { usePlayback } from './composables/usePlayback'
 import { useSelection } from './composables/useSelection'
 import { mockReplay } from './data/mockReplay'
+import { presentOutcome } from './domain/outcome'
 
 const playback = usePlayback(mockReplay)
 const cursorParam = new URLSearchParams(window.location.search).get('cursor')
@@ -21,6 +22,7 @@ const frame = playback.frame
 const previousFrame = computed(() => playback.cursor.value > playback.metadata.minCursor ? mockReplay.getFrame(playback.cursor.value - 1) : undefined)
 const selectedNode = computed(() => frame.value.nodes.find((node) => node.id === selection.selectedNodeId.value) ?? null)
 const events = computed(() => mockReplay.getEvents())
+const terminalOutcome = computed(() => playback.metadata.terminal ? presentOutcome(playback.metadata.terminal) : null)
 
 function chooseEvent(event: { cursor: number; nodeId: number | null; side: 'A' | 'B' | null }) {
   playback.seek(event.cursor)
@@ -60,8 +62,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         <div class="match-card">
           <div class="match-card-top"><span class="eyebrow">ИСХОД В ЗАПИСИ</span><span class="match-icon">◎</span></div>
           <template v-if="playback.metadata.terminal && playback.cursor.value === playback.metadata.terminal.cursor">
-            <strong class="outcome-title">Победа колонии {{ playback.metadata.terminal.winner ?? '—' }}</strong>
-            <span class="outcome-note">Исход из demo-метаданных</span>
+            <strong class="outcome-title" :class="`outcome-${terminalOutcome?.tone}`">{{ terminalOutcome?.title }}</strong>
+            <span class="outcome-note">{{ terminalOutcome?.detail }}</span>
           </template>
           <template v-else><strong class="outcome-title outcome-pending">Ожидание терминального кадра</strong><span class="outcome-note">Результат не вычисляется интерфейсом</span></template>
           <div class="match-meta"><span>{{ playback.metadata.seedLabel }}</span><span>{{ playback.metadata.recordedAt }}</span></div>

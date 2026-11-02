@@ -22,7 +22,7 @@ const metadata: ReplayMetadata = {
   maxCursor: 8,
   terminal: {
     cursor: 8,
-    terminalTick: 8,
+    terminalTick: 7,
     stateTick: 7,
     tickCompleted: false,
     stage: 'combat',
@@ -119,7 +119,8 @@ export class MockReplayDataSource implements ReplayDataSource {
 
   getCursorForTick(tick: number): number | undefined {
     const frame = frames.find((item) => item.state.tick === tick && item.state.tickCompleted)
-    return frame?.cursor ?? (metadata.terminal?.terminalTick === tick ? metadata.terminal.cursor : undefined)
+    if (frame) return frame.cursor
+    return metadata.terminal?.terminalTick === tick ? metadata.terminal.cursor : undefined
   }
 }
 

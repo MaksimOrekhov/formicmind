@@ -52,7 +52,7 @@ export interface TransitGroupView {
 }
 
 export interface TimelineFrame {
-  /** Replay cursor. This is distinct from state.tick at a mid-tick terminal. */
+  /** Presentation-frame cursor. This is distinct from state.tick, especially at terminal frames. */
   cursor: number
   state: {
     tick: number
@@ -75,8 +75,11 @@ export interface ViewerEvent {
 }
 
 export interface ReplayTerminal {
+  /** Cursor of the terminal presentation frame. */
   cursor: number
+  /** Domain tick at which the terminal condition was recorded; equals stateTick even mid-tick. */
   terminalTick: number
+  /** state.tick stored in the terminal frame. */
   stateTick: number
   tickCompleted: boolean
   stage: string

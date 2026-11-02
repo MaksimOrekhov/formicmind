@@ -17,10 +17,12 @@ describe('MockReplayDataSource', () => {
     expect(mockReplay.getEvents({ category: 'economy', side: 'A' }).map((event) => event.kind)).toEqual(['upkeep', 'lay'])
   })
 
-  it('resolves completed ticks and a mid-tick terminal cursor independently', () => {
+  it('keeps a mid-tick terminal tick separate from its presentation cursor', () => {
     expect(mockReplay.getCursorForTick(7)).toBe(7)
-    expect(mockReplay.getCursorForTick(8)).toBe(8)
-    expect(mockReplay.getMetadata().terminal).toMatchObject({ terminalTick: 8, stateTick: 7, tickCompleted: false, stage: 'combat' })
+    expect(mockReplay.getCursorForTick(8)).toBeUndefined()
+    expect(mockReplay.getMetadata().terminal).toMatchObject({ cursor: 8, terminalTick: 7, stateTick: 7, tickCompleted: false, stage: 'combat' })
+    expect(mockReplay.getFrame(7).state).toEqual({ tick: 7, tickCompleted: true })
+    expect(mockReplay.getFrame(8).state).toEqual({ tick: 7, tickCompleted: false })
     expect(mockReplay.getCursorForTick(99)).toBeUndefined()
   })
 })

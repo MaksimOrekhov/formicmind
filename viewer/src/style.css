@@ -84,7 +84,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, [role='button']:focu
 .match-card-top { display: flex; align-items: center; justify-content: space-between; }
 .match-icon { color: var(--mint); font-size: 18px; }
 .outcome-title { display: block; margin-top: 12px; font-size: 13px; font-weight: 650; }
-.outcome-title:not(.outcome-pending) { color: var(--mint); }
+.outcome-win { color: var(--mint); }
+.outcome-draw { color: #e5bd76; }
+.outcome-neutral { color: #c1cbc4; }
 .outcome-pending { color: #b3c0ba; }
 .outcome-note { display: block; margin-top: 4px; color: #798a83; font-size: 9px; }
 .match-meta { display: flex; justify-content: space-between; gap: 8px; border-top: 1px solid #2a3838; margin-top: 12px; padding-top: 9px; color: #7d8e88; font: 8px var(--mono); }
@@ -157,6 +159,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, [role='button']:focu
 .timeline-title strong { font-size: 11px; font-weight: 600; }
 .timeline-readout { display: flex; align-items: center; gap: 6px; color: #889891; font: 9px var(--mono); }
 .readout-current { color: var(--mint); font-size: 13px; }
+.readout-label { color: #86958f; font-size: 8px; letter-spacing: .04em; }
 .readout-slash { color: #4f6059; }
 .readout-divider { height: 14px; width: 1px; margin: 0 3px; background: #3b4a45; }
 .state-tick { color: #86958f; font-size: 8px; }

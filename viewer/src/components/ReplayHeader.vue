@@ -20,7 +20,7 @@ defineProps<{ metadata: ReplayMetadata; currentCursor: number }>()
     </div>
     <div class="topbar-right">
       <span class="demo-chip"><span class="demo-chip-dot"></span>{{ metadata.sourceLabel }}</span>
-      <span class="cursor-chip">T{{ String(currentCursor).padStart(2, '0') }}</span>
+      <span class="cursor-chip" :aria-label="`Кадр ${String(currentCursor).padStart(2, '0')}`">КАДР {{ String(currentCursor).padStart(2, '0') }}</span>
     </div>
   </header>
 </template>
