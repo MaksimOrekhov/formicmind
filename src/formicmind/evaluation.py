@@ -542,8 +542,10 @@ def run_benchmark(
     p10 = nearest_rank(rates, 0.10)
     p50 = statistics.median(rates)
     profile = system_profile()
+    protocol_qualified = runs == 5 and ticks_per_run == 100_000 and warmup_ticks == 10_000
     windows_qualified = (
-        profile["os_name"] == "Windows"
+        protocol_qualified
+        and profile["os_name"] == "Windows"
         and bool(profile["processor"] and profile["processor"] != "unknown")
         and affinity.report["affinity_applied"] is True
         and affinity.report["restored"] is True

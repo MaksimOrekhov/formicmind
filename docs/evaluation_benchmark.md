@@ -44,9 +44,10 @@ per-sample ticks/second. Raw elapsed nanoseconds, tick counts, outcomes, and rat
 add overhead; the diagnostic is labeled and excluded from throughput.
 
 The 5,000 ticks/second figure is a candidate single-core comparison threshold, not a Gate 0 pass on its own. To
-report a Windows single-core comparison, the result must identify Windows and a processor and confirm that
-single-core affinity was applied and restored. Results without those fields are marked `NOT MEASURED`; do not
-compare macOS/Linux CI or a short smoke run to the Windows target.
+report a Windows single-core comparison, use exactly the recommended 10,000-tick warmup and five 100,000-tick
+samples; the result must also identify Windows and a processor and confirm that single-core affinity was applied
+and restored. Results without those conditions are marked `NOT MEASURED`; do not compare macOS/Linux CI or a short
+smoke run to the Windows target.
 
 ## Reproducible manifests
 

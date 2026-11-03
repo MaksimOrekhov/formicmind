@@ -4,6 +4,7 @@ import json
 
 import pytest
 
+import formicmind.evaluation as evaluation_module
 from formicmind.cli import EXIT_IO, EXIT_OK, EXIT_USAGE, main as sim_main
 from formicmind.evaluation import (
     EvaluationError,
@@ -127,6 +128,28 @@ def test_phase_diagnostic_is_separate_from_sample_throughput():
     assert diagnostic["ticks"] == 10
     assert diagnostic["excluded_from_throughput_samples"] is True
     assert sum(row["calls"] for row in diagnostic["phase_timings"].values()) > 0
+
+
+def test_short_windows_smoke_is_not_qualified_as_a_single_core_measurement(monkeypatch):
+    class AppliedAffinity:
+        def __init__(self, core_index=None):
+            self.report = {"affinity_applied": True, "restored": None}
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, traceback):
+            self.report["restored"] = True
+
+    monkeypatch.setattr(evaluation_module, "SingleCoreAffinity", AppliedAffinity)
+    monkeypatch.setattr(evaluation_module, "system_profile", lambda: {
+        "os_name": "Windows", "processor": "test CPU",
+    })
+    result = run_benchmark(
+        runs=2, ticks_per_run=15, warmup_ticks=4, seed_start=901, scenario="technical",
+    )
+    assert result["measurement"]["throughput"]["qualified_for_windows_single_core_comparison"] is False
+    assert result["measurement"]["throughput"]["gate0_status"] == "NOT MEASURED"
 
 
 def test_affinity_is_best_effort_and_restored():
