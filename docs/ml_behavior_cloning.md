@@ -42,7 +42,9 @@ formicmind-ml train --dataset ml_runs\demo\train.jsonl --output ml_runs\demo\che
 formicmind-ml eval --model ml_runs\demo\checkpoint --dataset ml_runs\demo\train.jsonl --opponent balanced:v2 --seed-start 20261150 --episodes 2 --max-ticks 120 --device auto --output ml_runs\demo\report.json
 ```
 
-То же через `python -m formicmind.ml`. Dataset и checkpoint не включаются в Git: команды создают небольшую JSONL выборку и manifest, затем `weights.pt` и `manifest.json`. Eval отклоняет seeds, пересекающиеся с train/validation.
+То же через `python -m formicmind.ml`. Dataset и checkpoint не включаются в Git: команды создают небольшую JSONL выборку и manifest, затем `weights.pt` и `manifest.json`.
+
+Evaluation принимает только датасет, использованный при обучении checkpoint: должны совпасть SHA-256 JSONL, полный descriptor учителя, hash конфигурации симулятора и карта разбиения seeds. Evaluation seeds проверяются отдельно против исходных seeds checkpoint и seeds переданного датасета; любое пересечение останавливает запуск с ошибкой. Поэтому нельзя подменить датасет B и тем самым забыть о train/validation seeds checkpoint, обученного на датасете A.
 
 ## Артефакты и метрики
 
@@ -50,4 +52,4 @@ Dataset JSONL имеет соседний manifest с SHA-256, версиями 
 
 Checkpoint сохраняет только `state_dict`; загрузка сперва проверяет JSON manifest, фиксированную архитектуру и SHA-256, затем использует `torch.load(..., weights_only=True)` и строгую проверку ключей/тензоров. Произвольные pickle checkpoint не принимаются. Manifest фиксирует contract versions, архитектуру/loss, dataset hash, teacher/config hashes, seeds/split, run seed, Python/PyTorch/CUDA/device, исходный Git SHA/dirty state, ошибки имитации, время шага обучения и latency/throughput инференса.
 
-Evaluation считает долю легальных действий, точное совпадение полного действия и компонентов с учителем на validation split, а также ограниченное число матчей через настоящий runner с перестановкой сторон. Для коротких матчей явно указываются `truncated` и ticks; их нельзя трактовать как win-rate. Запуск не использует PPO, reward, self-play, скрытые поля или закрытые test seeds.
+Evaluation считает долю легальных действий, точное совпадение полного действия и компонентов с учителем на validation split того же provenance-проверенного датасета, а также ограниченное число матчей через настоящий runner с перестановкой сторон. Для коротких матчей явно указываются `truncated` и ticks; их нельзя трактовать как win-rate. Запуск не использует PPO, reward, self-play, скрытые поля или закрытые test seeds.

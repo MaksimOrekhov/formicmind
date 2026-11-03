@@ -18,6 +18,46 @@ from .model import MLPPolicy
 from .training import _score_examples, benchmark_inference
 
 
+def _checkpoint_training_data(checkpoint_manifest: dict[str, Any]) -> dict[str, Any]:
+    """Return validated training provenance needed to guard evaluation seeds."""
+    data = checkpoint_manifest.get("data")
+    if not isinstance(data, dict):
+        raise DatasetError("checkpoint is missing training dataset provenance")
+    seeds = data.get("seeds")
+    split_by_seed = data.get("split_by_seed")
+    if (not isinstance(seeds, list) or not seeds
+            or any(type(seed) is not int or not 0 <= seed <= (1 << 64) - 1 for seed in seeds)
+            or len(set(seeds)) != len(seeds)
+            or not isinstance(split_by_seed, dict)
+            or set(split_by_seed) != {str(seed) for seed in seeds}
+            or any(split not in ("train", "validation") for split in split_by_seed.values())):
+        raise DatasetError("checkpoint has malformed training seed/split provenance")
+    if (not isinstance(data.get("sha256"), str)
+            or not isinstance(data.get("teacher"), dict)
+            or not isinstance(data.get("simulator"), dict)
+            or not isinstance(data["simulator"].get("config_sha256"), str)):
+        raise DatasetError("checkpoint is missing dataset hash, teacher, or simulator provenance")
+    return data
+
+
+def _validate_dataset_provenance(
+    checkpoint_data: dict[str, Any], dataset_manifest: dict[str, Any],
+) -> None:
+    """Require the evaluation examples to be exactly the training dataset."""
+    if checkpoint_data["teacher"] != dataset_manifest.get("teacher"):
+        raise DatasetError("checkpoint teacher descriptor does not match evaluation dataset")
+    checkpoint_config = checkpoint_data["simulator"].get("config_sha256")
+    dataset_config = dataset_manifest.get("simulator", {}).get("config_sha256")
+    if checkpoint_config != dataset_config:
+        raise DatasetError("checkpoint simulator config hash does not match evaluation dataset")
+    if checkpoint_data["sha256"] != dataset_manifest.get("dataset_sha256"):
+        raise DatasetError("checkpoint dataset SHA-256 does not match evaluation dataset")
+    if checkpoint_data["split_by_seed"] != dataset_manifest.get("split_by_seed"):
+        raise DatasetError("checkpoint seed split metadata does not match evaluation dataset")
+    if set(checkpoint_data["seeds"]) != set(dataset_manifest.get("seeds", [])):
+        raise DatasetError("checkpoint seed metadata does not match evaluation dataset")
+
+
 def evaluate_model(
     model_dir: str | Path,
     dataset_path: str | Path,
@@ -38,10 +78,16 @@ def evaluate_model(
         raise ValueError("evaluation needs one or more unique seeds")
     if any(type(seed) is not int or not 0 <= seed <= (1 << 64) - 1 for seed in requested_seeds):
         raise ValueError("evaluation seeds must be unsigned 64-bit integers")
-    training_seeds = {int(seed) for seed in dataset_manifest.get("seeds", [])}
-    overlap = training_seeds.intersection(requested_seeds)
-    if overlap:
-        raise ValueError(f"evaluation seeds overlap collected train/validation seeds: {sorted(overlap)}")
+    checkpoint_data = _checkpoint_training_data(checkpoint_manifest)
+    checkpoint_seeds = set(checkpoint_data["seeds"])
+    checkpoint_overlap = checkpoint_seeds.intersection(requested_seeds)
+    if checkpoint_overlap:
+        raise ValueError(f"evaluation seeds overlap checkpoint training seeds: {sorted(checkpoint_overlap)}")
+    dataset_seeds = {int(seed) for seed in dataset_manifest.get("seeds", [])}
+    dataset_overlap = dataset_seeds.intersection(requested_seeds)
+    if dataset_overlap:
+        raise ValueError(f"evaluation seeds overlap evaluation dataset train/validation seeds: {sorted(dataset_overlap)}")
+    _validate_dataset_provenance(checkpoint_data, dataset_manifest)
     config = default_config()
     if dataset_manifest.get("simulator", {}).get("config_sha256") != config_hash(config):
         raise DatasetError("evaluation config differs from the dataset simulator configuration")
