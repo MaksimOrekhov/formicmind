@@ -795,7 +795,7 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         "candidate_action": {"status": "ineligible"} if candidate is None else _action_object(candidate),
         "action_diff_fields": [] if candidate is None else _action_diff(checkpoint.control_action, candidate),
         "eligible": candidate is not None,
-        "ineligible_reason": checkpoint.ineligible_reasons[axis],
+        "ineligible_reason": checkpoint.ineligible_reasons[axis] or "none",
     }
     if candidate is None:
         return common
