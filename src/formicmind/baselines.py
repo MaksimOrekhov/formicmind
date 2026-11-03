@@ -170,6 +170,23 @@ def _known_threats(observation: ObservationV2) -> list[float]:
     return threats
 
 
+def _known_soldier_threats(observation: ObservationV2) -> list[float]:
+    """Estimate enemy soldiers only, with the same visibility freshness rules."""
+    counts = observation.block("enemy_count_last")
+    known = observation.block("enemy_known")
+    current = observation.block("enemy_current")
+    ages = observation.block("enemy_age_norm")
+    threats = []
+    for node in range(7):
+        if not known[node]:
+            threats.append(0.0)
+            continue
+        freshness = 1.0 if current[node] else max(0.0, 1.0 - 3.0 * ages[node])
+        soldiers = _decode_u(counts[2 * node + 1], 64.0)
+        threats.append(freshness * soldiers)
+    return threats
+
+
 def _defensive_target(threats: list[float], mask: ActionMaskV2, threshold: float) -> int | None:
     if threats[0] >= threshold and mask.army_choice[0]:
         return 0
@@ -248,21 +265,21 @@ class BalancedPolicy(BaselinePolicy):
         workers, soldiers, food = _own_counts(observation)
         own = observation.block("own_global")
         threat = _known_threats(observation)
-        target = _defensive_target(threat, mask, 0.35)
-        enemy_queen = observation.block("enemy_queen_hp_last")[0]
-        queen_known = observation.block("enemy_queen_known")[0] > 0.0
-        queen_current = observation.block("enemy_queen_current")[0] > 0.0
+        # Keep the balanced profile home/near-home focused. Enemy workers at the
+        # center or on the far side must not make its raid readiness unreachable.
+        near_home_threat = [*threat[:3], 0.0, 0.0, 0.0, 0.0]
+        target = _defensive_target(near_home_threat, mask, 0.35)
         enough_soldiers = soldiers >= max(6.0, workers * 0.28)
         if target is not None:
             army = target
-        elif enough_soldiers and queen_known and queen_current and enemy_queen > 0.0 and mask.army_choice[6]:
+        elif enough_soldiers and mask.army_choice[6]:
             army = 6
         else:
             army = 0
         hungry = food < 65.0 or own[12] > 0.08 or own[16] > 0.08
         if hungry and (own[12] > 0.15 or food < 30.0):
             lay = 0
-        elif soldiers < max(3.0, workers * 0.28) and (food >= 45.0 or target is not None):
+        elif soldiers < max(6.0, workers * 0.28) and (food >= 45.0 or target is not None):
             lay = 2
         else:
             lay = 1
@@ -276,19 +293,24 @@ class RaiderPolicy(BaselinePolicy):
         workers, soldiers, food = _own_counts(observation)
         own = observation.block("own_global")
         threats = _known_threats(observation)
-        # Raider intercepts the most forward currently visible group. Stale intel can
-        # guide forage, but cannot trigger a claim that a raid target is present now.
+        soldier_threats = _known_soldier_threats(observation)
+        # Forward intercepts are for current enemy soldiers, never worker sightings.
+        # Once ready, only a soldier threat at home or the first local approach delays
+        # the raid; farther groups do not create an endless precondition loop.
         current = observation.block("enemy_current")
-        visible_targets = [node for node in range(1, 6) if current[node] and threats[node] > 0.0
+        visible_targets = [node for node in range(1, 6) if current[node] and soldier_threats[node] > 0.0
                            and mask.army_choice[node]]
-        queen_known = observation.block("enemy_queen_known")[0] > 0.0
-        queen_current = observation.block("enemy_queen_current")[0] > 0.0
-        enemy_queen = observation.block("enemy_queen_hp_last")[0]
         prepared_to_raid = soldiers >= max(5.0, workers * 0.40)
-        if visible_targets:
-            army = max(visible_targets, key=lambda node: (node, threats[node]))
-        elif prepared_to_raid and queen_known and queen_current and enemy_queen > 0.0 and mask.army_choice[6]:
+        near_home_soldiers = [
+            soldier_threats[node] if current[node] else 0.0 for node in range(2)
+        ] + [0.0] * 5
+        defense_target = _defensive_target(near_home_soldiers, mask, 1.0)
+        if defense_target is not None:
+            army = defense_target
+        elif prepared_to_raid and mask.army_choice[6]:
             army = 6
+        elif visible_targets:
+            army = max(visible_targets, key=lambda node: (node, threats[node]))
         else:
             # Advance/position on the outermost reachable visible route; ActionV2 has
             # no explicit target waypoint, so this is the closest legal pressure order.
@@ -296,7 +318,7 @@ class RaiderPolicy(BaselinePolicy):
         hungry = food < 45.0 or own[12] > 0.10 or own[16] > 0.10
         if hungry and food < 25.0:
             lay = 0
-        elif soldiers < max(5.0, workers * 0.40) and food >= 35.0:
+        elif soldiers < max(5.0, workers * 0.40):
             lay = 2
         else:
             lay = 1
@@ -319,20 +341,24 @@ _SPECS: dict[str, BaselineSpec] = {
         ("lay_none_starvation_debt", 0.12), ("forage_support", 1),
         ("avoid_center_when_allowed", False)), RushPolicy),
     "balanced": BaselineSpec("balanced", "v1", (("soldier_worker_ratio", 0.28),
-        ("minimum_soldiers_to_raid", 6), ("defense_threat", 0.35), ("hungry_food_below", 65),
+        ("minimum_soldiers_to_raid", 6), ("defense_threat", 0.35),
+        ("defense_local_nodes", "home_and_1_to_2"), ("hungry_food_below", 65),
         ("lay_none_food_below", 30), ("lay_none_starvation_debt", 0.15),
         ("soldier_lay_food_at_least", 45), ("hungry_starvation_debt", 0.08),
+        ("soldier_lay_target", "raid_readiness"),
         ("hungry_starvation_delta", 0.08),
         ("forage_support_normal", 2), ("forage_support_when_hungry", 3),
-        ("raid_requires_current_known_enemy_queen", True),
+        ("raid_requires_current_known_enemy_queen", False),
         ("avoid_center_when_defending", True), ("avoid_center_score_when_idle", -0.25)), BalancedPolicy),
     "raider": BaselineSpec("raider", "v1", (("minimum_soldiers_to_raid", 5),
         ("soldier_worker_ratio_to_raid", 0.40),
-        ("defense_target_requires_current_enemy", True), ("raid_requires_current_known_enemy_queen", True),
-        ("visible_intercept_priority", "farthest_local_node_then_threat"),
+        ("defense_target_requires_current_enemy_soldier", True),
+        ("defense_local_nodes", "home_and_1"), ("defense_soldier_threshold", 1.0),
+        ("raid_requires_current_known_enemy_queen", False),
+        ("visible_intercept_priority", "farthest_current_soldier_before_ready"),
         ("outermost_reachable_position_fallback", True), ("hungry_food_below", 45),
         ("hungry_starvation_debt", 0.10), ("hungry_starvation_delta", 0.10), ("lay_none_food_below", 25),
-        ("soldier_lay_food_at_least", 35),
+        ("soldier_lay_food_at_least", 25),
         ("forage_support", 2), ("avoid_center_when_allowed", True)), RaiderPolicy),
 }
 

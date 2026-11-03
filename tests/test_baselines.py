@@ -4,17 +4,19 @@ import json
 
 import pytest
 
-from formicmind.actions import ActionMaskV2, get_action_mask, validate_action
+from formicmind.actions import ActionMaskV2, ActionV2, get_action_mask, validate_action
 from formicmind.baselines import baseline_names, baseline_spec, make_baseline
 from formicmind.cli import EXIT_OK, main as sim_main
 from formicmind.decoder import decode_action_logits
 from formicmind.evaluation import controller_pair, evaluate_episodes
+from formicmind.events import OrderEvent, Phase
 from formicmind.observation import OBS_V2_OFFSETS, ObservationV2, build_observation, f32
 from formicmind.policy import decide
 from formicmind.rng import new_stream
 from formicmind.reset import reset
-from formicmind.rules import default_config
+from formicmind.rules import Q_TOTAL, default_config
 from formicmind.snapshot import begin_policy_phase
+from formicmind.tick import ScriptedController, step_tick
 
 from helpers import fresh_state, mirror_state
 
@@ -140,6 +142,51 @@ def test_profiles_react_to_food_deficit_and_current_threat_but_not_stale_threat(
 
     # The three strategic profiles have intentionally distinct default choices.
     assert len({_action(name, calm) for name in ("turtle", "rush", "balanced", "raider")}) >= 3
+
+
+@pytest.mark.parametrize("name", ("balanced", "raider"))
+def test_ready_raid_ignores_center_workers_without_queen_intel(name):
+    observation = _observations(fresh_state(60))
+    observation = _edit(observation, "own_global", {2: 6 / 70})
+    observation = _edit(observation, "enemy_count_last", {6: 3 / 67})
+    observation = _edit(observation, "enemy_known", {3: 1.0})
+    observation = _edit(observation, "enemy_current", {3: 1.0})
+
+    action = _action(name, observation)
+    assert observation.block("enemy_queen_known")[0] == 0.0
+    assert action.army_choice == 6
+
+
+@pytest.mark.parametrize("name", ("balanced", "raider"))
+def test_raiding_profiles_reach_legal_raid_from_reset_without_queen_intel(name):
+    pair = controller_pair(None, a=name, b="turtle")
+    state, run = reset(default_config(), 20261103, [d["stream_id"] for d in pair.descriptors])
+    # A passive scripted opponent leaves the public resource routes open. The policy
+    # under test still develops and issues its orders through the real tick engine.
+    passive = ScriptedController({
+        0: ActionV2(0, (0, Q_TOTAL, 0, 0, 0, 0), 0, False),
+    })
+    controllers = (pair.controllers[0], passive)
+
+    for _ in range(state.config.t_max):
+        observation = build_observation(
+            begin_policy_phase(state.clone(), tuple(run.windows)), 0
+        ) if state.tick % state.config.policy_interval_k == 0 else None
+        result = step_tick(state, run, controllers)
+        raid = next((event for event in result.events
+                     if isinstance(event, OrderEvent) and event.side == 0
+                     and event.army_choice == 6), None)
+        if raid is not None:
+            assert observation is not None
+            assert observation.block("enemy_queen_known")[0] == 0.0
+            assert get_action_mask(observation).army_choice[6]
+            assert raid.phase == Phase.POLICY
+            assert raid.army_target_node == 6
+            return
+        if run.outcome is not None:
+            break
+
+    pytest.fail(f"{name} did not issue a raid order from the reset state")
 
 
 def test_paired_policy_matchups_are_repeatable_with_role_keyed_streams():
