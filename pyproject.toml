@@ -11,9 +11,11 @@ dependencies = []
 
 [project.scripts]
 sim = "formicmind.cli:main"
+formicmind-ml = "formicmind.ml.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+ml = ["torch>=2.7"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
