@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import struct
 from fractions import Fraction
+
+import pytest
 
 from formicmind.actions import get_action_mask
 from formicmind.baselines import baseline_spec
@@ -15,14 +18,22 @@ from formicmind.gate1_feedback import (
     _EXPECTED_CONFIG_HASHES,
     _FrozenObservationController,
     _RecordingPolicy,
+    Gate1FeedbackError,
+    _control_fields,
+    _episode_row,
+    _execute_block,
     _new_episode,
     _block_from_rows,
     _build_summary,
     _frozen_observation,
+    _git_value,
     _manifest,
     _policy_streams,
     _schedule,
+    _step_episode,
     _target_label,
+    _write_rows,
+    verify,
 )
 from formicmind.canonical import canonical_dumps
 from formicmind.observation import OBS_V2_LENGTH, ObservationV2
@@ -84,6 +95,56 @@ def test_manifest_canonicalizes_float_parameters_without_changing_policy_digest(
     balanced = manifest["policies"]["balanced"]
     assert balanced["parameters"]["shared"]["food_stale_freshness_slope"] == "3"
     assert balanced["parameters_sha256"] == "03c6760da2b2fc42108133c8b81a91b70e3c086327fbabedf9d3f30eb7dcdd0f"
+
+
+def test_matched_block_control_and_replay_are_deterministic() -> None:
+    config = _build_configs()["R0-T0"]
+    first = _execute_block("R0-T0", config, "balanced", "random", SEEDS[0], [0])
+    second = _execute_block("R0-T0", config, "balanced", "random", SEEDS[0], [0])
+
+    assert _write_rows(first) == _write_rows(second)
+    arms = {(row["seat_assignment"], row["target_mode"]): row for row in first}
+    assert all(row["t0_control_pass"] for row in first)
+    for seat in ("target_A", "target_B"):
+        assert _control_fields(arms[(seat, "closed")]) == _control_fields(arms[(seat, "frozen")])
+
+
+def test_censored_episode_and_unreached_horizons_stay_unmeasured() -> None:
+    episode = _new_episode(
+        "R0-T0", _build_configs()["R0-T0"], "balanced", "random", SEEDS[0], True, "closed",
+    )
+    _step_episode(episode, [0])
+
+    row = _episode_row(episode)
+
+    assert row["status"] == "censored_incomplete"
+    assert row["target_score_x2"] == "not_measured"
+    assert row["terminal"] == "not_measured"
+    assert all(horizon["status"] == "not_measured" for horizon in row["horizons"].values())
+    assert all(
+        horizon["reason"] == "engine_cutoff_without_terminal"
+        for horizon in row["horizons"].values()
+    )
+
+
+def test_strict_verifier_rejects_a_tampered_artifact_before_replay(tmp_path) -> None:
+    matches = b"{}\n"
+    summary = b"{}\n"
+    manifest = _manifest(_git_value("rev-parse", "HEAD"))
+    manifest.update({
+        "step_tick_calls": 0,
+        "scheduled_matches": EXPECTED_MATCHES,
+        "artifact_sha256": {
+            "matches.jsonl": hashlib.sha256(matches).hexdigest(),
+            "summary.json": hashlib.sha256(summary).hexdigest(),
+        },
+    })
+    (tmp_path / "manifest.json").write_bytes(canonical_dumps(manifest) + b"\n")
+    (tmp_path / "matches.jsonl").write_bytes(b'{"tampered":true}\n')
+    (tmp_path / "summary.json").write_bytes(summary)
+
+    with pytest.raises(Gate1FeedbackError, match="saved artifact hash mismatch"):
+        verify(tmp_path)
 
 
 def test_frozen_observation_updates_only_time_and_ignores_live_world_values() -> None:
