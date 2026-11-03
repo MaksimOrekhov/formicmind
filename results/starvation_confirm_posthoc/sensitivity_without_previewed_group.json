@@ -1,0 +1,143 @@
+{
+ "a0_clusters": 228,
+ "decision_if_the_gate_were_ignored": {
+  "candidate": null,
+  "reason": "0 < E < 6",
+  "verdict": "INSUFFICIENT_DATA"
+ },
+ "excluded": {
+  "anchors_removed": 2,
+  "map": "R0-T0",
+  "note": "both seats and all variants of the previewed seed",
+  "pair": "turtle-raider",
+  "rows_removed": 10,
+  "seed": 20270501
+ },
+ "exposure": {
+  "E": 3,
+  "clusters": [
+   "R0-T0|turtle-raider|20270502",
+   "R0-T1|turtle-raider|20270501",
+   "R1-T1|turtle-balanced|20270501"
+  ],
+  "seeds_in_exposure_clusters": {
+   "R0-T0|turtle-raider|20270502": 7,
+   "R0-T1|turtle-raider|20270501": 8,
+   "R1-T1|turtle-balanced|20270501": 8
+  },
+  "spread_ok": true
+ },
+ "integrity_gate_applied": false,
+ "rows_kept": 4790,
+ "same_as_formal": {
+  "E": true,
+  "classes": true,
+  "criteria": true,
+  "exposure_cells": true,
+  "verdict": true
+ },
+ "schema": "formicmind.starvation-confirm-posthoc-sensitivity/v1",
+ "status": "post-hoc only; not a verdict",
+ "variants": {
+  "A1a": {
+   "classes": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 0,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 1
+   },
+   "criteria": {
+    "K3": false,
+    "K4": false,
+    "K5": true,
+    "K6": false,
+    "K7": true
+   },
+   "e1": {
+    "collapses": 62,
+    "collapses_a0": 63,
+    "n_non_exposed": 225,
+    "t_loss": 48,
+    "t_loss_a0": 39,
+    "x_changed": 27
+   },
+   "viable": 0
+  },
+  "A1b": {
+   "classes": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 0,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 1
+   },
+   "criteria": {
+    "K3": true,
+    "K4": false,
+    "K5": false,
+    "K6": false,
+    "K7": true
+   },
+   "e1": {
+    "collapses": 62,
+    "collapses_a0": 63,
+    "n_non_exposed": 225,
+    "t_loss": 50,
+    "t_loss_a0": 39,
+    "x_changed": 30
+   },
+   "viable": 0
+  },
+  "A2": {
+   "classes": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 0,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 1
+   },
+   "criteria": {
+    "K3": true,
+    "K4": false,
+    "K5": true,
+    "K6": false,
+    "K7": true
+   },
+   "e1": {
+    "collapses": 62,
+    "collapses_a0": 63,
+    "n_non_exposed": 225,
+    "t_loss": 49,
+    "t_loss_a0": 39,
+    "x_changed": 38
+   },
+   "viable": 0
+  },
+  "A3b": {
+   "classes": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 0,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 1
+   },
+   "criteria": {
+    "K3": true,
+    "K4": false,
+    "K5": false,
+    "K6": false,
+    "K7": true
+   },
+   "e1": {
+    "collapses": 63,
+    "collapses_a0": 63,
+    "n_non_exposed": 225,
+    "t_loss": 50,
+    "t_loss_a0": 39,
+    "x_changed": 31
+   },
+   "viable": 0
+  }
+ }
+}

@@ -1,0 +1,221 @@
+{
+ "a0_stagnant_clusters": [
+  {
+   "cluster": "R0-T0|turtle-balanced|20270501",
+   "forgiveness_supported": false,
+   "pair": "turtle-balanced",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 532,
+   "sd_missing": 1352,
+   "seeds": 8,
+   "stagnant": 8,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 0
+  },
+  {
+   "cluster": "R0-T0|turtle-raider|20270501",
+   "forgiveness_supported": true,
+   "pair": "turtle-raider",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 1379,
+   "sd_missing": 2094,
+   "seeds": 8,
+   "stagnant": 7,
+   "stagnant_deficit": 7,
+   "stagnant_sat": 0
+  },
+  {
+   "cluster": "R0-T1|turtle-balanced|20270501",
+   "forgiveness_supported": false,
+   "pair": "turtle-balanced",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 514,
+   "sd_missing": 1364,
+   "seeds": 8,
+   "stagnant": 8,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 0
+  },
+  {
+   "cluster": "R0-T1|turtle-raider|20270501",
+   "forgiveness_supported": true,
+   "pair": "turtle-raider",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 1520,
+   "sd_missing": 2370,
+   "seeds": 8,
+   "stagnant": 8,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 0
+  },
+  {
+   "cluster": "R0-T2|turtle-balanced|20270501",
+   "forgiveness_supported": false,
+   "pair": "turtle-balanced",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 487,
+   "sd_missing": 1257,
+   "seeds": 8,
+   "stagnant": 8,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 0
+  },
+  {
+   "cluster": "R0-T2|turtle-raider|20270501",
+   "forgiveness_supported": false,
+   "pair": "turtle-raider",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 223,
+   "sd_missing": 1040,
+   "seeds": 8,
+   "stagnant": 9,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 1
+  },
+  {
+   "cluster": "R1-T1|turtle-balanced|20270501",
+   "forgiveness_supported": true,
+   "pair": "turtle-balanced",
+   "persistent_deficit": true,
+   "reasons": [
+    "timeout"
+   ],
+   "sd_forgiven": 1066,
+   "sd_missing": 1696,
+   "seeds": 8,
+   "stagnant": 8,
+   "stagnant_deficit": 8,
+   "stagnant_sat": 0
+  }
+ ],
+ "rows_with_different_trajectory_by_pair": {
+  "A1a": {
+   "random-balanced": 70,
+   "random-raider": 54,
+   "random-rush": 40,
+   "random-turtle": 90,
+   "rush-balanced": 96,
+   "rush-raider": 80,
+   "turtle-balanced": 80,
+   "turtle-raider": 48,
+   "turtle-rush": 32
+  },
+  "A1b": {
+   "balanced-raider": 16,
+   "random-balanced": 70,
+   "random-raider": 64,
+   "random-rush": 58,
+   "random-turtle": 96,
+   "rush-balanced": 96,
+   "rush-raider": 96,
+   "turtle-balanced": 96,
+   "turtle-raider": 48,
+   "turtle-rush": 32
+  },
+  "A2": {
+   "balanced-raider": 16,
+   "random-balanced": 74,
+   "random-raider": 66,
+   "random-rush": 66,
+   "random-turtle": 96,
+   "rush-balanced": 96,
+   "rush-raider": 96,
+   "turtle-balanced": 96,
+   "turtle-raider": 48,
+   "turtle-rush": 32
+  },
+  "A3b": {
+   "balanced-raider": 16,
+   "random-balanced": 74,
+   "random-raider": 66,
+   "random-rush": 66,
+   "random-turtle": 96,
+   "rush-balanced": 96,
+   "rush-raider": 96,
+   "turtle-balanced": 96,
+   "turtle-raider": 48,
+   "turtle-rush": 32
+  }
+ },
+ "schema": "formicmind.starvation-confirm-posthoc/v1",
+ "sensitivity_without_forgiveness_gate": {
+  "classes": {
+   "A1a": {
+    "ADJUSTED_ACTIVE": 1,
+    "ADJUSTED_STATIC": 1,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 3
+   },
+   "A1b": {
+    "ADJUSTED_ACTIVE": 1,
+    "ADJUSTED_STATIC": 1,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 3
+   },
+   "A2": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 1,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 4
+   },
+   "A3b": {
+    "ADJUSTED_ACTIVE": 0,
+    "ADJUSTED_STATIC": 2,
+    "COLLAPSED": 0,
+    "PERSISTS": 2,
+    "QUEEN_DEATH": 3
+   }
+  },
+  "clusters": 7
+ },
+ "source_rows_sha256": "75afcba7f662c59cef2c66c2291264e6c9bf857e1072cb54a669f4a5524a9677",
+ "status": "post-hoc, exploratory",
+ "turtle_rows_terminal_reasons_raw": {
+  "A0": {
+   "economic_collapse": 150,
+   "queen_death": 118,
+   "timeout": 116
+  },
+  "A1a": {
+   "economic_collapse": 148,
+   "queen_death": 172,
+   "timeout": 64
+  },
+  "A1b": {
+   "economic_collapse": 144,
+   "queen_death": 176,
+   "timeout": 64
+  },
+  "A2": {
+   "economic_collapse": 148,
+   "queen_death": 186,
+   "timeout": 50
+  },
+  "A3b": {
+   "economic_collapse": 146,
+   "queen_death": 174,
+   "timeout": 64
+  }
+ }
+}
