@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 from collections.abc import Sequence
 
-from .baselines import baseline_names
+from .baselines import baseline_selectors
 from .evaluation import (
     SCENARIOS,
     TECHNICAL_SCENARIO,
@@ -33,7 +33,7 @@ from .replay.writer import record_episode
 from .rules import default_config
 
 SCRIPTED = "scripted"
-CONTROLLERS = [SCRIPTED, *baseline_names()]
+CONTROLLERS = [SCRIPTED, *baseline_selectors()]
 
 
 class _UsageParser(argparse.ArgumentParser):
