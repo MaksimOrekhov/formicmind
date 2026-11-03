@@ -23,12 +23,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .baselines import baseline_names, baseline_spec, make_baseline
+from .match import _register_streams
 from .match_smoke import SCENARIOS as SCENARIO_FIXTURES
+from .rng import policy_stream_id
 from .reset import reset
 from .replay.writer import describe_controller
 from .rules import SOLDIER, WORKER, default_config
 from .serialization import checkpoint_hash, config_hash, state_hash
-from .tick import Controller, ScriptedController, step_tick
+from .tick import Controller, PolicyController, ScriptedController, step_tick
 from .versions import (
     ACTION_VERSION,
     BALANCE_VERSION,
@@ -59,7 +62,15 @@ class EvaluationError(ValueError):
 class ControllerPair:
     controllers: tuple[Controller, Controller]
     ids: tuple[str, str]
-    script_hashes: tuple[str, str]
+    script_hashes: tuple[str | None, str | None]
+    descriptors: tuple[dict[str, Any], dict[str, Any]]
+
+    def swapped(self) -> "ControllerPair":
+        """Swap seats while keeping each controller's role-keyed RNG stream attached."""
+        return ControllerPair(
+            tuple(reversed(self.controllers)), tuple(reversed(self.ids)),
+            tuple(reversed(self.script_hashes)), tuple(reversed(self.descriptors)),
+        )  # type: ignore[arg-type]
 
 
 @dataclass(frozen=True, slots=True)
@@ -139,20 +150,63 @@ def validate_scenario(scenario: str) -> str:
     return scenario
 
 
-def controller_pair(scenario: str, *, swapped: bool = False) -> ControllerPair:
-    """Build only existing scripted controllers; these are fixtures, not strategic baselines."""
-    validate_scenario(scenario)
-    if scenario == TECHNICAL_SCENARIO:
-        scripts: Mapping[str, Mapping[int, Any]] = {"script_a": {}, "script_b": {}}
-    else:
-        fixture = SCENARIOS_BY_NAME[scenario]
-        scripts = {"script_a": fixture.script_a, "script_b": fixture.script_b}
-    labels = ("script_b", "script_a") if swapped else ("script_a", "script_b")
-    controllers = tuple(ScriptedController(scripts[label]) for label in labels)
-    ids = tuple(f"scripted:{scenario}:{label}" for label in labels)
-    hashes = tuple(describe_controller(controller).ref.removeprefix("script-sha256:")
-                   for controller in controllers)
-    return ControllerPair(controllers, ids, hashes)  # type: ignore[arg-type]
+def controller_pair(
+    scenario: str | None = TECHNICAL_SCENARIO,
+    *, a: str = "scripted", b: str = "scripted", swapped: bool = False,
+) -> ControllerPair:
+    """Build scripted fixtures or one of the fixed FOR-19 policies for each seat."""
+    if a == "scripted" and b == "scripted":
+        if scenario is None:
+            raise EvaluationError("scripted controllers require a scripted scenario.")
+        validate_scenario(scenario)
+        if scenario == TECHNICAL_SCENARIO:
+            scripts: Mapping[str, Mapping[int, Any]] = {"script_a": {}, "script_b": {}}
+        else:
+            fixture = SCENARIOS_BY_NAME[scenario]
+            scripts = {"script_a": fixture.script_a, "script_b": fixture.script_b}
+        labels = ("script_a", "script_b")
+        controllers = tuple(ScriptedController(scripts[label]) for label in labels)
+        ids = tuple(f"scripted:{scenario}:{label}" for label in labels)
+        hashes = tuple(describe_controller(controller).ref.removeprefix("script-sha256:")
+                       for controller in controllers)
+        descriptors = tuple({
+            "id": ids[index], "kind": "scripted", "scenario": scenario, "script_sha256": hashes[index],
+        } for index in range(2))
+        pair = ControllerPair(controllers, ids, hashes, descriptors)  # type: ignore[arg-type]
+        return pair.swapped() if swapped else pair
+
+    if scenario is not None:
+        raise EvaluationError("--scenario is supported only with --a scripted --b scripted.")
+    if a == "scripted" or b == "scripted":
+        raise EvaluationError("scripted fixtures cannot be mixed with strategic policies.")
+    try:
+        spec_a, spec_b = baseline_spec(a), baseline_spec(b)
+    except ValueError as exc:
+        raise EvaluationError(str(exc)) from exc
+    replicate_by_seat: list[int] = []
+    used_replicates: dict[str, int] = {}
+    for spec in (spec_a, spec_b):
+        replicate = used_replicates.get(spec.policy_id, 0)
+        used_replicates[spec.policy_id] = replicate + 1
+        replicate_by_seat.append(replicate)
+    specs = (spec_a, spec_b)
+    controllers: tuple[Controller, Controller] = tuple(
+        PolicyController(make_baseline(spec.name), policy_stream_id(spec.policy_id, replicate_by_seat[index]))
+        for index, spec in enumerate(specs)
+    )  # type: ignore[assignment]
+    ids = tuple(f"{spec.full_id}#replicate-{replicate_by_seat[index]}" for index, spec in enumerate(specs))
+    descriptors = tuple({
+        "id": spec.full_id,
+        "kind": "policy",
+        "policy_id": spec.policy_id,
+        "version": spec.version,
+        "parameters": spec.parameter_object(),
+        "parameter_sha256": spec.digest(),
+        "stream_id": policy_stream_id(spec.policy_id, replicate_by_seat[index]),
+        "replicate": replicate_by_seat[index],
+    } for index, spec in enumerate(specs))
+    pair = ControllerPair(controllers, ids, (None, None), descriptors)  # type: ignore[arg-type]
+    return pair.swapped() if swapped else pair
 
 
 def execute_episode(
@@ -175,6 +229,7 @@ def execute_episode(
         raise EvaluationError(f"max_ticks must be within 0..T_max ({config.t_max}).")
     limit = config.t_max if max_ticks is None else max_ticks
     state, run = reset(config, seed)
+    _register_streams(run, pair.controllers, ())
     executed = 0
     while run.outcome is None and executed < limit and state.tick < config.t_max:
         tick_result = step_tick(state, run, pair.controllers, on_phase_timing=on_phase_timing)
@@ -234,7 +289,9 @@ def evaluate_episodes(
     *,
     episodes: int,
     seed_start: int,
-    scenario: str,
+    scenario: str | None = TECHNICAL_SCENARIO,
+    a: str = "scripted",
+    b: str = "scripted",
     paired_seat: bool = False,
     max_ticks: int | None = None,
     config=None,
@@ -242,24 +299,26 @@ def evaluate_episodes(
     if type(episodes) is not int or episodes <= 0:
         raise EvaluationError("episodes must be a positive integer.")
     validate_seed(seed_start, "seed_start")
-    validate_scenario(scenario)
+    if a == "scripted" and b == "scripted":
+        if scenario is None:
+            raise EvaluationError("scripted controllers require a scripted scenario.")
+        validate_scenario(scenario)
+    elif scenario is not None:
+        raise EvaluationError("--scenario is supported only with --a scripted --b scripted.")
     run_count = episodes * (2 if paired_seat else 1)
     if seed_start + episodes - 1 > U64_MAX:
         raise EvaluationError("seed_start + episodes - 1 exceeds the u64 seed range.")
-    base_pair = controller_pair(scenario)
+    base_pair = controller_pair(scenario, a=a, b=b)
     records = []
     for index in range(episodes):
         seed = seed_start + index
         sides = (False, True) if paired_seat else (False,)
         for side_index, swapped in enumerate(sides):
-            pair = base_pair if not swapped else controller_pair(scenario, swapped=True)
+            pair = base_pair if not swapped else base_pair.swapped()
             summary = execute_episode(seed, pair, config=config, max_ticks=max_ticks)
             pair_id = f"seed-{seed}" if paired_seat else None
             row = summary.to_record(episode_index=len(records), pair_id=pair_id, assignment=pair.ids)
-            row["controller_config"] = {
-                "A": {"id": pair.ids[0], "kind": "scripted", "script_sha256": pair.script_hashes[0]},
-                "B": {"id": pair.ids[1], "kind": "scripted", "script_sha256": pair.script_hashes[1]},
-            }
+            row["controller_config"] = result_controller_config(pair)
             records.append(row)
     aggregate = aggregate_evaluation(records)
     aggregate["seed_pairs"] = episodes if paired_seat else 0
@@ -451,7 +510,9 @@ def run_benchmark(
     ticks_per_run: int = 100_000,
     warmup_ticks: int = 10_000,
     seed_start: int,
-    scenario: str = TECHNICAL_SCENARIO,
+    scenario: str | None = TECHNICAL_SCENARIO,
+    a: str = "scripted",
+    b: str = "scripted",
     pin_core: int | None = None,
     phase_timing_ticks: int = 0,
     config=None,
@@ -467,7 +528,12 @@ def run_benchmark(
     if type(phase_timing_ticks) is not int or phase_timing_ticks < 0:
         raise EvaluationError("phase_timing_ticks must be a non-negative integer.")
     validate_seed(seed_start, "seed_start")
-    validate_scenario(scenario)
+    if a == "scripted" and b == "scripted":
+        if scenario is None:
+            raise EvaluationError("scripted controllers require a scripted scenario.")
+        validate_scenario(scenario)
+    elif scenario is not None:
+        raise EvaluationError("--scenario is supported only with --a scripted --b scripted.")
     if ticks_per_run and seed_start + ticks_per_run - 1 > U64_MAX:
         raise EvaluationError("seed_start + ticks_per_run - 1 exceeds the u64 seed range.")
     if warmup_ticks and seed_start + warmup_ticks - 1 > U64_MAX:
@@ -477,7 +543,7 @@ def run_benchmark(
     if pin_core is not None and (type(pin_core) is not int or pin_core < 0):
         raise EvaluationError("pin_core must be a non-negative logical CPU index or null.")
 
-    pair = controller_pair(scenario)
+    pair = controller_pair(scenario, a=a, b=b)
     samples: list[dict[str, Any]] = []
     diagnostic = None
     affinity = SingleCoreAffinity(pin_core)
@@ -558,9 +624,10 @@ def run_benchmark(
         "command": "benchmark",
         "config": _config_descriptor(config),
         "versions": contract_versions(),
-        "controllers": controller_descriptors(scenario),
+        "controllers": controller_descriptors(scenario, a=a, b=b),
         "parameters": {
             "scenario": scenario,
+            **({} if a == "scripted" and b == "scripted" else {"a": a, "b": b}),
             "runs": runs,
             "ticks_per_run": ticks_per_run,
             "warmup_ticks": warmup_ticks,
@@ -620,17 +687,23 @@ def _config_descriptor(config) -> dict[str, Any]:
     }
 
 
-def controller_descriptors(scenario: str) -> dict[str, dict[str, str]]:
-    pair = controller_pair(scenario)
-    return {
-        side: {
-            "id": pair.ids[index],
-            "kind": "scripted",
-            "scenario": scenario,
-            "script_sha256": pair.script_hashes[index],
+def controller_descriptors(
+    scenario: str | None = TECHNICAL_SCENARIO, *, a: str = "scripted", b: str = "scripted",
+) -> dict[str, dict[str, Any]]:
+    pair = controller_pair(scenario, a=a, b=b)
+    return {side: pair.descriptors[index] for index, side in enumerate(("A", "B"))}
+
+
+def result_controller_config(pair: ControllerPair) -> dict[str, dict[str, Any]]:
+    """Keep the historical scripted result shape; include full descriptors for policies."""
+    if all(descriptor["kind"] == "scripted" for descriptor in pair.descriptors):
+        return {
+            side: {
+                "id": pair.ids[index], "kind": "scripted", "script_sha256": pair.script_hashes[index],
+            }
+            for index, side in enumerate(("A", "B"))
         }
-        for index, side in enumerate(("A", "B"))
-    }
+    return {side: pair.descriptors[index] for index, side in enumerate(("A", "B"))}
 
 
 def current_git_commit() -> str | None:
@@ -662,13 +735,18 @@ def current_git_worktree_dirty() -> bool | None:
 def build_manifest(command: str, config, parameters: dict[str, Any]) -> dict[str, Any]:
     if command not in {"run", "eval", "benchmark"}:
         raise EvaluationError(f"unsupported manifest command: {command!r}")
-    scenario = validate_scenario(parameters["scenario"])
+    scenario = parameters.get("scenario")
+    a, b = parameters.get("a", "scripted"), parameters.get("b", "scripted")
+    if a == "scripted" and b == "scripted":
+        validate_scenario(scenario)
+    elif scenario is not None:
+        raise EvaluationError("--scenario is supported only with --a scripted --b scripted.")
     return {
         "schema_version": MANIFEST_SCHEMA,
         "command": command,
         "config": _config_descriptor(config),
         "versions": contract_versions(),
-        "controllers": controller_descriptors(scenario),
+        "controllers": controller_descriptors(scenario, a=a, b=b),
         "parameters": parameters,
         "git_commit": current_git_commit(),
         "git_worktree_dirty": current_git_worktree_dirty(),
@@ -714,9 +792,17 @@ def load_manifest(path: str | os.PathLike[str], expected_command: str, config) -
     if not isinstance(params, dict):
         raise EvaluationError("manifest parameters must be an object.")
     scenario = params.get("scenario")
-    validate_scenario(scenario)
-    if manifest.get("controllers") != controller_descriptors(scenario):
-        raise EvaluationError("manifest controller configuration/script hashes do not match the declared scenario.")
+    a, b = params.get("a", "scripted"), params.get("b", "scripted")
+    try:
+        if a == "scripted" and b == "scripted":
+            validate_scenario(scenario)
+        elif scenario is not None:
+            raise EvaluationError("manifest scenario cannot be combined with strategic policies.")
+        expected_controllers = controller_descriptors(scenario, a=a, b=b)
+    except (ValueError, TypeError) as exc:
+        raise EvaluationError(f"manifest controller selection is invalid: {exc}") from exc
+    if manifest.get("controllers") != expected_controllers:
+        raise EvaluationError("manifest controller configuration/script hashes do not match the declared controllers.")
     requested_commit = manifest.get("git_commit")
     local_commit = current_git_commit()
     if requested_commit is not None and local_commit is not None and requested_commit != local_commit:
@@ -730,6 +816,7 @@ def load_manifest(path: str | os.PathLike[str], expected_command: str, config) -
 
 
 def _validate_manifest_parameters(command: str, params: dict[str, Any], config) -> None:
+    scripted = "a" not in params and "b" not in params
     expected_keys = {
         "run": {"scenario", "seed", "max_ticks"},
         "eval": {"scenario", "episodes", "seed_start", "paired_seat", "max_ticks", "seed_schedule"},
@@ -738,6 +825,10 @@ def _validate_manifest_parameters(command: str, params: dict[str, Any], config) 
             "pin_core", "pin_core_policy", "phase_timing_ticks",
         },
     }[command]
+    if not scripted:
+        if params.get("a") not in baseline_names() or params.get("b") not in baseline_names():
+            raise EvaluationError("manifest a/b must name supported baseline policies.")
+        expected_keys = {*expected_keys, "a", "b"}
     if set(params) != expected_keys:
         raise EvaluationError(f"manifest {command} parameters must contain exactly: {', '.join(sorted(expected_keys))}.")
     if command == "run":

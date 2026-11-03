@@ -24,6 +24,10 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
   `python -m formicmind.replay --verify FILE` / `sim replay --verify FILE` — [docs/replay_v1.md](docs/replay_v1.md).
   Записи smoke-матчей: `python -m formicmind.replay_smoke --out replays`.
 
+* Five fixed manual L0 baseline policies (`random`, `turtle`, `rush`, `balanced`, `raider`) for reproducible
+  `sim run/eval` diagnostics — [docs/strategic_baselines.md](docs/strategic_baselines.md). They are not trained or
+  validated as strong agents.
+
 Smoke-прогоны: движения (90 тиков) `python -m formicmind.smoke`; экономики (120 тиков, PARTIAL) `python -m formicmind.economy_smoke`;
 **полные матчи** (4 сценария, функциональная проверка) `python -m formicmind.match_smoke`.
 
