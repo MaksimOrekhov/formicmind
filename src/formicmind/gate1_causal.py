@@ -386,11 +386,11 @@ def _score_x2(outcome: Any, side: int) -> int | None:
 def _baseline_metrics(state: Any, run: RunState, target_side: int) -> dict[str, Any]:
     outcome = run.outcome
     return {
-        "winner": None if outcome is None else outcome.winner.value,
-        "reason": None if outcome is None else outcome.reason.value,
-        "terminal_tick": None if outcome is None else outcome.terminal_tick,
-        "tick_completed": None if outcome is None else outcome.tick_completed,
-        "target_score_x2": _score_x2(outcome, target_side),
+        "winner": "unknown_censored" if outcome is None else outcome.winner.value,
+        "reason": "unknown_censored" if outcome is None else outcome.reason.value,
+        "terminal_tick": -1 if outcome is None else outcome.terminal_tick,
+        "tick_completed": False if outcome is None else outcome.tick_completed,
+        "target_score_x2": "unknown_censored" if outcome is None else _score_x2(outcome, target_side),
         "state_tick": state.tick,
         "terminal": outcome is not None,
         "queen_hp": [colony.queen_hp for colony in state.colonies],
@@ -436,11 +436,14 @@ def _run_baseline(
             "tick_completed": state.tick == tick + 1,
         })
         random_after = _stream_snapshot(run, random_names) if tick % config.policy_interval_k == 0 else None
-        trajectory.add({
+        trajectory_row = {
             "tick": tick, "start_state_hash": start_state_hash, "events": canonical_events,
-            "end_state_hash": end_state_hash, "random_stream_before": random_before,
-            "random_stream_after": random_after,
-        })
+            "end_state_hash": end_state_hash,
+        }
+        if random_before is not None:
+            trajectory_row["random_stream_before"] = random_before
+            trajectory_row["random_stream_after"] = random_after
+        trajectory.add(trajectory_row)
     trajectory_id = trajectory.hexdigest()
     outcome = run.outcome
     baseline = {
@@ -562,9 +565,9 @@ def _event_totals(events: Iterable[Event], target_side: int) -> tuple[dict[str, 
     return dict(sorted(counts.items())), dict(sorted(totals.items()))
 
 
-def _outcome_object(run: RunState) -> dict[str, Any] | None:
+def _outcome_object(run: RunState) -> dict[str, Any]:
     if run.outcome is None:
-        return None
+        return {"status": "unknown_censored"}
     outcome = run.outcome
     return {
         "winner": outcome.winner.value,
@@ -659,8 +662,15 @@ def _arm(
                 "metrics": _world_metrics(state, target_side),
                 "terminal": run.outcome is not None,
             }
+    finished = run.outcome is not None
     outcome = _outcome_object(run)
-    terminal_metrics = _world_metrics(state, checkpoint.target_side) if outcome is not None else None
+    for offset, endpoint in tuple(horizon_results.items()):
+        if endpoint is None:
+            horizon_results[offset] = {
+                "status": "censored",
+                "reason": "terminal_before_horizon" if finished else "study_cutoff_before_horizon",
+            }
+    terminal_metrics = _world_metrics(state, checkpoint.target_side) if finished else {"status": "unknown_censored"}
     if order_event is None:
         raise Gate1CausalError("no target-side OrderEvent was emitted at the intervention checkpoint")
     return {
@@ -685,9 +695,9 @@ def _metric_physical_delta(control: dict[str, Any], treatment: dict[str, Any]) -
     endpoints: list[tuple[Any, Any]] = []
     for offset in ("30", "150"):
         a, b = control["horizons"][offset], treatment["horizons"][offset]
-        if a is not None and b is not None:
+        if "metrics" in a and "metrics" in b:
             endpoints.append((a["metrics"], b["metrics"]))
-    if control["terminal_metrics"] is not None and treatment["terminal_metrics"] is not None:
+    if "food" in control["terminal_metrics"] and "food" in treatment["terminal_metrics"]:
         endpoints.append((control["terminal_metrics"], treatment["terminal_metrics"]))
     return any(left != right for left, right in endpoints)
 
@@ -696,8 +706,8 @@ def _endpoint_deltas(control: dict[str, Any], treatment: dict[str, Any]) -> dict
     result: dict[str, Any] = {}
     for offset in ("30", "150"):
         left, right = control["horizons"][offset], treatment["horizons"][offset]
-        if left is None or right is None:
-            result[offset] = None
+        if "metrics" not in left or "metrics" not in right:
+            result[offset] = {"status": "censored", "reason": "episode_ended_before_common_horizon"}
         else:
             result[offset] = {
                 key: right["metrics"][key] if isinstance(right["metrics"][key], list) else right["metrics"][key] - left["metrics"][key]
@@ -729,8 +739,8 @@ def _endpoint_deltas(control: dict[str, Any], treatment: dict[str, Any]) -> dict
                     right["metrics"]["target_units_at_center_by_caste"],
                 )
             ]
-    if control["terminal_metrics"] is None or treatment["terminal_metrics"] is None:
-        result["terminal"] = None
+    if "food" not in control["terminal_metrics"] or "food" not in treatment["terminal_metrics"]:
+        result["terminal"] = {"status": "unknown_censored"}
     else:
         left, right = control["terminal_metrics"], treatment["terminal_metrics"]
         result["terminal"] = {key: right[key] - value for key, value in left.items() if type(value) is int}
@@ -778,7 +788,7 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         "mask_sha256": checkpoint.mask_sha256,
         "axis": axis,
         "control_action": _action_object(checkpoint.control_action),
-        "candidate_action": None if candidate is None else _action_object(candidate),
+        "candidate_action": {"status": "ineligible"} if candidate is None else _action_object(candidate),
         "action_diff_fields": [] if candidate is None else _action_diff(checkpoint.control_action, candidate),
         "eligible": candidate is not None,
         "ineligible_reason": checkpoint.ineligible_reasons[axis],
@@ -795,9 +805,13 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         requested = candidate if treatment_flag else checkpoint.control_action
         if event["lay_order"] != requested.lay_order or tuple(event["forage_share_q"]) != requested.forage_share_q or event["army_choice"] != requested.army_choice:
             raise Gate1CausalError("intervention OrderEvent does not match its validated ActionV2")
-    target_score_control = None if control["terminal"] is None else control["terminal"]["score_x2"][checkpoint.target_side]
-    target_score_treatment = None if treatment["terminal"] is None else treatment["terminal"]["score_x2"][checkpoint.target_side]
-    delta = None if target_score_control is None or target_score_treatment is None else (target_score_treatment - target_score_control) * 500
+    target_score_control = control["terminal"].get("score_x2", ["unknown_censored"] * 2)[checkpoint.target_side]
+    target_score_treatment = treatment["terminal"].get("score_x2", ["unknown_censored"] * 2)[checkpoint.target_side]
+    delta = (
+        (target_score_treatment - target_score_control) * 500
+        if type(target_score_control) is int and type(target_score_treatment) is int
+        else {"status": "unknown_censored"}
+    )
     common.update({
         "control": control,
         "treatment": treatment,
@@ -812,9 +826,9 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         "empty_action": (
             control["intervention_order_event"] != treatment["intervention_order_event"]
             and not _metric_physical_delta(control, treatment)
-            and control["terminal"] is not None and treatment["terminal"] is not None
+            and "score_x2" in control["terminal"] and "score_x2" in treatment["terminal"]
         ),
-        "unresolved_censored": control["terminal"] is None or treatment["terminal"] is None,
+        "unresolved_censored": "score_x2" not in control["terminal"] or "score_x2" not in treatment["terminal"],
     })
     return common
 
@@ -857,7 +871,7 @@ def _run_study(config: SimConfig, manifest: dict[str, Any], manifest_sha256: str
 
 def _rational(value: Fraction | None) -> Any:
     if value is None:
-        return None
+        return {"status": "not_estimable"}
     return {"numerator": value.numerator, "denominator": value.denominator}
 
 
@@ -865,7 +879,7 @@ def _unique_clusters(rows: list[dict[str, Any]], axis: str) -> dict[str, dict[st
     clusters: dict[str, dict[str, list[tuple[str, int]]]] = defaultdict(lambda: defaultdict(list))
     seen: set[tuple[str, str, str]] = set()
     for row in rows:
-        if row["axis"] != axis or not row["eligible"] or row["primary"]["delta_score_millipoints"] is None:
+        if row["axis"] != axis or not row["eligible"] or type(row["primary"]["delta_score_millipoints"]) is not int:
             continue
         key = (row["matchup"], row["baseline_trajectory_sha256"], row["pre_state_sha256"])
         if key in seen:
@@ -911,7 +925,7 @@ def _bootstrap_interval(axis: str, grouped: dict[str, dict[str, Fraction]]) -> t
 def _has_treatment_loss(row: dict[str, Any]) -> bool:
     deltas = row.get("endpoint_deltas_treatment_minus_control") or {}
     for value in deltas.values():
-        if value is None:
+        if "status" in value:
             continue
         for key in ("food", "queen_hp", "workers", "soldiers"):
             if value.get(key, 0) < 0:
@@ -951,8 +965,8 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
             point = sum(matchup_means.values(), Fraction(0)) / len(MATCHUPS)
         else:
             matchup_means, point = {}, None
-        interval = None
-        bootstrap = None
+        interval = {"status": "not_estimable", "reason": "minimum_unique_counts_not_met"}
+        bootstrap = {"status": "not_run"}
         classification = "INCONCLUSIVE"
         if enough and point is not None:
             lower, upper, initstate, initseq = _bootstrap_interval(axis, grouped)
@@ -968,7 +982,8 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
                 classification = "HARMFUL_SIGNAL"
             elif lower >= -MDE_MILLIPOINTS and upper <= MDE_MILLIPOINTS:
                 classification = "PRACTICALLY_SMALL"
-        deltas = [row["primary"]["delta_score_millipoints"] for row in eligible if row["primary"]["delta_score_millipoints"] is not None]
+        deltas = [row["primary"]["delta_score_millipoints"] for row in eligible
+                  if type(row["primary"]["delta_score_millipoints"]) is int]
         possible_dominant = bool(
             classification == "FAVORABLE_SIGNAL" and deltas
             and all(value >= 0 for value in deltas)
@@ -1001,7 +1016,10 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
             "scheduled_rows": len(rows),
             "unique_trajectory_digests": len({row["trajectory_sha256"] for row in rows}),
             "terminal_reasons": dict(sorted(Counter(row["metrics"]["reason"] for row in rows).items())),
-            "terminal_scores_x2_target": sorted(row["metrics"]["target_score_x2"] for row in rows),
+            "terminal_scores_x2_target": sorted(
+                row["metrics"]["target_score_x2"] for row in rows
+                if type(row["metrics"]["target_score_x2"]) is int
+            ),
         }
     return {
         "schema": SCHEMA_SUMMARY,
