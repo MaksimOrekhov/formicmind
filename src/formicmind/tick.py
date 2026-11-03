@@ -30,6 +30,7 @@ and no controller is called.
 from __future__ import annotations
 
 import enum
+import time
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Protocol
@@ -289,11 +290,13 @@ def step_tick(
     partial_economy: bool = False,
     phases: Mapping[Phase, PhaseFunc | None] | None = None,
     check_invariants: bool = False,
+    on_phase_timing: Callable[[Phase, int], None] | None = None,
 ) -> TickResult:
     """Execute tick ``state.tick``. Without flags every phase runs (``TickMode.FULL``) and the tick may end the
     episode (``run.outcome``). ``check_invariants`` re-verifies the food ledger, the unit rules and the combat
     damage conservation of the finished tick against its events (``ledger.check_transition``); it is for tests
-    and smoke runs."""
+    and smoke runs. Optional ``on_phase_timing`` observes each reached phase and receives its elapsed nanoseconds;
+    it is intended only for separate diagnostics and must not mutate the simulation."""
     mode = resolve_mode(movement_only, partial_economy)
     if len(controllers) != len(SIDES):
         raise ValueError("one controller per side")
@@ -310,14 +313,20 @@ def step_tick(
     for phase in Phase:
         func = table[phase]
         reached.append(PhaseRecord(phase, func is not None))
-        if func is not None:
-            func(ctx)
-            if ctx.terminal is not None and phase != Phase.TERMINAL_LOG:
-                # Mid-tick terminal: the rest of the tick does not run and the tick is not completed.
-                run.outcome = ctx.outcome
-                if before is not None and ctx.outcome is not None:
-                    check_transition(before, state, ctx.events)
-                return _result(ctx, reached, mode)
+        if on_phase_timing is None:
+            if func is not None:
+                func(ctx)
+        else:
+            started_ns = time.perf_counter_ns()
+            if func is not None:
+                func(ctx)
+            on_phase_timing(phase, time.perf_counter_ns() - started_ns)
+        if ctx.terminal is not None and phase != Phase.TERMINAL_LOG:
+            # Mid-tick terminal: the rest of the tick does not run and the tick is not completed.
+            run.outcome = ctx.outcome
+            if before is not None and ctx.outcome is not None:
+                check_transition(before, state, ctx.events)
+            return _result(ctx, reached, mode)
     state.tick = ctx.tick + 1
     run.outcome = ctx.outcome  # Terminal/Log ended the episode (or None: it goes on)
     if before is not None:
