@@ -1209,14 +1209,21 @@ def check_generator_binding(manifest: dict[str, Any]) -> str:
     return "bound"
 
 
-def check_manifest_fields(manifest: dict[str, Any], rows: int) -> list[str]:
-    """Every deterministic manifest field must equal its freshly computed value (no missing or extra keys)."""
-    expected = build_manifest({}, {}, source_commit=str(manifest.get("source_commit", "")), rows=rows)
-    expected.update({  # tree-derived values are replaced by the frozen ones: independent of the current checkout
+def expected_frozen_manifest(rows: int, source_commit: str = "") -> dict[str, Any]:
+    """The manifest the frozen study must carry. Tree-derived values are replaced by frozen literals, so the result
+    is independent of the current checkout (engine, versions, documents); provenance and derived keys are placeholders."""
+    expected = build_manifest({}, {}, source_commit=source_commit, rows=rows)
+    expected.update({
         "protocol_sha256": PROTOCOL_SHA256, "erratum_sha256": ERRATUM_SHA256,
         "engine_fingerprint_excluding_harness": BASE_ENGINE_FINGERPRINT, "versions": dict(FROZEN_VERSIONS),
         "protected_file_sha256": dict(FROZEN_PROTECTED_FILE_SHA256),
     })
+    return expected
+
+
+def check_manifest_fields(manifest: dict[str, Any], rows: int) -> list[str]:
+    """Every deterministic manifest field must equal its frozen value (no missing or extra keys)."""
+    expected = expected_frozen_manifest(rows, str(manifest.get("source_commit", "")))
     skip = PROVENANCE_KEYS | DERIVED_KEYS
     got = {k: v for k, v in manifest.items() if k not in skip}
     want = {k: v for k, v in expected.items() if k not in skip}

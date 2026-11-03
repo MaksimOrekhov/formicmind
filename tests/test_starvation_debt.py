@@ -138,8 +138,11 @@ FORGERIES = {
 
 
 def pure_manifest():
-    return sd.build_manifest({"matches.jsonl": "0" * 64}, {"main": 1, "anchor": 0}, source_commit="a" * 40,
-                             rows=len(SHORT), source_tree_dirty=False)
+    """A well-formed manifest built only from frozen values (no dependence on the checkout's engine or versions)."""
+    manifest = sd.expected_frozen_manifest(len(SHORT), "a" * 40)
+    manifest.update({"artifacts": {"matches.jsonl": "0" * 64}, "calls": {"main": 1, "anchor": 0},
+                     "source_tree_dirty": False, "package_fingerprint": "e" * 64})
+    return manifest
 
 
 def head_commit():
