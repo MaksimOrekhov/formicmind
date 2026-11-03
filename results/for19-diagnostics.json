@@ -148,6 +148,18 @@
         }
       },
       "manifest_sha256": "6cf22eae9ebd33e5d458895ede7c5ce48f19777b2906389aecceeac1f2b626db",
+      "policy_outcomes": {
+        "balanced": {
+          "draws": 0,
+          "losses": 0,
+          "wins": 10
+        },
+        "rush": {
+          "draws": 0,
+          "losses": 10,
+          "wins": 0
+        }
+      },
       "results": [
         {
           "brood": {
@@ -1450,6 +1462,11 @@
           }
         }
       ],
+      "seat_outcomes": {
+        "draws": 0,
+        "wins_A": 5,
+        "wins_B": 5
+      },
       "trajectory_uniqueness": {
         "by_seat_assignment": [
           {
@@ -1623,6 +1640,18 @@
         }
       },
       "manifest_sha256": "29b56e9052986d9db25844a734c33380bec246f6474133087d6525da7362097b",
+      "policy_outcomes": {
+        "raider": {
+          "draws": 10,
+          "losses": 0,
+          "wins": 0
+        },
+        "turtle": {
+          "draws": 10,
+          "losses": 0,
+          "wins": 0
+        }
+      },
       "results": [
         {
           "brood": {
@@ -2945,6 +2974,11 @@
           }
         }
       ],
+      "seat_outcomes": {
+        "draws": 10,
+        "wins_A": 0,
+        "wins_B": 0
+      },
       "trajectory_uniqueness": {
         "by_seat_assignment": [
           {
@@ -3116,6 +3150,18 @@
         }
       },
       "manifest_sha256": "06ee7ee300330f7770b9f4369dc134aab4ab0e831192ce30a4118683f24c6633",
+      "policy_outcomes": {
+        "balanced": {
+          "draws": 0,
+          "losses": 4,
+          "wins": 6
+        },
+        "random": {
+          "draws": 0,
+          "losses": 6,
+          "wins": 4
+        }
+      },
       "results": [
         {
           "brood": {
@@ -4408,6 +4454,11 @@
           }
         }
       ],
+      "seat_outcomes": {
+        "draws": 0,
+        "wins_A": 5,
+        "wins_B": 5
+      },
       "trajectory_uniqueness": {
         "by_seat_assignment": [
           {

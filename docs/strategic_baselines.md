@@ -44,8 +44,16 @@ sim eval --episodes 5 --seed-start 20261103 --a turtle --b raider --paired --jso
 sim eval --episodes 5 --seed-start 20261103 --a random --b balanced --paired --json-out results/diag-random-balanced.json
 ```
 
-These are open engineering diagnostics for checking determinism, legal behavior, response to visible information, and seat assignment. They are not sealed test seeds, a tuning set, a statistical comparison, or a balance/strength result. The refreshed runs produced balanced–rush 5–5 queen-death wins, turtle–raider 10 timeout draws, and random–balanced 5–5 wins; do not interpret these counts as strength evidence. Balanced–rush and turtle–raider each had one unique `state_hash`/outcome/length trajectory per seat assignment across the five roots (two unique trajectories overall); their repeated rows verify deterministic replay and mirrored seats, not ten independent situations. Random–balanced had ten distinct trajectories. Root seeds may still change checkpoint hashes even when the game trajectory repeats.
+These are open engineering diagnostics for checking determinism, legal behavior, response to visible information, and seat assignment. They are not sealed test seeds, a tuning set, a statistical comparison, or a balance/strength result. `aggregate.wins_A` and `aggregate.wins_B` count wins by seat; the table below separately counts wins by policy from the raw result rows.
 
-The paired command outputs, manifests, aggregates and every result row with final hashes are preserved in [`results/for19-diagnostics.json`](../results/for19-diagnostics.json) for review and exact replay.
+| Matchup | Wins by named policy | Outcome | Wins by seat | Unique trajectories |
+| --- | --- | --- | --- | --- |
+| balanced–rush | balanced 10–0 rush | 10 queen deaths | A 5, B 5 | 2 total; 1 per seat assignment |
+| turtle–raider | turtle 0–0 raider | 10 timeout draws | A 0, B 0, draws 10 | 2 total; 1 per seat assignment |
+| random–balanced | balanced 6–4 random | 6 economic collapses, 4 queen deaths | A 5, B 5 | 10 total; 5 per seat assignment |
+
+For balanced–rush and turtle–raider, the five seeds repeat one deterministic trajectory for each mirrored seat assignment. Those rows verify deterministic behavior and seat mirroring; they are not ten independent situations. Random–balanced had ten distinct trajectories. Do not infer policy strength from these small public diagnostics.
+
+The paired command outputs, manifests, aggregates, policy/seat summaries and every raw result row with final hashes are preserved in [`results/for19-diagnostics.json`](../results/for19-diagnostics.json). The clean eval manifests record source commit `5c966b01ddacb0591e366ae4384745394cf67a4a` (`5c966b0`). Because `sim eval --manifest` strictly checks that commit against `HEAD`, exact manifest replay requires checking out `5c966b0`; the archived JSON rows remain readable at later documentation-only revisions. Manifest validation was not relaxed.
 
 FOR-18 Gate 0 single-core Windows performance remains **NOT MEASURED**. Functional tests and these match diagnostics do not satisfy the 10k warmup + 5×100k tick hardware benchmark.
