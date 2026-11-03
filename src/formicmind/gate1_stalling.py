@@ -636,6 +636,15 @@ def _probe_id(descriptor: dict[str, Any], tick: int, target: str, intervention: 
     return f"{descriptor['baseline_id']}|t={tick}|target={target}|{intervention}"
 
 
+def _unique_probe_context_sha256(descriptor: dict[str, Any], tick: int, target: str,
+                                intervention: str, normalized_checkpoint_sha256: str) -> str:
+    return _sha(canonical_dumps({
+        "map_id": descriptor["map_id"], "matchup": descriptor["matchup"],
+        "target_policy": target, "checkpoint_tick": tick, "intervention": intervention,
+        "normalized_checkpoint_sha256": normalized_checkpoint_sha256,
+    }))
+
+
 def _probe_ineligible(descriptor: dict[str, Any], tick: int, target: str, intervention: str,
                       checkpoint: _Checkpoint | None, reason: str) -> dict[str, Any]:
     return {
@@ -825,12 +834,9 @@ def _run_probe(descriptor: dict[str, Any], baseline: dict[str, Any], checkpoint:
         detailed_label = "HARMFUL_TIMEOUT_ESCAPE"
     else:
         detailed_label = label
-    unique_context = _sha(canonical_dumps({
-        "map_id": descriptor["map_id"], "matchup": descriptor["matchup"],
-        "target_policy": target, "checkpoint_tick": tick, "intervention": intervention,
-        "normalized_checkpoint_sha256": checkpoint.normalized_checkpoint_sha256,
-        "control_suffix_sha256": checkpoint.control_suffix_sha256,
-    }))
+    unique_context = _unique_probe_context_sha256(
+        descriptor, tick, target, intervention, checkpoint.normalized_checkpoint_sha256,
+    )
     return {
         "schema": SCHEMA_PROBE, "probe_id": _probe_id(descriptor, tick, target, intervention),
         **descriptor, "checkpoint_tick": tick, "target_policy": target, "intervention": intervention,

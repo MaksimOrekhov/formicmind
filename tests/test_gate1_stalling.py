@@ -33,6 +33,7 @@ from formicmind.gate1_stalling import (
     _run_probe,
     _schedule,
     _source_fingerprint,
+    _unique_probe_context_sha256,
     _verify_control_suffix,
     verify,
     Gate1StallingError,
@@ -168,6 +169,16 @@ def test_mirror_and_deterministic_trajectory_collapse_preserves_random_paths() -
     }
     assert len(deterministic) == 1
     assert len(stochastic) == 6
+
+
+def test_unique_probe_context_collapses_same_normalized_checkpoint_across_seed_and_seat() -> None:
+    first = {"map_id": "R0-T0", "matchup": "turtle-balanced", "baseline_id": "seed1-first_A"}
+    duplicate = {"map_id": "R0-T0", "matchup": "turtle-balanced", "baseline_id": "seed6-first_B"}
+    checkpoint = "a" * 64
+    assert _unique_probe_context_sha256(first, 300, "turtle", "raid_once", checkpoint) == \
+        _unique_probe_context_sha256(duplicate, 300, "turtle", "raid_once", checkpoint)
+    assert _unique_probe_context_sha256(first, 300, "turtle", "raid_once", checkpoint) != \
+        _unique_probe_context_sha256(duplicate, 300, "turtle", "home_forage_once", checkpoint)
 
 
 def test_engine_timeout_and_one_shot_continuation_use_real_step_tick() -> None:
