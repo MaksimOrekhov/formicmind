@@ -8,6 +8,8 @@ import pytest
 from formicmind.actions import ActionMaskV2, ActionV2, InvalidAction, validate_action
 from formicmind.baselines import baseline_spec
 from formicmind.canonical import canonical_dumps
+from formicmind.events import OrderEvent
+from formicmind.gate1_causal import _physical_state_object
 from formicmind.gate1_stalling import (
     BASELINE_BUDGET,
     EXPECTED_BASELINES,
@@ -179,6 +181,57 @@ def test_unique_probe_context_collapses_same_normalized_checkpoint_across_seed_a
         _unique_probe_context_sha256(duplicate, 300, "turtle", "raid_once", checkpoint)
     assert _unique_probe_context_sha256(first, 300, "turtle", "raid_once", checkpoint) != \
         _unique_probe_context_sha256(duplicate, 300, "turtle", "home_forage_once", checkpoint)
+
+
+def _physical_tick_sha256(state, events) -> str:
+    non_order_events = [
+        event.to_canonical() for event in events if event.kind not in ("order", "retarget")
+    ]
+    non_order_events.sort(key=canonical_dumps)
+    return hashlib.sha256(canonical_dumps({
+        "state": _physical_state_object(state, 0), "events": non_order_events,
+    })).hexdigest()
+
+
+def _first_physical_divergence_tick(base, changed, tick, base_events=(), changed_events=()):
+    return tick if _physical_tick_sha256(base, base_events) != \
+        _physical_tick_sha256(changed, changed_events) else None
+
+
+def test_order_and_intel_only_changes_do_not_count_as_physical_divergence() -> None:
+    base, _run = reset(_build_configs()["R0-T0"], seed=SEEDS[0])
+    changed = base.clone()
+    colony = changed.colonies[0]
+    colony.lay_order = 1
+    colony.forage_q[:] = [0, Q_TOTAL, 0, 0, 0, 0]
+    colony.army_choice = 6
+    colony.avoid_center = True
+    colony.intel.nodes[0].food_last += 1
+    changed_order = OrderEvent(
+        tick=300, phase=0, side=0, lay_order=colony.lay_order,
+        forage_share_q=tuple(colony.forage_q), army_choice=colony.army_choice,
+        avoid_center=colony.avoid_center, army_target_node=0, worker_quota=(0,) * 6,
+    )
+
+    assert base.colonies[0].lay_order != colony.lay_order
+    assert base.colonies[0].intel.nodes[0].food_last != colony.intel.nodes[0].food_last
+    # No physical events occurred; the changed order event is explicitly excluded by the trace rule.
+    assert _first_physical_divergence_tick(base, changed, 300, changed_events=(changed_order,)) is None
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda state: setattr(state.colonies[0], "food", state.colonies[0].food + 1),
+    lambda state: setattr(state.colonies[0], "queen_hp", state.colonies[0].queen_hp - 1),
+    lambda state: setattr(state.colonies[0].units[0], "hp", state.colonies[0].units[0].hp - 1),
+    lambda state: setattr(state.colonies[0].units[0], "node", (state.colonies[0].units[0].node + 1) % 6),
+])
+def test_resource_health_unit_and_position_changes_are_physical_divergence(mutate) -> None:
+    base, _run = reset(_build_configs()["R0-T0"], seed=SEEDS[0])
+    changed = base.clone()
+    mutate(changed)
+
+    # With no non-order events, a changed physical projection sets the first divergence tick.
+    assert _first_physical_divergence_tick(base, changed, 300) == 300
 
 
 def test_engine_timeout_and_one_shot_continuation_use_real_step_tick() -> None:

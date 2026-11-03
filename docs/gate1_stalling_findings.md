@@ -1,14 +1,16 @@
-# Gate 1D stalling audit: findings and design recommendation
+# Gate 1D stalling audit: exploratory findings and design recommendation
+
+**Study classification: reproducible exploratory diagnosis with a documented protocol deviation.** The complete first output was inspected before the probe deduplication key was corrected. The final fixed-schedule artifacts strictly replay, but this is not a clean confirmatory result. See [the deviation record](gate1_stalling_deviation.md).
 
 ## Decision
 
-The audit does not show a rule-level timeout exploit, and it does not justify changing combat, economy, terminal scoring, timeout handling, or bot balance before a separate decision. It does show repeatable stalling patterns for the current defensive baseline policies in the fixed scenarios. The counterfactual evidence is too narrow to establish why those games stall: the 12 scheduled seed/seat rows in each deterministic defensive cell collapse to one paired trajectory, and only one unique checkpoint context was available per intervention in an eligible cell.
+This exploratory audit did not demonstrate a rule-level timeout exploit, and does not justify changing combat, economy, terminal scoring, timeout handling, or bot balance. It does show repeatable stalling patterns for the current defensive baseline policies in the fixed scenarios. The counterfactual evidence is too narrow to establish why those games stall: the 12 scheduled seed/seat rows in each deterministic defensive cell collapse to one paired trajectory, and only one unique checkpoint context was available per intervention in an eligible cell.
 
-**Recommendation:** keep the rules frozen and make bot optimization under the existing rules the next experiment (a possible FOR-25). Require broader opponent families and genuinely distinct trajectory/checkpoint contexts before using results to justify a mechanical balance investigation. FOR-24 does not pass Gate 1 or authorize Gate 2A; those remain separate decisions.
+**Recommendation:** keep the rules frozen. FOR-25 now exists as a separate study of chronic starvation and starvation-debt repayment. FOR-24 did not compare the debt-reset rule and cannot confirm or rule out that suspected problem. After FOR-25, Baselines v2 (FOR-26) and any later bot-optimization or Gate 2A decision remain separate steps. FOR-24 does not pass Gate 1 or authorize Gate 2A.
 
 ## Preregistered run and provenance
 
-The frozen protocol was committed by itself before implementation in commit `5180ba8` (protocol SHA-256 `0d54603c90526f7d51705f5fcf7c70290d854324be5eb73297932810ec1f3b5d`). The final corrected study used source commit `c75ce28185431d7f6ff7e88fae91af62eb35044c`, recursive source fingerprint `5fd459d1881a2316ef10f120b6d913706c77591ab22d198d9f7f1b972ef195d8`, and base `9b09e7e7e7229868a7c861aeafebbc69bbb322a3`.
+The frozen protocol was committed by itself before implementation in commit `5180ba8` (protocol SHA-256 `0d54603c90526f7d51705f5fcf7c70290d854324be5eb73297932810ec1f3b5d`). The final corrected study used source commit `c75ce28185431d7f6ff7e88fae91af62eb35044c`, recursive source fingerprint `5fd459d1881a2316ef10f120b6d913706c77591ab22d198d9f7f1b972ef195d8`, and base `9b09e7e7e7229868a7c861aeafebbc69bbb322a3`. The original complete output was inspected before correction, so the final study is exploratory; [the deviation record](gate1_stalling_deviation.md) states what can and cannot be verified about that attempt.
 
 The fixed schedule completed all 288 terminal baselines and all 384 planned probe descriptors. Baselines used 335,968 `step_tick` calls; eligible probe continuations used 403,896; total primary use was 739,864 of the 2,016,000-call ceiling. No study row was cut off or replaced. There were 192 eligible probes and 192 ineligible probes; the latter were retained with zero continuation calls.
 
@@ -25,7 +27,7 @@ Final artifacts:
 
 ### Analysis correction
 
-The first complete output was preserved in the local `results/gate1_stalling_attempt1/` archive. Its probe deduplication key accidentally included a raw control-suffix digest, so deterministic mirror/seed duplicates were counted as distinct contexts even though their preregistered policy-relative checkpoints were identical. After inspecting the output, the key was corrected to use the normalized checkpoint plus map, matchup, target policy, checkpoint tick, and intervention, as required by the frozen independence rule. The full fixed schedule was then rerun and these final artifacts use the corrected grouping. The protocol file, schedule, seeds, engine inputs, treatments, thresholds, and raw outcome labels were not changed. The initial output must not be used as final evidence.
+The initial output was inspected before its deduplication key was corrected. The first implementation included a raw control-suffix digest in the probe-context key, so deterministic mirror/seed duplicates could remain separate despite identical preregistered checkpoints. Commit `c75ce281` removed that field; the complete fixed schedule was rerun and these artifacts use the corrected grouping. Only the derived context identity and aggregates depending on context grouping changed. The correction did not change per-match physical trajectories or terminal outcomes. The initial archive is not present in this checkout, so its artifact hashes and row-level equality cannot be independently checked; see [the deviation record](gate1_stalling_deviation.md). The final result is therefore reported as exploratory, not as a clean confirmatory analysis.
 
 ## Fixed-schedule results
 
@@ -70,6 +72,6 @@ The same seven timeout-prone cells appear in FOR-22 and this study, which makes 
 
 The evidence fits **policy-level stalling in specific current baseline matchups** better than a demonstrated rule-level pathology. It does not establish a broad nonpathological-stalemate mechanism either: timeout matches include substantial economic stress, and the single-state one-shot probes do not isolate a general cause. For causal or universal claims, the correct category remains **insufficient evidence**.
 
-For a possible FOR-25, keep rules, economy, scoring, and timeout handling frozen; test bot decision improvements against multiple opponent families and prioritize genuinely distinct baseline/checkpoint trajectories. Treat raid initiation, food allocation, worker/soldier growth, and sustained queen pressure as separate hypotheses with their own predeclared measures. Do not tune against the duplicated FOR-24 rows or present fewer draws as a design goal by itself. Only if broader independent policy runs expose a reproducible rule-level exploit should a separate mechanical balance investigation be considered before Gate 2A.
+This study did not measure the suspected starvation-debt reset pathology now assigned to FOR-25. Its timeout and one-shot results must not be used to dismiss or establish that issue. FOR-25 is the next separate investigation: test chronic food shortfall and candidate debt-repayment rules under its own frozen protocol. Baselines v2 (FOR-26) follows that work; any bot-optimization study or Gate 2A decision requires a later, separate decision. Do not tune against duplicated FOR-24 rows or present fewer draws as a design goal by itself.
 
 The study is a deterministic fixed-scenario audit, not a statistical sample of all maps or players. It does not measure Windows performance, prove strategy dominance, or decide a Gate 1/Gate 2A status.
