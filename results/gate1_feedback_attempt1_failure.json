@@ -1,0 +1,1 @@
+{"completed_matched_blocks":432,"error":"$.policies.balanced.parameters.shared.food_stale_freshness_slope: unsupported type float","error_type":"CanonicalError","partial_rows_in_memory":1728,"protocol_id":"formicmind.gate1-feedback/v1","source_commit_sha":"fa9cf3904a285a8c72baf83efa7a874a889adce2","step_tick_calls":1395430}
