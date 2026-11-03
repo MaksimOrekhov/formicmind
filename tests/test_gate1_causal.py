@@ -8,11 +8,19 @@ from formicmind.canonical import canonical_dumps
 from formicmind.events import OrderEvent, events_hash
 from formicmind.gate1_causal import (
     AXES,
+    _ArrayDigest,
     _EventDigest,
+    _MirrorNormalizer,
+    _TickBudget,
     _arm,
     _candidate,
     _capture_checkpoint,
+    _full_episode_physical_delta,
     _make_manifest,
+    _physical_state_object,
+    _run_baseline,
+    _sampled_metric_physical_delta,
+    _unique_clusters,
 )
 from formicmind.observation import build_observation
 from formicmind.policy import decide
@@ -111,6 +119,7 @@ def test_independent_control_arms_match_every_tick_and_terminal_hash():
     checkpoint = _capture_checkpoint(
         state, run, tick=0, target_side=0, target_policy="balanced",
         opponent_policy="rush", matchup="balanced-rush", seed=20261203, swapped=False,
+        mirror_normalizer=_MirrorNormalizer(0),
     )
     left = _arm(checkpoint, "lay_order", treatment=False, budget=_CallCounter())
     right = _arm(checkpoint, "lay_order", treatment=False, budget=_CallCounter())
@@ -163,3 +172,74 @@ def test_manifest_records_fixed_protocol_and_policy_descriptors():
     ]
     assert all(len(policy["parameters_sha256"]) == 64 for policy in manifest["policies"])
     assert canonical_dumps(manifest)
+
+
+def test_seat_swap_does_not_create_a_second_mirror_trajectory_cluster():
+    config = default_config()
+    base, _ = _run_baseline(config, "balanced-rush", "balanced", "rush", 20261201, False, _TickBudget())
+    swapped, _ = _run_baseline(config, "balanced-rush", "balanced", "rush", 20261201, True, _TickBudget())
+    assert base["trajectory_sha256"] != swapped["trajectory_sha256"]
+    assert base["mirror_trajectory_sha256"] == swapped["mirror_trajectory_sha256"]
+    rows = [
+        {
+            "axis": "lay_order", "eligible": True, "matchup": "balanced-rush",
+            "baseline_trajectory_sha256": base["trajectory_sha256"],
+            "mirror_baseline_trajectory_sha256": base["mirror_trajectory_sha256"],
+            "pre_state_sha256": "world-a", "mirror_pre_state_sha256": "relative-state",
+            "primary": {"delta_score_millipoints": 0},
+        },
+        {
+            "axis": "lay_order", "eligible": True, "matchup": "balanced-rush",
+            "baseline_trajectory_sha256": swapped["trajectory_sha256"],
+            "mirror_baseline_trajectory_sha256": swapped["mirror_trajectory_sha256"],
+            "pre_state_sha256": "world-b", "mirror_pre_state_sha256": "relative-state",
+            "primary": {"delta_score_millipoints": 0},
+        },
+    ]
+    clusters = _unique_clusters(rows, "lay_order")
+    assert sum(len(matchup) for matchup in clusters.values()) == 1
+
+
+def test_random_mirror_grouping_includes_rng_and_keeps_distinct_seeds_separate():
+    config = default_config()
+    base, _ = _run_baseline(config, "random-balanced", "random", "balanced", 20261201, False, _TickBudget())
+    swapped, _ = _run_baseline(config, "random-balanced", "random", "balanced", 20261201, True, _TickBudget())
+    other_seed, _ = _run_baseline(config, "random-balanced", "random", "balanced", 20261202, False, _TickBudget())
+    assert base["trajectory_sha256"] != swapped["trajectory_sha256"]
+    assert base["mirror_trajectory_sha256"] == swapped["mirror_trajectory_sha256"]
+    assert base["mirror_trajectory_sha256"] != other_seed["mirror_trajectory_sha256"]
+
+
+def test_physical_trace_detects_transient_difference_after_endpoint_convergence():
+    config = default_config()
+    initial, _ = reset(config, 20261203)
+    transient = initial.clone()
+    transient.node_food[1] -= 1
+    control = _ArrayDigest()
+    treatment = _ArrayDigest()
+    for state in (initial, initial):
+        control.add(_physical_state_object(state, 0))
+    for state in (transient, initial):
+        treatment.add(_physical_state_object(state, 0))
+    control_arm = {
+        "physical_trace_sha256": control.hexdigest(),
+        "horizons": {"30": {"metrics": {"food": 7}}, "150": {"metrics": {"food": 7}}},
+        "terminal_metrics": {"food": 7},
+    }
+    treatment_arm = {
+        "physical_trace_sha256": treatment.hexdigest(),
+        "horizons": {"30": {"metrics": {"food": 7}}, "150": {"metrics": {"food": 7}}},
+        "terminal_metrics": {"food": 7},
+    }
+    assert not _sampled_metric_physical_delta(control_arm, treatment_arm)
+    assert _full_episode_physical_delta(control_arm, treatment_arm)
+
+
+def test_physical_projection_excludes_order_only_state():
+    state, _ = reset(default_config(), 20261204)
+    before = _physical_state_object(state, 0)
+    state.colonies[0].lay_order = 1
+    state.colonies[0].forage_q = [0, Q_TOTAL, 0, 0, 0, 0]
+    state.colonies[0].army_choice = 6
+    after = _physical_state_object(state, 0)
+    assert before == after

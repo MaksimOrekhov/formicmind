@@ -33,6 +33,7 @@ from .serialization import (
     checkpoint_hash,
     config_hash,
     config_to_canonical,
+    state_to_canonical,
     state_hash,
 )
 from .snapshot import PolicySnapshot, begin_policy_phase
@@ -93,6 +94,109 @@ class _ArrayDigest:
         digest = self._hash.copy()
         digest.update(b"]")
         return digest.hexdigest()
+
+
+class _MirrorNormalizer:
+    """Canonicalize a trajectory in the target-side frame for mirror grouping.
+
+    Entity ids are assigned persistent, side-local ordinals in allocation order.
+    This keeps identity stable across movement, hatching, and deaths while removing
+    the world-side-specific id ranges used by reset().
+    """
+
+    def __init__(self, target_side: int) -> None:
+        self.target_side = target_side
+        self._entity_ids: dict[int, dict[int, int]] = {0: {}, 1: {}}
+        self._next_entity_id = {0: 0, 1: 0}
+
+    def _register_entities(self, state: Any) -> None:
+        for side, colony in enumerate(state.colonies):
+            known = self._entity_ids[side]
+            current = sorted({item.unit_id for item in (*colony.units, *colony.brood)})
+            for unit_id in current:
+                if unit_id not in known:
+                    known[unit_id] = self._next_entity_id[side]
+                    self._next_entity_id[side] += 1
+
+    def _node(self, node: int) -> int:
+        if 0 <= node < len(MIRROR):
+            return node if self.target_side == 0 else MIRROR[node]
+        return node
+
+    def _relative_side(self, side: int) -> int:
+        if side not in (0, 1):
+            return side
+        return side if self.target_side == 0 else 1 - side
+
+    def state_object(self, state: Any) -> dict[str, Any]:
+        self._register_entities(state)
+        raw = state_to_canonical(state)
+        local_to_world = tuple(range(len(MIRROR))) if self.target_side == 0 else MIRROR
+        result = dict(raw)
+        result["node_food"] = [state.node_food[world_node] for world_node in local_to_world]
+        colonies = []
+        for relative_side, world_side in enumerate((self.target_side, 1 - self.target_side)):
+            colony = dict(raw["colonies"][world_side])
+            colony["side"] = relative_side
+            entity_ids = self._entity_ids[world_side]
+            colony["units"] = [
+                {
+                    **unit,
+                    "unit_id": entity_ids[unit["unit_id"]],
+                    "node": self._node(unit["node"]),
+                    "from_node": self._node(unit["from_node"]),
+                    "to_node": self._node(unit["to_node"]),
+                    "target_node": self._node(unit["target_node"]),
+                }
+                for unit in colony["units"]
+            ]
+            colony["brood"] = [
+                {**brood, "unit_id": entity_ids[brood["unit_id"]]}
+                for brood in colony["brood"]
+            ]
+            intel = dict(colony["intel"])
+            intel["nodes"] = [
+                colony["intel"]["nodes"][world_node] for world_node in local_to_world
+            ]
+            colony["intel"] = intel
+            colonies.append(colony)
+        result["colonies"] = colonies
+        return result
+
+    def state_sha256(self, state: Any) -> str:
+        return _sha256(canonical_dumps(self.state_object(state)))
+
+    def event_object(self, event: Event) -> dict[str, Any]:
+        value = event.to_canonical()
+        for key in ("side", "attacker_side", "defender_side"):
+            if key in value:
+                value[key] = self._relative_side(value[key])
+        if "sides" in value:
+            value["sides"] = sorted(self._relative_side(side) for side in value["sides"])
+        if "winner" in value and value["winner"] in ("A", "B"):
+            winner_side = 0 if value["winner"] == "A" else 1
+            value["winner"] = "target" if winner_side == self.target_side else "opponent"
+        if "queen_hp" in value:
+            value["queen_hp"] = [value["queen_hp"][self.target_side], value["queen_hp"][1 - self.target_side]]
+        for key in (
+            "army_target_node", "old_target", "new_target", "from_node", "to_node",
+            "target_node", "node",
+        ):
+            if key in value:
+                value[key] = self._node(value[key])
+        for key in ("unit_id",):
+            if key in value and value.get("side") in (0, 1):
+                # side fields above are already target-relative, recover the world side.
+                relative_side = value["side"]
+                world_side = relative_side if self.target_side == 0 else 1 - relative_side
+                value[key] = self._entity_ids[world_side].get(value[key], value[key])
+        if "unit_ids" in value and value.get("side") in (0, 1):
+            relative_side = value["side"]
+            world_side = relative_side if self.target_side == 0 else 1 - relative_side
+            value["unit_ids"] = [
+                self._entity_ids[world_side].get(unit_id, unit_id) for unit_id in value["unit_ids"]
+            ]
+        return value
 
 
 def _sha256(data: bytes) -> str:
@@ -169,6 +273,11 @@ def _make_manifest(config: SimConfig, source_commit: str) -> dict[str, Any]:
         "schema": SCHEMA_MANIFEST,
         "protocol_id": PROTOCOL_ID,
         "protocol_sha256": _protocol_sha256(),
+        "post_review_reporting_amendment": {
+            "version": "FOR-21-review-2026-11-03/v1",
+            "trajectory_clusters": "mirror_trajectory_sha256 from target-relative per-tick canonical state, normalized events, and role-keyed random-policy RNG snapshots; raw seat-specific digests remain preserved",
+            "intervention_physical_effect": "physical_trace_sha256 over every post-tick physical state and non-order event; standing orders and retarget metadata are excluded",
+        },
         "source_commit": source_commit,
         "source_fingerprint_sha256": _source_fingerprint(),
         "config": config_to_canonical(config),
@@ -290,6 +399,7 @@ class _Checkpoint:
     seed: int
     swapped: bool
     pre_state_hash: str
+    mirror_pre_state_hash: str
     pre_checkpoint_hash: str
     observation_sha256: str
     mask_sha256: str
@@ -309,6 +419,7 @@ def _make_controllers(left: str, right: str, swapped: bool = False) -> tuple[Con
 def _capture_checkpoint(
     state: Any, run: RunState, *, tick: int, target_side: int, target_policy: str,
     opponent_policy: str, matchup: str, seed: int, swapped: bool,
+    mirror_normalizer: _MirrorNormalizer,
 ) -> _Checkpoint:
     state_copy, run_copy = state.clone(), run.clone()
     before_state_hash = state_hash(state_copy)
@@ -339,6 +450,7 @@ def _capture_checkpoint(
         target_policy=target_policy, opponent_policy=opponent_policy,
         matchup=matchup, seed=seed, swapped=swapped,
         pre_state_hash=before_state_hash, pre_checkpoint_hash=before_checkpoint_hash,
+        mirror_pre_state_hash=mirror_normalizer.state_sha256(state_copy),
         observation_sha256=_observation_sha256(observation), mask_sha256=_mask_sha256(mask),
         control_action=control_action, candidate_actions=candidates, ineligible_reasons=reasons,
     )
@@ -383,6 +495,17 @@ def _stream_snapshot(run: RunState, matchup_names: tuple[str, str]) -> Any:
     return run.stream(stream_id).to_canonical()
 
 
+def _mirror_stream_snapshot(
+    run: RunState, target_policy: str, opponent_policy: str,
+) -> dict[str, Any]:
+    result = {}
+    for role, name in (("target", target_policy), ("opponent", opponent_policy)):
+        if name == "random":
+            stream_id = policy_stream_id(baseline_spec(name).policy_id, 0)
+            result[role] = run.stream(stream_id).to_canonical()
+    return result
+
+
 def _score_x2(outcome: Any, side: int) -> int | None:
     return None if outcome is None else int(outcome.score[side] * 2)
 
@@ -417,6 +540,8 @@ def _run_baseline(
     random_names = (left, right)
     checkpoint_map: list[_Checkpoint] = []
     trajectory = _ArrayDigest()
+    mirror_trajectory = _ArrayDigest()
+    mirror_normalizer = _MirrorNormalizer(target_side)
     event_digest = _EventDigest()
     trace = _ArrayDigest()
     while run.outcome is None and state.tick < config.t_max:
@@ -425,14 +550,23 @@ def _run_baseline(
             checkpoint_map.append(_capture_checkpoint(
                 state, run, tick=tick, target_side=target_side, target_policy=target_policy,
                 opponent_policy=opponent_policy, matchup=matchup, seed=seed, swapped=swapped,
+                mirror_normalizer=mirror_normalizer,
             ))
         start_state_hash = state_hash(state)
+        mirror_start_state = mirror_normalizer.state_object(state)
         random_before = _stream_snapshot(run, random_names) if tick % config.policy_interval_k == 0 else None
+        mirror_random_before = (
+            _mirror_stream_snapshot(run, target_policy, opponent_policy)
+            if tick % config.policy_interval_k == 0 else None
+        )
         result = budget.step(state, run, controllers)
         end_state_hash = state_hash(state)
         end_checkpoint_hash = checkpoint_hash(state, run)
         canonical_events = [event.to_canonical() for event in result.events]
         event_digest.add_all(canonical_events)
+        mirror_end_state = mirror_normalizer.state_object(state)
+        mirror_events = [mirror_normalizer.event_object(event) for event in result.events]
+        mirror_events.sort(key=canonical_dumps)
         trace.add({
             "tick": tick, "state_hash": end_state_hash,
             "checkpoint_hash": end_checkpoint_hash,
@@ -448,6 +582,16 @@ def _run_baseline(
             trajectory_row["random_stream_before"] = random_before
             trajectory_row["random_stream_after"] = random_after
         trajectory.add(trajectory_row)
+        mirror_row = {
+            "tick": tick,
+            "start_state": mirror_start_state,
+            "events": mirror_events,
+            "end_state": mirror_end_state,
+        }
+        if mirror_random_before is not None:
+            mirror_row["random_stream_before"] = mirror_random_before
+            mirror_row["random_stream_after"] = _mirror_stream_snapshot(run, target_policy, opponent_policy)
+        mirror_trajectory.add(mirror_row)
     trajectory_id = trajectory.hexdigest()
     outcome = run.outcome
     baseline = {
@@ -459,6 +603,7 @@ def _run_baseline(
         "opponent_policy": opponent_policy,
         "target_side": target_side,
         "trajectory_sha256": trajectory_id,
+        "mirror_trajectory_sha256": mirror_trajectory.hexdigest(),
         "ticks_executed": trace.count,
         "per_tick_trace_sha256": trace.hexdigest(),
         "events_count": event_digest.count,
@@ -610,6 +755,7 @@ def _arm(
     event_counts: Counter[str] = Counter()
     event_totals: Counter[str] = Counter()
     trace = _ArrayDigest()
+    physical_trace = _ArrayDigest()
     horizon_results: dict[str, Any] = {str(offset): None for offset in HORIZON_OFFSETS}
     horizon_ticks = {checkpoint.tick + offset: str(offset) for offset in HORIZON_OFFSETS}
     order_event: dict[str, Any] | None = None
@@ -623,6 +769,9 @@ def _arm(
         executed += 1
         canonical_events = [event.to_canonical() for event in result.events]
         event_digest.add_all(canonical_events)
+        physical_events = [
+            event for event in canonical_events if event["kind"] not in ("order", "retarget")
+        ]
         event_counts.update(event.kind for event in result.events)
         target_side = checkpoint.target_side
         for event in result.events:
@@ -657,6 +806,11 @@ def _arm(
             "events_sha256": events_hash(list(result.events)),
             "tick_completed": state.tick == tick + 1,
         })
+        physical_trace.add({
+            "tick": tick,
+            "state": _physical_state_object(state, target_side),
+            "events": physical_events,
+        })
         if state.tick in horizon_ticks:
             offset = horizon_ticks[state.tick]
             horizon_results[offset] = {
@@ -682,6 +836,8 @@ def _arm(
         "start_checkpoint_sha256": start_checkpoint_hash,
         "ticks_executed": executed,
         "per_tick_trace_sha256": trace.hexdigest(),
+        "physical_trace_ticks": physical_trace.count,
+        "physical_trace_sha256": physical_trace.hexdigest(),
         "events_count": event_digest.count,
         "events_sha256": event_digest.hexdigest(),
         "event_counts": dict(sorted(event_counts.items())),
@@ -695,7 +851,46 @@ def _arm(
     }
 
 
-def _metric_physical_delta(control: dict[str, Any], treatment: dict[str, Any]) -> bool:
+def _physical_state_object(state: Any, target_side: int) -> dict[str, Any]:
+    local_to_world = tuple(range(len(MIRROR))) if target_side == 0 else MIRROR
+    colonies = []
+    for relative_side, world_side in enumerate((target_side, 1 - target_side)):
+        colony = state.colonies[world_side]
+        units = [
+            list(unit_row) for unit_row in sorted(
+                (
+                    unit.caste, unit.hp,
+                    unit.node if unit.node < 0 or target_side == 0 else MIRROR[unit.node],
+                    unit.from_node if unit.from_node < 0 or target_side == 0 else MIRROR[unit.from_node],
+                    unit.to_node if unit.to_node < 0 or target_side == 0 else MIRROR[unit.to_node],
+                    unit.arrival_tick,
+                )
+                for unit in colony.units
+            )
+        ]
+        brood = [
+            list(row) for row in sorted(
+                (record.caste, record.laid_tick, record.hatch_tick) for record in colony.brood
+            )
+        ]
+        colonies.append({
+            "side": relative_side,
+            "food": colony.food,
+            "queen_hp": colony.queen_hp,
+            "next_lay_tick": colony.next_lay_tick,
+            "upkeep_remainder10": colony.upkeep_remainder10,
+            "starvation_debt": colony.starvation_debt,
+            "units": units,
+            "brood": brood,
+        })
+    return {
+        "tick": state.tick,
+        "node_food": [state.node_food[node] for node in local_to_world],
+        "colonies": colonies,
+    }
+
+
+def _sampled_metric_physical_delta(control: dict[str, Any], treatment: dict[str, Any]) -> bool:
     endpoints: list[tuple[Any, Any]] = []
     for offset in ("30", "150"):
         a, b = control["horizons"][offset], treatment["horizons"][offset]
@@ -704,6 +899,10 @@ def _metric_physical_delta(control: dict[str, Any], treatment: dict[str, Any]) -
     if "food" in control["terminal_metrics"] and "food" in treatment["terminal_metrics"]:
         endpoints.append((control["terminal_metrics"], treatment["terminal_metrics"]))
     return any(left != right for left, right in endpoints)
+
+
+def _full_episode_physical_delta(control: dict[str, Any], treatment: dict[str, Any]) -> bool:
+    return control["physical_trace_sha256"] != treatment["physical_trace_sha256"]
 
 
 def _endpoint_deltas(control: dict[str, Any], treatment: dict[str, Any]) -> dict[str, Any]:
@@ -786,7 +985,9 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         "target_side": checkpoint.target_side,
         "checkpoint_tick": checkpoint.tick,
         "baseline_trajectory_sha256": baseline["trajectory_sha256"],
+        "mirror_baseline_trajectory_sha256": baseline["mirror_trajectory_sha256"],
         "pre_state_sha256": checkpoint.pre_state_hash,
+        "mirror_pre_state_sha256": checkpoint.mirror_pre_state_hash,
         "pre_checkpoint_sha256": checkpoint.pre_checkpoint_hash,
         "observation_sha256": checkpoint.observation_sha256,
         "mask_sha256": checkpoint.mask_sha256,
@@ -826,10 +1027,11 @@ def _probe_pair(checkpoint: _Checkpoint, axis: str, budget: _TickBudget,
         },
         "endpoint_deltas_treatment_minus_control": _endpoint_deltas(control, treatment),
         "order_event_changed": control["intervention_order_event"] != treatment["intervention_order_event"],
-        "physical_effect": _metric_physical_delta(control, treatment),
+        "sampled_horizon_physical_effect": _sampled_metric_physical_delta(control, treatment),
+        "physical_effect": _full_episode_physical_delta(control, treatment),
         "empty_action": (
             control["intervention_order_event"] != treatment["intervention_order_event"]
-            and not _metric_physical_delta(control, treatment)
+            and not _full_episode_physical_delta(control, treatment)
             and "score_x2" in control["terminal"] and "score_x2" in treatment["terminal"]
         ),
         "unresolved_censored": "score_x2" not in control["terminal"] or "score_x2" not in treatment["terminal"],
@@ -885,12 +1087,15 @@ def _unique_clusters(rows: list[dict[str, Any]], axis: str) -> dict[str, dict[st
     for row in rows:
         if row["axis"] != axis or not row["eligible"] or type(row["primary"]["delta_score_millipoints"]) is not int:
             continue
-        key = (row["matchup"], row["baseline_trajectory_sha256"], row["pre_state_sha256"])
+        key = (
+            row["matchup"], row["mirror_baseline_trajectory_sha256"],
+            row["mirror_pre_state_sha256"],
+        )
         if key in seen:
             continue
         seen.add(key)
-        clusters[row["matchup"]][row["baseline_trajectory_sha256"]].append(
-            (row["pre_state_sha256"], row["primary"]["delta_score_millipoints"])
+        clusters[row["matchup"]][row["mirror_baseline_trajectory_sha256"]].append(
+            (row["mirror_pre_state_sha256"], row["primary"]["delta_score_millipoints"])
         )
     return clusters
 
@@ -955,7 +1160,7 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
         groups = _unique_clusters(axis_rows, axis)
         grouped = _cluster_values(groups)
         trajectory_count = sum(len(values) for values in grouped.values())
-        unique_states = len({row["pre_state_sha256"] for row in eligible})
+        unique_states = len({row["mirror_pre_state_sha256"] for row in eligible})
         per_matchup_counts = {label: len(grouped.get(label, {})) for label, _, _ in MATCHUPS}
         enough = (
             trajectory_count >= 10 and unique_states >= 12
@@ -999,9 +1204,14 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
             "ineligible_reasons": ineligible_counts,
             "unique_pre_state_hashes": unique_states,
             "unique_trajectory_digests": trajectory_count,
+            "unique_raw_trajectory_digests": len({row["baseline_trajectory_sha256"] for row in eligible}),
+            "unique_mirror_trajectory_clusters": trajectory_count,
             "unique_trajectories_by_matchup": per_matchup_counts,
             "changed_order_events": sum(row.get("order_event_changed", False) for row in eligible),
             "physical_effect_pairs": sum(row.get("physical_effect", False) for row in eligible),
+            "sampled_horizon_physical_effect_pairs": sum(
+                row.get("sampled_horizon_physical_effect", False) for row in eligible
+            ),
             "empty_action_pairs": sum(row.get("empty_action", False) for row in eligible),
             "unresolved_censored_pairs": sum(row.get("unresolved_censored", False) for row in eligible),
             "primary_delta_millipoints": sorted(deltas),
@@ -1019,6 +1229,7 @@ def _summarize(probe_rows: list[dict[str, Any]], baseline_rows: list[dict[str, A
         unique_baselines[label] = {
             "scheduled_rows": len(rows),
             "unique_trajectory_digests": len({row["trajectory_sha256"] for row in rows}),
+            "unique_mirror_trajectory_clusters": len({row["mirror_trajectory_sha256"] for row in rows}),
             "terminal_reasons": dict(sorted(Counter(row["metrics"]["reason"] for row in rows).items())),
             "terminal_scores_x2_target": sorted(
                 row["metrics"]["target_score_x2"] for row in rows
