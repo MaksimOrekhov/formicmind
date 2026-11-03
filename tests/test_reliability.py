@@ -530,7 +530,10 @@ def test_contract_and_format_versions_are_pinned():
 def test_ci_workflow_is_windows_python_312_read_only_and_has_no_linux_job():
     text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     active = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
-    assert "runs-on: windows-latest" in active and active.count("runs-on:") == 1
+    # two Windows jobs only: the current tree, and the pinned historical FOR-25 checkout (docs/starvation_debt_verification.md)
+    runs_on = [line.strip() for line in active.splitlines() if "runs-on:" in line]
+    assert runs_on == ["runs-on: windows-latest"] * 2
+    assert active.count("timeout-minutes") == 2 and "historical-for25:" in active
     for forbidden in ("ubuntu", "macos", "matrix", "secrets.", "upload-artifact"):
         assert forbidden not in active, forbidden
     assert 'python-version: "3.12"' in active and "permissions:\n  contents: read" in active
