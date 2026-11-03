@@ -54,8 +54,8 @@ function frameLabel(frameCursor: number) {
         <span>СКОРОСТЬ</span>
         <button v-for="value in speeds" :key="value" :class="{ active: speed === value }" :aria-pressed="speed === value" @click="emit('speed', value)">×{{ value }}</button>
       </div>
-      <div class="terminal-status" :class="{ terminal: metadata.terminal && cursor === metadata.terminal.cursor }">
-        <i></i><span v-if="metadata.terminal && cursor === metadata.terminal.cursor">ТЕРМИНАЛЬНЫЙ КАДР · {{ metadata.terminal.stage }} · ТИК {{ tickLabel(metadata.terminal.terminalTick) }} {{ metadata.terminal.tickCompleted ? 'ЗАВЕРШЁН' : 'НЕ ЗАВЕРШЁН' }}</span><span v-else>{{ playing ? 'ВОСПРОИЗВЕДЕНИЕ' : 'ПАУЗА' }}</span>
+      <div class="terminal-status" :class="{ terminal: metadata.terminal && cursor === metadata.terminal.cursor, cutoff: !metadata.finished }">
+        <i></i><span v-if="metadata.terminal && cursor === metadata.terminal.cursor">ТЕРМИНАЛЬНЫЙ КАДР · {{ metadata.terminal.stage }} · ТИК {{ tickLabel(metadata.terminal.terminalTick) }} {{ metadata.terminal.tickCompleted ? 'ЗАВЕРШЁН' : 'НЕ ЗАВЕРШЁН' }}</span><span v-else-if="!metadata.finished">ОТСЕЧЕНИЕ · ТИК {{ tickLabel(frame.state.tick) }} · БЕЗ ИСХОДА</span><span v-else>{{ playing ? 'ВОСПРОИЗВЕДЕНИЕ' : 'ПАУЗА' }}</span>
       </div>
     </div>
   </section>

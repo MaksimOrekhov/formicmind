@@ -7,7 +7,8 @@ const terminalFixture = (overrides: Partial<ReplayTerminal>): ReplayTerminal => 
   terminalTick: 7,
   stateTick: 7,
   tickCompleted: false,
-  stage: 'combat',
+  stage: 'QueenTerminal',
+  reason: 'queen_death',
   outcome: 'win',
   winner: 'A',
   ...overrides,
@@ -21,20 +22,21 @@ describe('presentOutcome', () => {
     })
   })
 
-  it('never invents a winning side when a recorded outcome omits winner', () => {
-    expect(presentOutcome(terminalFixture({ outcome: 'win', winner: null })).title).toBe('Победа')
-    expect(presentOutcome(terminalFixture({ outcome: 'collapse', winner: null })).title).toBe('Коллапс')
-    expect(presentOutcome(terminalFixture({ outcome: 'timeout', winner: null })).title).toBe('Таймаут')
+  it('uses the recorded winner for queen death and economic collapse', () => {
+    expect(presentOutcome(terminalFixture({ reason: 'economic_collapse', tickCompleted: true, stateTick: 8, winner: 'B' }))).toMatchObject({
+      title: 'Победа колонии B',
+      detail: expect.stringContaining('экономический коллапс'),
+    })
   })
 
-  it('uses the recorded winner for collapse and timeout while keeping the reason visible', () => {
-    expect(presentOutcome(terminalFixture({ outcome: 'collapse', winner: 'B' }))).toMatchObject({
-      title: 'Победа колонии B',
-      detail: expect.stringContaining('коллапс'),
-    })
-    expect(presentOutcome(terminalFixture({ outcome: 'timeout', winner: 'A' }))).toMatchObject({
-      title: 'Победа колонии A',
+  it('renders timeout as a recorded draw', () => {
+    expect(presentOutcome(terminalFixture({ reason: 'timeout', outcome: 'draw', winner: null, tickCompleted: true, stateTick: 8 }))).toMatchObject({
+      title: 'Ничья',
       detail: expect.stringContaining('таймаут'),
     })
+  })
+
+  it('does not invent a winner if a malformed caller omits one', () => {
+    expect(presentOutcome(terminalFixture({ outcome: 'win', winner: null }))).toMatchObject({ title: 'Победа', tone: 'neutral' })
   })
 })

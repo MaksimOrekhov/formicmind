@@ -1,11 +1,13 @@
 """FOR-15: RNG-consuming policies (post-decision stream restoration) and checkpoint/restore + replayed suffix."""
 
 import io
+from pathlib import Path
 
 import pytest
 
 from formicmind import checkpoint_from_bytes, checkpoint_hash, checkpoint_to_bytes, default_config, reset, state_hash
 from formicmind.actions import get_action_mask, validate_action
+from formicmind.decoder import PolicyLogitsV2
 from formicmind.events import events_hash
 from formicmind.match import play
 from formicmind.replay import (
@@ -38,6 +40,13 @@ from replay_helpers import (
 )
 
 A_STREAM, B_STREAM = policy_stream_id("rnd-a", 0), policy_stream_id("rnd-b", 0)
+RNG_257_A, RNG_257_B = policy_stream_id("rng-257-a", 0), policy_stream_id("rng-257-b", 0)
+
+
+def _policy_257(observation, mask, policy_rng):
+    for _ in range(257):
+        policy_rng.next_u32()
+    return PolicyLogitsV2([0.0] * 17)
 
 
 # --- the recorded stream states are the engine's --------------------------------------------------------------------
@@ -76,6 +85,26 @@ def test_verify_reproduces_an_rng_consuming_match_including_the_checkpoint_hash(
     report = verify(replays["rng_policy"].path)
     assert report.final_checkpoint_hash == replays["rng_policy"].result.checkpoint_hash
     assert report.decisions >= 9 and report.finished
+
+
+def test_python_generated_257_draw_fixture_is_readable_and_verifiable(tmp_path):
+    generated = tmp_path / "rng_257.jsonl"
+    record_episode(
+        generated,
+        default_config(),
+        SEED,
+        PolicyController(_policy_257, RNG_257_A),
+        PolicyController(_policy_257, RNG_257_B),
+        max_ticks=1,
+        source="cross-language:rng-257",
+    )
+    fixture = Path(__file__).parents[1] / "viewer" / "test-fixtures" / "rng_257.jsonl"
+    assert generated.read_bytes() == fixture.read_bytes()
+
+    reader = ReplayReader.open(fixture)
+    assert [seat.draws for seat in reader.decisions[0].seats] == [257, 257]
+    report = verify(reader)
+    assert report.decisions == 1 and not report.finished
 
 
 def test_replaying_the_actions_without_restoring_the_streams_breaks_only_the_checkpoint_hash(replays):

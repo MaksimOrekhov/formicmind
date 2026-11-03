@@ -16,7 +16,7 @@ describe('usePlayback', () => {
     expect(playback.frame.value.cursor).toBe(1)
     expect(playback.seek(99)).toBe(8)
     expect(playback.isTerminal.value).toBe(true)
-    expect(playback.frame.value.state).toEqual({ tick: 7, tickCompleted: false })
+    expect(playback.frame.value.state).toEqual({ tick: 7, tickCompleted: false, boundary: 'terminal' })
     expect(playback.seekTick(7)).toBe(7)
     expect(playback.frame.value.state.tickCompleted).toBe(true)
     scope.stop()

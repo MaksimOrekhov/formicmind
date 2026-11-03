@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   test:
-    name: pytest (windows-latest, Python 3.12)
+    name: Windows CI (Python 3.12, Node 22)
     runs-on: windows-latest
     timeout-minutes: 15
     env:
@@ -49,3 +49,22 @@ jobs:
 
       - name: Run tests
         run: python -m pytest -q -ra
+
+      - name: Set up Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: viewer/package-lock.json
+
+      - name: Install viewer dependencies
+        working-directory: viewer
+        run: npm ci --no-audit --fund=false
+
+      - name: Build viewer
+        working-directory: viewer
+        run: npm run build
+
+      - name: Test viewer
+        working-directory: viewer
+        run: npm run test

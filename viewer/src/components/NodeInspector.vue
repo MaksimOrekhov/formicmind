@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { NodeView, Side, TimelineFrame } from '../domain/replay'
-import { NODE_LAYOUT, WORLD_EDGES } from '../domain/replay'
+import type { ReplayMetadata } from '../domain/replay'
 
-const props = defineProps<{ node: NodeView | null; frame: TimelineFrame; selectedSide: Side }>()
+const props = defineProps<{ node: NodeView | null; frame: TimelineFrame; world: ReplayMetadata['world']; selectedSide: Side }>()
 const emit = defineEmits<{ selectSide: [side: Side] }>()
 
-const connectedEdges = computed(() => props.node ? WORLD_EDGES.filter((edge) => edge.a === props.node?.id || edge.b === props.node?.id).map((edge) => {
+const connectedEdges = computed(() => props.node ? props.world.edges.filter((edge) => edge.a === props.node?.id || edge.b === props.node?.id).map((edge) => {
   const peerId = edge.a === props.node!.id ? edge.b : edge.a
-  return { name: NODE_LAYOUT[peerId].name, length: edge.length }
+  return { name: props.world.nodes.find((node) => node.id === peerId)?.name ?? `#${peerId}`, length: edge.length }
 }) : [])
 const groupsHere = computed(() => props.node?.groups[props.selectedSide] ?? { workers: 0, soldiers: 0 })
 const transitsHere = computed(() => props.frame.transits.filter((group) => group.from === props.node?.id || group.to === props.node?.id))
