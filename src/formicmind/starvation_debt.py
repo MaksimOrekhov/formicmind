@@ -14,8 +14,10 @@ import functools
 import hashlib
 import itertools
 import json
+import inspect
 import math
 import platform
+import re
 import subprocess
 import sys
 from collections import Counter
@@ -1015,8 +1017,8 @@ def _protected_hashes() -> dict[str, str]:
 
 
 def build_manifest(artifacts: dict[str, str], calls: dict[str, int], *, source_commit: str,
-                   rows: int = EXPECTED_ROWS) -> dict[str, Any]:
-    return {
+                   rows: int = EXPECTED_ROWS, source_tree_dirty: bool | None = None) -> dict[str, Any]:
+    manifest = {
         "schema": SCHEMA_MANIFEST, "protocol_id": PROTOCOL_ID, "protocol_sha256": protocol_sha256(),
         "erratum_sha256": _file_sha(_ROOT / ERRATUM_PATH),
         "base_commit": BASE_COMMIT, "base_engine_fingerprint": BASE_ENGINE_FINGERPRINT,
@@ -1034,6 +1036,9 @@ def build_manifest(artifacts: dict[str, str], calls: dict[str, int], *, source_c
                      "verify": "python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs N"},
         "python": platform.python_version(), "platform": platform.platform(),
     }
+    if source_tree_dirty is not None:  # only new runs record it; the published manifest predates the field
+        manifest["source_tree_dirty"] = source_tree_dirty
+    return manifest
 
 
 def _check_static_inputs() -> None:
@@ -1084,7 +1089,8 @@ def run(out: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[Any, ...]] 
         raise StarvationDebtError("the full schedule must contain exactly 4320 rows")
     files = _artifact_bytes(result)
     manifest = build_manifest({k: _sha(v) for k, v in files.items()}, result["calls"],
-                              source_commit=_git("rev-parse", "HEAD"), rows=len(result["rows"]))
+                              source_commit=_git("rev-parse", "HEAD"), rows=len(result["rows"]),
+                              source_tree_dirty=bool(_git("status", "--porcelain", "--", "src")))
     out_dir.mkdir(parents=True, exist_ok=True)
     for name, data in files.items():
         (out_dir / name).write_bytes(data)
@@ -1092,30 +1098,136 @@ def run(out: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[Any, ...]] 
     return manifest
 
 
-def verify(input_path: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[Any, ...]] | None = None
-           ) -> dict[str, Any]:
-    """Strict verification: regenerate everything with the engine and compare byte for byte."""
+# --- strict verification --------------------------------------------------------------------------------
+
+VERIFICATION_SCHEMA = "formicmind.starvation-debt-verification/v1"
+# Provenance of the *historical* generation run: environment-dependent or tied to the commit that produced the data.
+# They are never required to equal the verifier's own environment, HEAD or source tree, and they are never rewritten.
+PROVENANCE_KEYS = frozenset({"source_commit", "package_fingerprint", "source_tree_dirty", "python", "platform",
+                             "commands"})
+# Checked against the regenerated data instead of a recomputed constant.
+DERIVED_KEYS = frozenset({"artifacts", "calls"})
+
+# The result-defining part of the harness (rules, runner, metrics, summary, serialisation and the frozen constants)
+# is pinned by hash of the version that generated the published data (source commit 4c2cbeb...). Verifier-only
+# changes (manifest checks, provenance, CLI) may evolve; any change to the pinned part is a deliberate update.
+CORE_FUNCTIONS = (
+    "variant_upkeep", "use_variant", "_toy_state", "_side0", "run_single_tick", "run_minimal", "_tenths_rounding",
+    "build_minimal_demo", "_snapshot", "_flags_for_windows", "_episodes", "_outcome_object", "_play_match",
+    "_configs", "row_id", "execute_row", "schedule", "_group_blocks", "_representative", "_side_items", "_tally",
+    "_arm_summary", "_zombie_count", "_a0_blocks", "_compare", "decide_verdict", "build_summary",
+    "build_reproduction", "_jsonl", "_json_bytes", "generate", "_artifact_bytes", "run_schedule", "_job",
+    "VariantContext", "_SideTrace",
+)
+CORE_CONSTANTS = (
+    "PROTOCOL_ID", "BASE_COMMIT", "BASE_ENGINE_FINGERPRINT", "VARIANTS", "A3_STREAK", "MAPS", "POLICIES", "PAIRS",
+    "SEEDS", "SEATS", "SEEDS_SHA256", "CONFIG_SHA256", "POLICY_PARAMETER_SHA256", "CHECKPOINT_TICKS", "WINDOW",
+    "CHRONIC_DEFICIT_TICKS", "ZOMBIE_ADULT_DELTA", "EPISODE_GAP", "RECOVERY_HORIZON", "RECOVERY_SPAN",
+    "MIN_ZOMBIE_BLOCKS", "MIN_ZOMBIE_PAIRS", "MIN_ZOMBIE_MAPS", "MIN_EXPOSURE", "MIN_SUPPORT", "REPRO_CASE",
+    "EXPECTED_ROWS", "MAIN_BUDGET", "ANCHOR_BUDGET", "MINIMAL_SCENARIOS", "MINIMAL_WORKERS", "EDGE_CASES",
+    "WINDOW_COLUMNS", "EPISODE_COLUMNS", "CHECKPOINT_COLUMNS",
+)
+GENERATOR_CORE_SHA256 = "332bd3d78c9430920f38b2b6384bf11a09a4264cd13ffc5c456d3ec888b603b1"
+# The harness that generated the published data (commit 4c2cbeb...) and its package fingerprint, for documentation.
+PUBLISHED_GENERATOR_COMMIT = "4c2cbeb4a947865914118441cbe48a9148600df7"
+PUBLISHED_GENERATOR_FINGERPRINT = "f8263c407a0509cece3206e139d5d8a6e7c800c21ee33500226f64dd6c2c2ca1"
+
+
+def experiment_core_sha256() -> str:
+    """Hash of the result-defining sources and constants of this harness (CRLF-insensitive)."""
+    module = sys.modules[__name__]
+    code = [[name, _sha(inspect.getsource(getattr(module, name)).replace("\r\n", "\n").encode("utf-8"))]
+            for name in CORE_FUNCTIONS]
+    constants = [[name, repr(getattr(module, name))] for name in CORE_CONSTANTS]
+    return _sha(canonical_dumps({"code": code, "constants": constants}))
+
+
+def fingerprint_at_commit(commit: str) -> str:
+    """The package fingerprint of ``src/formicmind`` as committed at ``commit`` (same algorithm as the tree one)."""
+    names = [n for n in _git("ls-tree", "-r", "--name-only", commit, "src/formicmind").splitlines()
+             if n.endswith(".py")]
+    entries = []
+    for name in sorted(names, key=lambda n: Path(n).parts):
+        blob = subprocess.run(["git", "show", f"{commit}:{name}"], cwd=_ROOT, check=True, capture_output=True).stdout
+        entries.append({"path": name, "sha256": _sha(_lf(blob))})
+    return _sha(canonical_dumps(entries))
+
+
+def _commit_available(commit: str) -> bool:
+    if not re.fullmatch(r"[0-9a-f]{40}", commit):
+        return False
+    return subprocess.run(["git", "cat-file", "-e", f"{commit}^{{commit}}"], cwd=_ROOT,
+                          capture_output=True).returncode == 0
+
+
+def check_generator_binding(manifest: dict[str, Any]) -> str:
+    """Relate the historical ``package_fingerprint`` to ``source_commit`` without touching either value.
+
+    ``bound``: the commit is available and its sources hash to the recorded fingerprint. A mismatch is an error.
+    ``not_checked_dirty_worktree``: the run declared uncommitted sources, so no commit can match.
+    ``commit_unavailable``: the commit is not in this clone (for example a shallow CI checkout); not authenticated.
+    """
+    commit, fingerprint = manifest.get("source_commit"), manifest.get("package_fingerprint")
+    if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise StarvationDebtError("manifest source_commit is not a lowercase commit SHA")
+    if not isinstance(fingerprint, str) or not re.fullmatch(r"[0-9a-f]{64}", fingerprint):
+        raise StarvationDebtError("manifest package_fingerprint is not a SHA-256")
+    if manifest.get("source_tree_dirty") is True:
+        return "not_checked_dirty_worktree"
+    if not _commit_available(commit):
+        return "commit_unavailable"
+    if fingerprint_at_commit(commit) != fingerprint:
+        raise StarvationDebtError("manifest package_fingerprint does not match the sources at source_commit")
+    return "bound"
+
+
+def check_manifest_fields(manifest: dict[str, Any], rows: int) -> list[str]:
+    """Every deterministic manifest field must equal its freshly computed value (no missing or extra keys)."""
+    expected = build_manifest({}, {}, source_commit=str(manifest.get("source_commit", "")), rows=rows)
+    skip = PROVENANCE_KEYS | DERIVED_KEYS
+    got = {k: v for k, v in manifest.items() if k not in skip}
+    want = {k: v for k, v in expected.items() if k not in skip}
+    missing, extra = sorted(set(want) - set(got)), sorted(set(got) - set(want))
+    different = sorted(k for k in want if k in got and canonical_dumps(got[k]) != canonical_dumps(want[k]))
+    if missing or extra or different:
+        raise StarvationDebtError(
+            f"manifest deterministic fields differ (missing {missing}, unexpected {extra}, different {different})")
+    return sorted(want)
+
+
+def verify(input_path: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[Any, ...]] | None = None,
+           record: str | Path | None = None) -> dict[str, Any]:
+    """Strict verification: check every deterministic manifest field, regenerate everything with the engine, compare.
+
+    Compatibility: the verifier need not be the harness version that generated the data. It accepts a manifest whose
+    historical provenance fields (``PROVENANCE_KEYS``) differ from the current environment, tree and HEAD, provided
+    (a) all other manifest fields equal freshly computed values, (b) the result-defining core of this harness equals
+    the pinned core of the generator, (c) regeneration reproduces every artifact byte for byte, and (d) the recorded
+    fingerprint is consistent with ``source_commit`` whenever that commit is available.
+    """
     root = Path(input_path)
     try:
         manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     except (OSError, ValueError) as exc:
         raise StarvationDebtError(f"cannot read manifest: {exc}") from exc
+    if not isinstance(manifest, dict):
+        raise StarvationDebtError("manifest is not an object")
+    if experiment_core_sha256() != GENERATOR_CORE_SHA256:
+        raise StarvationDebtError("the result-defining harness core differs from the pinned generator core")
+    _check_static_inputs()
+    rows_expected = EXPECTED_ROWS if _schedule is None else len(_schedule)
+    checked = check_manifest_fields(manifest, rows_expected)  # before any (slow) regeneration
+    if manifest.get("expected_rows") != rows_expected:
+        raise StarvationDebtError("row count differs from the protocol")
+    binding = check_generator_binding(manifest)
     expected_names = {"matches.jsonl", "minimal_demo.json", "reproduction.json", "summary.json"}
-    if set(manifest.get("artifacts", {})) != expected_names:
+    if not isinstance(manifest.get("artifacts"), dict) or set(manifest["artifacts"]) != expected_names:
         raise StarvationDebtError("manifest artifact list differs from the protocol")
+    if not isinstance(manifest.get("calls"), dict):
+        raise StarvationDebtError("manifest calls are missing")
     for name, digest in manifest["artifacts"].items():
         if _sha(_lf((root / name).read_bytes())) != digest:  # a Windows checkout may have converted LF to CRLF
             raise StarvationDebtError(f"artifact {name} does not match its manifest hash")
-    for key, current in (("protocol_sha256", protocol_sha256()), ("package_fingerprint", source_fingerprint()),
-                         ("engine_fingerprint_excluding_harness", source_fingerprint(exclude_harness=True))):
-        if manifest.get(key) != current:
-            raise StarvationDebtError(f"{key} differs from the current tree")
-    if manifest.get("engine_fingerprint_excluding_harness") != BASE_ENGINE_FINGERPRINT:
-        raise StarvationDebtError("engine fingerprint is not the frozen base")
-    if manifest.get("protected_file_sha256") != _protected_hashes():
-        raise StarvationDebtError("a protected FOR-20..24 file changed")
-    if manifest.get("expected_rows") != (EXPECTED_ROWS if _schedule is None else len(_schedule)):
-        raise StarvationDebtError("row count differs from the protocol")
     result = generate(jobs, _schedule)
     files = _artifact_bytes(result)
     for name, data in files.items():
@@ -1123,7 +1235,35 @@ def verify(input_path: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[A
             raise StarvationDebtError(f"regenerated {name} differs from the saved artifact")
     if manifest["calls"] != result["calls"]:
         raise StarvationDebtError("recorded call counts differ")
-    return {"ok": True, "rows": len(result["rows"]), "verification_calls": result["calls"]}
+    outcome = {
+        "ok": True, "rows": len(result["rows"]), "verification_calls": result["calls"],
+        "generator_binding": binding, "deterministic_fields_checked": checked,
+    }
+    if record is not None:
+        Path(record).write_bytes(_json_bytes(_verification_record(manifest, outcome)))
+    return outcome
+
+
+def _verification_record(manifest: dict[str, Any], outcome: dict[str, Any]) -> dict[str, Any]:
+    """Who verified what: the generator's real provenance next to the (different) verifier identity."""
+    return {
+        "schema": VERIFICATION_SCHEMA, "result": "ok", "rows": outcome["rows"],
+        "verification_calls": outcome["verification_calls"],
+        "manifest_sha256": _sha(canonical_dumps(manifest) + b"\n"),
+        "artifact_sha256": manifest["artifacts"],
+        "generator": {
+            "source_commit": manifest["source_commit"], "package_fingerprint": manifest["package_fingerprint"],
+            "core_sha256": GENERATOR_CORE_SHA256, "binding_to_source_commit": outcome["generator_binding"],
+            "recorded_in": "manifest.json (unchanged since generation)",
+        },
+        "verifier": {
+            "package_fingerprint": source_fingerprint(), "core_sha256": experiment_core_sha256(),
+            "engine_fingerprint_excluding_harness": source_fingerprint(exclude_harness=True),
+            "same_package_as_generator": source_fingerprint() == manifest["package_fingerprint"],
+        },
+        "deterministic_fields_checked": outcome["deterministic_fields_checked"],
+        "provenance_fields_not_compared": sorted(PROVENANCE_KEYS),
+    }
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1133,6 +1273,8 @@ def build_parser() -> argparse.ArgumentParser:
         p = sub.add_parser(name)
         p.add_argument("--out" if name == "run" else "--input", required=True, dest="path")
         p.add_argument("--jobs", type=int, default=1)
+        if name == "verify":
+            p.add_argument("--record", default=None, help="write a canonical verification record to this path")
     return parser
 
 
@@ -1143,7 +1285,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             manifest = run(args.path, args.jobs)
             print(json.dumps({"ok": True, "rows": manifest["expected_rows"], "calls": manifest["calls"]}))
         else:
-            print(json.dumps(verify(args.path, args.jobs)))
+            print(json.dumps(verify(args.path, args.jobs, record=args.record)))
     except StarvationDebtError as exc:
         print(f"FAILED: {exc}", file=sys.stderr)
         return 1
