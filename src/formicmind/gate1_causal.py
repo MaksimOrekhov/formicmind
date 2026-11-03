@@ -85,6 +85,10 @@ class _ArrayDigest:
         self._hash.update(canonical_dumps(value))
         self._count += 1
 
+    @property
+    def count(self) -> int:
+        return self._count
+
     def hexdigest(self) -> str:
         digest = self._hash.copy()
         digest.update(b"]")
