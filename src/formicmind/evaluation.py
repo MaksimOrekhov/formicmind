@@ -500,7 +500,10 @@ def run_benchmark(
                 "elapsed_ns": elapsed_ns,
                 "elapsed_seconds": elapsed_ns / 1_000_000_000,
                 "ticks_per_second": ticks_per_run * 1_000_000_000 / elapsed_ns,
-                "episodes_per_hour": sample_stats["episodes"] * 3_600_000_000_000 / elapsed_ns,
+                "completed_episodes_per_hour": (
+                    sample_stats["full_terminal_episodes"] * 3_600_000_000_000 / elapsed_ns
+                ),
+                "episode_attempts_per_hour": sample_stats["episodes"] * 3_600_000_000_000 / elapsed_ns,
             })
 
         if phase_timing_ticks:

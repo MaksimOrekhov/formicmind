@@ -273,7 +273,9 @@ def _benchmark_command(args: argparse.Namespace) -> int:
         print(f"sample={sample['sample_index'] + 1} ticks={sample['ticks']} episodes={sample['episodes']} "
               f"terminals={sample['full_terminal_episodes']} "
               f"benchmark_cutoffs={sample['benchmark_boundary_cutoffs']} "
-              f"elapsed_s={sample['elapsed_seconds']:.6f} ticks_per_second={sample['ticks_per_second']:.3f}")
+              f"elapsed_s={sample['elapsed_seconds']:.6f} ticks_per_second={sample['ticks_per_second']:.3f} "
+              f"completed_episodes_per_hour={sample['completed_episodes_per_hour']:.3f} "
+              f"episode_attempts_per_hour={sample['episode_attempts_per_hour']:.3f}")
     print(f"p10_ticks_per_second={throughput['ticks_per_second_p10']:.3f} "
           f"p50_ticks_per_second={throughput['ticks_per_second_p50']:.3f} "
           f"p10_method={throughput['p10_method']}")

@@ -106,15 +106,31 @@ def test_benchmark_uses_exact_step_tick_budget_and_reports_boundary_cutoff():
         assert sample["ticks"] == 50
         assert sample["seed_schedule_repeated"] is True
         assert "events" not in sample
+        assert sample["episodes"] == 2
         assert sample["full_terminal_episodes"] == 1
         assert sample["benchmark_boundary_cutoffs"] == 1
         assert sample["full_terminal_episodes"] + sample["benchmark_boundary_cutoffs"] == sample["episodes"]
+        hourly_scale = 3_600_000_000_000 / sample["elapsed_ns"]
+        assert sample["completed_episodes_per_hour"] == pytest.approx(hourly_scale)
+        assert sample["episode_attempts_per_hour"] == pytest.approx(2 * hourly_scale)
     throughput = measurement["throughput"]
     assert throughput["ticks_per_second_p10"] == min(s["ticks_per_second"] for s in measurement["samples"])
     assert throughput["ticks_per_second_p50"] == pytest.approx(
         sorted(s["ticks_per_second"] for s in measurement["samples"])[0] / 2
         + sorted(s["ticks_per_second"] for s in measurement["samples"])[1] / 2,
     )
+
+
+def test_zero_completed_matches_has_zero_completed_throughput_and_nonzero_attempt_rate():
+    result = run_benchmark(
+        runs=1, ticks_per_run=1, warmup_ticks=0, seed_start=900, scenario="technical",
+    )
+    sample = result["measurement"]["samples"][0]
+    assert sample["episodes"] == 1
+    assert sample["full_terminal_episodes"] == 0
+    assert sample["benchmark_boundary_cutoffs"] == 1
+    assert sample["completed_episodes_per_hour"] == 0
+    assert sample["episode_attempts_per_hour"] > 0
 
 
 def test_phase_diagnostic_is_separate_from_sample_throughput():
@@ -202,6 +218,8 @@ def test_cli_benchmark_writes_raw_samples_and_invalid_inputs_have_nonzero_codes(
     ]) == EXIT_OK
     result = json.loads(result_path.read_text(encoding="utf-8"))
     assert [sample["ticks"] for sample in result["measurement"]["samples"]] == [15, 15]
+    assert all("completed_episodes_per_hour" in sample and "episode_attempts_per_hour" in sample
+               for sample in result["measurement"]["samples"])
     assert result["measurement"]["throughput"]["gate0_status"] == "NOT MEASURED"
     repeat_path = tmp_path / "benchmark-repeat.json"
     assert sim_main([

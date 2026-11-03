@@ -40,6 +40,9 @@ Benchmark seeds use `seed_start + episode_index` and the same schedule is replay
 The recommended baseline is 10,000 warmup ticks followed by five 100,000-tick samples. Throughput is measured
 with `perf_counter_ns`. p10 uses nearest rank (`ceil(0.10 * n)`, the minimum of five samples); p50 is the median
 per-sample ticks/second. Raw elapsed nanoseconds, tick counts, outcomes, and rates are in the JSON result.
+Each sample reports both `completed_episodes_per_hour` (terminal matches only) and `episode_attempts_per_hour`
+(all started episodes, including a final benchmark boundary cutoff). A cutoff is not a completed match; when no
+match completes, completed throughput is zero while the attempt rate may be nonzero.
 `--phase-timing-ticks N` runs a separate per-phase diagnostic after the main samples. Its callbacks and clock reads
 add overhead; the diagnostic is labeled and excluded from throughput.
 
