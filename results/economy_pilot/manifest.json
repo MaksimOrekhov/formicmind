@@ -1,0 +1,1068 @@
+{
+  "checkpoint_interval": 100,
+  "command": [
+    "python",
+    "-m",
+    "formicmind.economy_pilot",
+    "run",
+    "--out",
+    "results/economy_pilot"
+  ],
+  "configs": [
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 1,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 12,
+              "start_food": 80
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+      "eggs_per_lay": 1,
+      "environment_profile": "default"
+    },
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 1,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 6,
+              "start_food": 40
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "9fd5a5dd2755d11797bf3ecc6fbde59e798453f4c553a2b6aed104c2f249d37f",
+      "eggs_per_lay": 1,
+      "environment_profile": "scarcity"
+    },
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 2,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 12,
+              "start_food": 80
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "ecd7da022c005e0b415e8e8f04c2603044c60ac18b75bf8727769101267a3c02",
+      "eggs_per_lay": 2,
+      "environment_profile": "default"
+    },
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 2,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 6,
+              "start_food": 40
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "c5998c406633074b007d474650705b59efc664b33ad9404d8781d4537f8bfa38",
+      "eggs_per_lay": 2,
+      "environment_profile": "scarcity"
+    },
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 4,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 12,
+              "start_food": 80
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 8,
+              "start_food": 60
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 8,
+              "start_food": 40
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "727a047fd84df761620a8145e74242cd4663858923781db17fa18e74cb1653ad",
+      "eggs_per_lay": 4,
+      "environment_profile": "default"
+    },
+    {
+      "config": {
+        "balance": {
+          "eggs_per_lay": 4,
+          "home_defense_den": 4,
+          "home_defense_num": 5,
+          "lay_interval_ticks": 10,
+          "queen_hp": 240,
+          "resources": [
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 0,
+              "regen": 0,
+              "start_food": 0
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 1,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 2,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 120,
+              "max_harvest": 12,
+              "node_id": 3,
+              "regen": 6,
+              "start_food": 40
+            },
+            {
+              "capacity": 80,
+              "max_harvest": 8,
+              "node_id": 4,
+              "regen": 4,
+              "start_food": 30
+            },
+            {
+              "capacity": 60,
+              "max_harvest": 8,
+              "node_id": 5,
+              "regen": 4,
+              "start_food": 20
+            },
+            {
+              "capacity": 0,
+              "max_harvest": 0,
+              "node_id": 6,
+              "regen": 0,
+              "start_food": 0
+            }
+          ],
+          "soldier_damage": 2,
+          "soldier_egg_cost": 20,
+          "soldier_hatch_delay": 30,
+          "soldier_hp": 30,
+          "soldier_upkeep_tenths": 8,
+          "start_food": 60,
+          "start_soldiers": 4,
+          "start_workers": 12,
+          "starvation_unit_cost": 5,
+          "worker_egg_cost": 10,
+          "worker_hatch_delay": 20,
+          "worker_hp": 20,
+          "worker_upkeep_tenths": 4
+        },
+        "balance_version": "candidate-FOR1-v0.2.1-unvalidated",
+        "policy_interval_k": 30,
+        "rules_version": "l0-proto-FOR1-v0.2.2",
+        "schema": "formicmind.sim_config/1",
+        "serialization_version": "formicmind-canonical-json-v1",
+        "t_max": 3000,
+        "topology": {
+          "edges": [
+            {
+              "a": 0,
+              "b": 1,
+              "length": 2
+            },
+            {
+              "a": 0,
+              "b": 2,
+              "length": 3
+            },
+            {
+              "a": 1,
+              "b": 3,
+              "length": 2
+            },
+            {
+              "a": 2,
+              "b": 3,
+              "length": 3
+            },
+            {
+              "a": 2,
+              "b": 5,
+              "length": 4
+            },
+            {
+              "a": 3,
+              "b": 4,
+              "length": 2
+            },
+            {
+              "a": 3,
+              "b": 5,
+              "length": 3
+            },
+            {
+              "a": 4,
+              "b": 6,
+              "length": 2
+            },
+            {
+              "a": 5,
+              "b": 6,
+              "length": 3
+            }
+          ],
+          "nodes": [
+            {
+              "home_side": 0,
+              "name": "A",
+              "node_id": 0
+            },
+            {
+              "home_side": -1,
+              "name": "N1",
+              "node_id": 1
+            },
+            {
+              "home_side": -1,
+              "name": "N2",
+              "node_id": 2
+            },
+            {
+              "home_side": -1,
+              "name": "C",
+              "node_id": 3
+            },
+            {
+              "home_side": -1,
+              "name": "N4",
+              "node_id": 4
+            },
+            {
+              "home_side": -1,
+              "name": "N5",
+              "node_id": 5
+            },
+            {
+              "home_side": 1,
+              "name": "B",
+              "node_id": 6
+            }
+          ]
+        }
+      },
+      "config_hash": "a8dd7efd699b860ad61b3c8817e7ad8a6de1fefd95285b84cbf90b79dedf0f53",
+      "eggs_per_lay": 4,
+      "environment_profile": "scarcity"
+    }
+  ],
+  "eggs_per_lay": [
+    1,
+    2,
+    4
+  ],
+  "environment_profiles": [
+    "default",
+    "scarcity"
+  ],
+  "forage_regimes": [
+    "single-local",
+    "split-local"
+  ],
+  "isolation_fallback": null,
+  "lay_regimes": [
+    "no-lay",
+    "worker-first",
+    "soldier-focused",
+    "alternating"
+  ],
+  "open_seeds": [
+    20261111,
+    20261112,
+    20261113
+  ],
+  "pilot_horizon": 1000,
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "protocol_commit": "e1573f8cafc2e9e7d093a4c5ae573760ded954fd",
+  "protocol_path": "docs/economy_pilot_protocol.md",
+  "protocol_sha256": "57f33e613599542d89f8a5a6ea8c5d0a33f29022564b056fb2c0a93bd87d93d0",
+  "python_version": "3.12.15",
+  "rules_version": "l0-proto-FOR1-v0.2.2",
+  "schema": "formicmind.economy-pilot-manifest/v1",
+  "source_git_sha": "9a3e9767bcad2ce38a775cd807f18f55c97bea48",
+  "topology_mode": "default"
+}
