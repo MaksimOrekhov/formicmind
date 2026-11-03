@@ -598,3 +598,11 @@ def test_default_config_and_economy_are_untouched():
     sc.build_minimal_demo()
     assert config_hash(default_config()) == before
     assert tick_module.upkeep is economy_module.upkeep
+
+
+def test_rows_with_unmeasured_windows_serialise_and_stay_null():
+    rows, _ = sc.execute_group(("R0-T0", "rush", "raider", OFF_SCHEDULE_SEED, False))
+    assert any(None in r["windows"] for r in rows)                  # an early terminal leaves windows unmeasured
+    data = sc._dump_lines(rows)
+    back = [json.loads(line) for line in data.splitlines()]
+    assert back == json.loads(json.dumps(rows))

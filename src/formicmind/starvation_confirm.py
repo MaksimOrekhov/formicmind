@@ -1286,7 +1286,9 @@ def preflight(*, require_clean: bool = True) -> dict[str, Any]:
 
 
 def _dump_lines(rows: Sequence[Mapping[str, Any]]) -> bytes:
-    return b"".join(canonical_dumps(r) + b"\n" for r in rows)
+    # json (not canonical_dumps): unmeasured windows are stored as null, never as zero
+    return b"".join(json.dumps(r, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("ascii") + b"\n"
+                    for r in rows)
 
 
 def _dump_json(value: Any) -> bytes:
@@ -1337,10 +1339,10 @@ def run_study(out: Path, workers: int) -> dict[str, Any]:
     out.mkdir(parents=True, exist_ok=True)
     try:
         gen = generate(workers, progress=True)
+        artifacts = _artifact_bytes(gen)
     except BaseException as exc:  # keep the incomplete attempt separately and stop
         (out / "incomplete_attempt.json").write_bytes(_dump_json({"failure": repr(exc), "head": _git("rev-parse", "HEAD")}))
         raise
-    artifacts = _artifact_bytes(gen)
     for name, data in artifacts.items():
         (out / name).write_bytes(data)
     manifest = static_manifest()
