@@ -185,6 +185,58 @@ def test_v2_food_thresholds_are_exact_for_both_sides(side, selector, threshold, 
     assert values == [before, at]
 
 
+@pytest.mark.parametrize("side", (0, 1))
+@pytest.mark.parametrize("selector,expected_lay", (
+    ("turtle:v2", (1, 0, 0)),
+    ("rush:v2", (2, 2, 0)),
+    ("balanced:v2", (2, 2, 0)),
+    ("raider:v2", (2, 2, 2)),
+))
+def test_v2_starvation_debt_thresholds_use_normalized_signal_at_0_1_2(side, selector, expected_lay):
+    snapshot = begin_policy_phase(fresh_state(60))
+    base_observation = build_observation(snapshot, side)
+    observed_lay = []
+    legacy_name = selector.removesuffix(":v2")
+    for debt, expected in zip((0, 1, 2), expected_lay, strict=True):
+        observation = _edit(base_observation, "own_global", {
+            OwnGlobalIndex.FOOD: 80 / 330,
+            OwnGlobalIndex.WORKERS: 8 / 72,
+            OwnGlobalIndex.SOLDIERS: 3 / 67,
+            OwnGlobalIndex.STARVATION_DEBT: debt / (debt + 10),
+            OwnGlobalIndex.STARVATION_DELTA: 0.0,
+        })
+        assert observation.own_global.starvation_debt == f32(debt / (debt + 10))
+        action = _action(selector, observation)
+        assert action.lay_order == expected
+        assert action == _action(legacy_name, observation)
+        observed_lay.append(action.lay_order)
+    assert tuple(observed_lay) == expected_lay
+
+
+def test_v2_starvation_threshold_sha_matches_the_normalized_config_used_by_policy():
+    spec = baseline_spec("balanced:v2")
+    observation = _edit(_observations(fresh_state(60)), "own_global", {
+        OwnGlobalIndex.FOOD: 80 / 330,
+        OwnGlobalIndex.WORKERS: 8 / 72,
+        OwnGlobalIndex.SOLDIERS: 3 / 67,
+        OwnGlobalIndex.STARVATION_DEBT: 1 / 11,
+        OwnGlobalIndex.STARVATION_DELTA: 0.0,
+    })
+    default_action = _action("balanced:v2", observation)
+    assert default_action.lay_order == 2
+
+    changed_profile = replace(spec.config.profile, lay_none_starvation_debt=0.08)
+    changed_config = BaselineConfig(shared=spec.config.shared, profile=changed_profile)
+    changed_policy = spec.build(changed_config)
+    assert changed_policy.baseline_config is changed_config
+    assert spec.parameter_object(changed_config)["profile"]["lay_none_starvation_debt"] == 0.08
+    assert spec.digest(changed_config) != spec.digest()
+    changed_action = decide(
+        changed_policy, observation, new_stream(11, "policy:balanced-v2:0"),
+    ).action
+    assert changed_action.lay_order == 0
+
+
 def test_baseline_selectors_keep_legacy_aliases_on_v1_and_expose_both_versions():
     assert all(baseline_spec(name).version == "v1" for name in baseline_names())
     assert set(baseline_selectors()) == set(baseline_names()) | {

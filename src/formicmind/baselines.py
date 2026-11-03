@@ -52,6 +52,8 @@ class RandomBaselineConfig:
 
 @dataclass(frozen=True, slots=True)
 class TurtleBaselineConfig:
+    """Пороги starvation_debt заданы в нормализованных единицах ObservationV2."""
+
     defense_threat: float
     worker_soldier_ratio: float
     lay_none_food_below: int
@@ -66,6 +68,8 @@ class TurtleBaselineConfig:
 
 @dataclass(frozen=True, slots=True)
 class RushBaselineConfig:
+    """Порог lay_none_starvation_debt задан для сигнала debt/(debt+10)."""
+
     minimum_soldiers_to_raid: int
     soldier_worker_ratio: float
     defense_threat: float
@@ -77,6 +81,8 @@ class RushBaselineConfig:
 
 @dataclass(frozen=True, slots=True)
 class BalancedBaselineConfig:
+    """Пороги starvation_debt заданы в нормализованных единицах ObservationV2."""
+
     soldier_worker_ratio: float
     minimum_soldiers_to_raid: int
     defense_threat: float
@@ -97,6 +103,8 @@ class BalancedBaselineConfig:
 
 @dataclass(frozen=True, slots=True)
 class RaiderBaselineConfig:
+    """Порог hungry_starvation_debt задан для сигнала debt/(debt+10)."""
+
     minimum_soldiers_to_raid: int
     soldier_worker_ratio_to_raid: float
     defense_target_requires_current_enemy_soldier: bool
@@ -355,6 +363,11 @@ def _own_counts(observation: ObservationV2, *, integer_metrics: bool = False) ->
     return _decode_u(own.workers, 64.0), _decode_u(own.soldiers, 64.0), _decode_u(own.food, 250.0)
 
 
+def _starvation_debt_signal(observation: ObservationV2) -> float:
+    """Вернуть нормализованный сигнал U(debt; 10), с которым заданы пороги профилей."""
+    return observation.own_global.starvation_debt
+
+
 class RandomPolicy(BaselinePolicy):
     """Uniform-ish legal logits generated exclusively from the policy's PCG32 stream."""
 
@@ -406,9 +419,8 @@ class TurtlePolicy(BaselinePolicy):
         c = self.config
         workers, soldiers, food = _own_counts(observation, integer_metrics=self.integer_metrics)
         own = observation.own_global
-        debt = (_decode_u_integer(own.starvation_debt, 10.0) if self.integer_metrics
-                else own.starvation_debt)
-        hungry = food < c.lay_none_food_below or debt > c.lay_none_starvation_debt \
+        debt_signal = _starvation_debt_signal(observation)
+        hungry = food < c.lay_none_food_below or debt_signal > c.lay_none_starvation_debt \
             or own.starvation_delta > c.lay_none_starvation_delta
         threat = _known_threats(observation, self.shared, integer_metrics=self.integer_metrics)
         target = _defensive_target(threat, mask, c.defense_threat)
@@ -443,8 +455,7 @@ class RushPolicy(BaselinePolicy):
         c = self.config
         workers, soldiers, food = _own_counts(observation, integer_metrics=self.integer_metrics)
         own = observation.own_global
-        debt = (_decode_u_integer(own.starvation_debt, 10.0) if self.integer_metrics
-                else own.starvation_debt)
+        debt_signal = _starvation_debt_signal(observation)
         target = _defensive_target(
             _known_threats(observation, self.shared, integer_metrics=self.integer_metrics), mask, c.defense_threat
         )
@@ -455,7 +466,7 @@ class RushPolicy(BaselinePolicy):
             army = 6
         else:
             army = 0
-        hungry = food < c.lay_none_food_below or debt > c.lay_none_starvation_debt
+        hungry = food < c.lay_none_food_below or debt_signal > c.lay_none_starvation_debt
         if hungry:
             lay = 0
         elif soldiers < c.minimum_soldiers_to_raid or soldiers < workers * c.soldier_worker_ratio:
@@ -479,8 +490,7 @@ class BalancedPolicy(BaselinePolicy):
         c = self.config
         workers, soldiers, food = _own_counts(observation, integer_metrics=self.integer_metrics)
         own = observation.own_global
-        debt = (_decode_u_integer(own.starvation_debt, 10.0) if self.integer_metrics
-                else own.starvation_debt)
+        debt_signal = _starvation_debt_signal(observation)
         threat = _known_threats(observation, self.shared, integer_metrics=self.integer_metrics)
         # Keep the balanced profile home/near-home focused. Enemy workers at the
         # center or on the far side must not make its raid readiness unreachable.
@@ -497,9 +507,9 @@ class BalancedPolicy(BaselinePolicy):
             army = 6
         else:
             army = 0
-        hungry = food < c.hungry_food_below or debt > c.hungry_starvation_debt \
+        hungry = food < c.hungry_food_below or debt_signal > c.hungry_starvation_debt \
             or own.starvation_delta > c.hungry_starvation_delta
-        if hungry and (debt > c.lay_none_starvation_debt or food < c.lay_none_food_below):
+        if hungry and (debt_signal > c.lay_none_starvation_debt or food < c.lay_none_food_below):
             lay = 0
         elif c.soldier_lay_target == "raid_readiness" and not enough_soldiers \
                 and (food >= c.soldier_lay_food_at_least or target is not None):
@@ -525,8 +535,7 @@ class RaiderPolicy(BaselinePolicy):
         c = self.config
         workers, soldiers, food = _own_counts(observation, integer_metrics=self.integer_metrics)
         own = observation.own_global
-        debt = (_decode_u_integer(own.starvation_debt, 10.0) if self.integer_metrics
-                else own.starvation_debt)
+        debt_signal = _starvation_debt_signal(observation)
         threats = _known_threats(observation, self.shared, integer_metrics=self.integer_metrics)
         soldier_threats = _known_soldier_threats(
             observation, self.shared, integer_metrics=self.integer_metrics
@@ -562,7 +571,7 @@ class RaiderPolicy(BaselinePolicy):
             # no explicit target waypoint, so this is the closest legal pressure order.
             army = (max((node for node in range(1, 6) if mask.army_choice[node]), default=0)
                     if c.outermost_reachable_position_fallback else 0)
-        hungry = food < c.hungry_food_below or debt > c.hungry_starvation_debt \
+        hungry = food < c.hungry_food_below or debt_signal > c.hungry_starvation_debt \
             or own.starvation_delta > c.hungry_starvation_delta
         if hungry and food < c.lay_none_food_below:
             lay = 0
