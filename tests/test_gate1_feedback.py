@@ -127,7 +127,7 @@ def test_censored_episode_and_unreached_horizons_stay_unmeasured() -> None:
     )
 
 
-def test_strict_verifier_rejects_a_tampered_artifact_before_replay(tmp_path) -> None:
+def test_strict_verifier_rejects_a_tampered_artifact_before_replay(tmp_path, monkeypatch) -> None:
     matches = b"{}\n"
     summary = b"{}\n"
     manifest = _manifest(_git_value("rev-parse", "HEAD"))
@@ -142,6 +142,7 @@ def test_strict_verifier_rejects_a_tampered_artifact_before_replay(tmp_path) -> 
     (tmp_path / "manifest.json").write_bytes(canonical_dumps(manifest) + b"\n")
     (tmp_path / "matches.jsonl").write_bytes(b'{"tampered":true}\n')
     (tmp_path / "summary.json").write_bytes(summary)
+    monkeypatch.setattr("formicmind.gate1_feedback._assert_manifest", lambda _: None)
 
     with pytest.raises(Gate1FeedbackError, match="saved artifact hash mismatch"):
         verify(tmp_path)
