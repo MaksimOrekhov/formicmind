@@ -77,7 +77,7 @@ Army eligibility was absent in 34 scheduled rows because the target had no adult
 - Targeted FOR-21 tests: `12 passed`.
 - Full Python suite: `842 passed`.
 - Vue production build: passed; Vitest: `18 passed`.
-- Windows GitHub Actions for the corrected PR head: pending.
+- Windows GitHub Actions: [run 41616200325](https://github.com/MaksimOrekhov/formicmind/actions/runs/41616200325) passed on corrected head `572b1d748da314b4b074c48917a53673bb70658f` (Python 3.12, Node 22).
 - Gate 0 single-core Windows performance remains `NOT MEASURED`. This work tests only current default-config matches on one map; cross-map context maps, open-loop versus closed-loop comparison, and anti-stalling remain separate work.
 
 The measured forage harm is descriptive evidence about the fixed home-only alternative in these paired contexts. The corrected independent sample is below the preregistered inference minimum; no broad claim about strategy strength or game balance follows from this diagnostic. It does not authorize changes to forage policy, balance, or physics.
