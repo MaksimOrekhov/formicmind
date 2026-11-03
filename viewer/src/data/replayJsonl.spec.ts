@@ -79,6 +79,16 @@ function projectFrame(source: ReplayDataSource, expected: GoldenFrame) {
 }
 
 describe('Replay v1 browser adapter', () => {
+  it('accepts a Python-produced replay with 257 RNG draws per decision', async () => {
+    const bytes = fixture('rng_257.jsonl')
+    const decisions = parseRecords(bytes).filter((record) => record.type === 'decision')
+    expect(decisions).toHaveLength(1)
+    expect(decisions[0].seats.map((seat: Record<string, any>) => seat.rng[0].draws)).toEqual([257, 257])
+
+    const source = await parseReplayBytes(bytes, 'rng_257.jsonl')
+    expect(source.getMetadata()).toMatchObject({ ticksExecuted: 1, finished: false, sourceLabel: 'RECORDING CUTOFF' })
+  })
+
   it('matches Python ReplayReader/ViewFrame golden frames for checkpoints, tick boundaries and all match outcomes', async () => {
     for (const name of ['raid_win', 'mutual_raid_draw', 'collapse', 'cutoff']) {
       const source = await parseReplayBytes(fixture(`${name}.jsonl`), `${name}.jsonl`)

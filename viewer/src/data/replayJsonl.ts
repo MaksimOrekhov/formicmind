@@ -537,7 +537,7 @@ function validateDecision(record: JsonObject, tick: number, streams: string[], s
     if (expectedStream) {
       const entry = exactKeys(rng[0], ['stream_id', 'draws', 'state_after'], `decision ${tick}.rng[0]`)
       if (entry.stream_id !== expectedStream || !streams.includes(expectedStream)) throw new ReplayFormatError(`decision ${tick}.rng: неизвестный stream_id.`)
-      int(entry.draws, `decision ${tick}.rng.draws`, 0, 1 << 40)
+      int(entry.draws, `decision ${tick}.rng.draws`, 0, 2 ** 40)
       const state = exactKeys(entry.state_after, ['state', 'inc'], `decision ${tick}.rng.state_after`)
       for (const field of ['state', 'inc']) {
         const value = str(state[field], `decision ${tick}.rng.${field}`)
