@@ -8,9 +8,11 @@ import sys
 from pathlib import Path
 from collections.abc import Sequence
 
+from .baselines import baseline_names
 from .evaluation import (
     SCENARIOS,
     TECHNICAL_SCENARIO,
+    EpisodeSummary,
     EvaluationError,
     aggregate_evaluation,
     build_manifest,
@@ -20,15 +22,18 @@ from .evaluation import (
     load_manifest,
     make_result_document,
     manifest_digest,
+    result_controller_config,
     run_benchmark,
     validate_seed,
     write_json,
 )
 from .replay.cli import EXIT_IO, EXIT_OK, EXIT_USAGE, build_parser as build_replay_parser
 from .replay.cli import run as run_replay
+from .replay.writer import record_episode
 from .rules import default_config
 
 SCRIPTED = "scripted"
+CONTROLLERS = [SCRIPTED, *baseline_names()]
 
 
 class _UsageParser(argparse.ArgumentParser):
@@ -74,9 +79,10 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--manifest", metavar="PATH", help="replay a previously generated run manifest")
     run.add_argument("--manifest-out", metavar="PATH", help="write the resolved, reusable manifest")
     run.add_argument("--json-out", metavar="PATH", help="write manifest and final episode result as JSON")
+    run.add_argument("--replay-out", metavar="PATH", help="record this single episode as Replay v1 JSONL")
     run.add_argument("--seed", type=_u64, help="root seed as a decimal u64")
-    run.add_argument("--a", choices=[SCRIPTED], help="controller on side A")
-    run.add_argument("--b", choices=[SCRIPTED], help="controller on side B")
+    run.add_argument("--a", choices=CONTROLLERS, help="controller on side A")
+    run.add_argument("--b", choices=CONTROLLERS, help="controller on side B")
     run.add_argument("--scenario", choices=SCENARIOS, help="technical or an existing scripted smoke fixture")
     run.add_argument("--max-ticks", type=_nonnegative_int, help="explicit harness cutoff (0..T_max)")
 
@@ -86,8 +92,8 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--json-out", metavar="PATH", help="write manifest, per-episode rows, and aggregates")
     evaluate.add_argument("--episodes", type=_positive_int, help="number of seeds, or seed pairs with --paired")
     evaluate.add_argument("--seed-start", type=_u64, help="first root seed; remaining seeds are seed_start + i")
-    evaluate.add_argument("--a", choices=[SCRIPTED], help="controller on side A")
-    evaluate.add_argument("--b", choices=[SCRIPTED], help="controller on side B")
+    evaluate.add_argument("--a", choices=CONTROLLERS, help="controller on side A")
+    evaluate.add_argument("--b", choices=CONTROLLERS, help="controller on side B")
     evaluate.add_argument("--scenario", choices=SCENARIOS, help="technical or an existing scripted smoke fixture")
     evaluate.add_argument("--paired", dest="paired_seat", action="store_const", const=True, default=None,
                           help="run both A/B seat assignments for each seed")
@@ -103,8 +109,8 @@ def build_parser() -> argparse.ArgumentParser:
     benchmark.add_argument("--warmup-ticks", type=_nonnegative_int,
                            help="unmeasured full-path warmup tick calls (recommended: 10000)")
     benchmark.add_argument("--seed-start", type=_u64, help="first root seed; reset each sample to this schedule")
-    benchmark.add_argument("--a", choices=[SCRIPTED], help="controller on side A")
-    benchmark.add_argument("--b", choices=[SCRIPTED], help="controller on side B")
+    benchmark.add_argument("--a", choices=CONTROLLERS, help="controller on side A")
+    benchmark.add_argument("--b", choices=CONTROLLERS, help="controller on side B")
     benchmark.add_argument("--scenario", choices=SCENARIOS, help="technical or an existing scripted smoke fixture")
     benchmark.add_argument("--pin-core", type=_nonnegative_int,
                            help="logical CPU index; default auto-pins one core when the OS supports it")
@@ -135,13 +141,22 @@ def _resolve_parameters(args: argparse.Namespace, command: str, config) -> tuple
         return manifest["parameters"], manifest
 
     a, b = args.a, args.b
-    if a != SCRIPTED or b != SCRIPTED:
-        raise EvaluationError("direct runs require explicit --a scripted and --b scripted.")
-    scenario = args.scenario or TECHNICAL_SCENARIO
+    if a is None or b is None:
+        raise EvaluationError("direct runs require explicit --a and --b controllers.")
+    scripted = a == SCRIPTED and b == SCRIPTED
+    if (a == SCRIPTED) != (b == SCRIPTED):
+        raise EvaluationError("scripted fixtures cannot be mixed with strategic policies.")
+    if scripted:
+        scenario = args.scenario or TECHNICAL_SCENARIO
+    else:
+        if args.scenario is not None:
+            raise EvaluationError("--scenario is supported only with --a scripted --b scripted.")
+        scenario = None
+    controller_parameters = {} if scripted else {"a": a, "b": b}
     if command == "run":
         if args.seed is None:
             raise EvaluationError("sim run requires --seed (or --manifest).")
-        params = {"scenario": scenario, "seed": args.seed, "max_ticks": args.max_ticks}
+        params = {"scenario": scenario, **controller_parameters, "seed": args.seed, "max_ticks": args.max_ticks}
     elif command == "eval":
         if args.episodes is None or args.seed_start is None:
             raise EvaluationError("sim eval requires --episodes and --seed-start (or --manifest).")
@@ -149,7 +164,7 @@ def _resolve_parameters(args: argparse.Namespace, command: str, config) -> tuple
         if args.seed_start + args.episodes - 1 > (1 << 64) - 1:
             raise EvaluationError("seed_start + episodes - 1 exceeds the u64 seed range.")
         params = {
-            "scenario": scenario, "episodes": args.episodes, "seed_start": args.seed_start,
+            "scenario": scenario, **controller_parameters, "episodes": args.episodes, "seed_start": args.seed_start,
             "paired_seat": paired, "max_ticks": args.max_ticks,
             "seed_schedule": "seed_start + episode_index; one seed per pair" if paired else "seed_start + episode_index",
         }
@@ -161,6 +176,7 @@ def _resolve_parameters(args: argparse.Namespace, command: str, config) -> tuple
             raise EvaluationError("benchmark seed schedule may exceed the u64 range.")
         params = {
             "scenario": scenario,
+            **controller_parameters,
             "runs": args.runs,
             "ticks_per_run": args.ticks_per_run,
             "warmup_ticks": args.warmup_ticks,
@@ -173,10 +189,11 @@ def _resolve_parameters(args: argparse.Namespace, command: str, config) -> tuple
     return params, build_manifest(command, config, params)
 
 
-def _prepare_output_paths(json_out: str | None, manifest_out: str | None) -> None:
-    if json_out and manifest_out and Path(json_out).resolve() == Path(manifest_out).resolve():
-        raise EvaluationError("--json-out and --manifest-out must be different paths.")
-    for value in (json_out, manifest_out):
+def _prepare_output_paths(*values: str | None) -> None:
+    resolved = [Path(value).resolve() for value in values if value]
+    if len(resolved) != len(set(resolved)):
+        raise EvaluationError("output paths must be different.")
+    for value in values:
         if not value:
             continue
         path = Path(value)
@@ -214,15 +231,26 @@ def _write_manifest_if_requested(path: str | None, manifest: dict) -> None:
 def _run_command(args: argparse.Namespace) -> int:
     config = default_config()
     params, manifest = _resolve_parameters(args, "run", config)
-    _prepare_output_paths(args.json_out, args.manifest_out)
+    _prepare_output_paths(args.json_out, args.manifest_out, args.replay_out)
     _write_manifest_if_requested(args.manifest_out, manifest)
-    pair = controller_pair(params["scenario"])
-    summary = execute_episode(params["seed"], pair, config=config, max_ticks=params["max_ticks"])
+    pair = controller_pair(params["scenario"], a=params.get("a", SCRIPTED), b=params.get("b", SCRIPTED))
+    if args.replay_out:
+        result, replay_summary = record_episode(
+            args.replay_out, config, params["seed"], pair.controllers[0], pair.controllers[1],
+            max_ticks=params["max_ticks"], source="sim run",
+            meta={"controller_a": pair.ids[0], "controller_b": pair.ids[1]},
+        )
+        summary = EpisodeSummary(
+            seed=params["seed"], outcome=result.outcome, ticks_executed=result.ticks_executed,
+            state_tick=result.final_tick, queen_hp=result.queen_hp, food=result.food, workers=result.workers,
+            soldiers=result.soldiers, brood=result.brood, config_hash=result.config_hash,
+            state_hash=result.state_hash, checkpoint_hash=result.checkpoint_hash,
+        )
+        print(f"replay_out={args.replay_out} replay_ticks={replay_summary.ticks} replay_events={replay_summary.events}")
+    else:
+        summary = execute_episode(params["seed"], pair, config=config, max_ticks=params["max_ticks"])
     row = summary.to_record(episode_index=0, pair_id=None, assignment=pair.ids)
-    row["controller_config"] = {
-        "A": {"id": pair.ids[0], "kind": "scripted", "script_sha256": pair.script_hashes[0]},
-        "B": {"id": pair.ids[1], "kind": "scripted", "script_sha256": pair.script_hashes[1]},
-    }
+    row["controller_config"] = result_controller_config(pair)
     document = make_result_document("run", manifest, results=[row], aggregate=aggregate_evaluation([row]))
     if args.json_out:
         write_json(args.json_out, document)
@@ -239,6 +267,7 @@ def _eval_command(args: argparse.Namespace) -> int:
     _write_manifest_if_requested(args.manifest_out, manifest)
     records, aggregate = evaluate_episodes(
         episodes=params["episodes"], seed_start=params["seed_start"], scenario=params["scenario"],
+        a=params.get("a", SCRIPTED), b=params.get("b", SCRIPTED),
         paired_seat=params["paired_seat"], max_ticks=params["max_ticks"], config=config,
     )
     document = make_result_document("eval", manifest, results=records, aggregate=aggregate)
@@ -260,7 +289,8 @@ def _benchmark_command(args: argparse.Namespace) -> int:
     _write_manifest_if_requested(args.manifest_out, manifest)
     document = run_benchmark(
         runs=params["runs"], ticks_per_run=params["ticks_per_run"], warmup_ticks=params["warmup_ticks"],
-        seed_start=params["seed_start"], scenario=params["scenario"], pin_core=params["pin_core"],
+        seed_start=params["seed_start"], scenario=params["scenario"],
+        a=params.get("a", SCRIPTED), b=params.get("b", SCRIPTED), pin_core=params["pin_core"],
         phase_timing_ticks=params["phase_timing_ticks"], config=config, manifest=manifest,
     )
     if args.json_out:
