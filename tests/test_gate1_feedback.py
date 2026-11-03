@@ -19,10 +19,12 @@ from formicmind.gate1_feedback import (
     _block_from_rows,
     _build_summary,
     _frozen_observation,
+    _manifest,
     _policy_streams,
     _schedule,
     _target_label,
 )
+from formicmind.canonical import canonical_dumps
 from formicmind.observation import OBS_V2_LENGTH, ObservationV2
 from formicmind.rng import policy_stream_id
 from formicmind.runstate import RunState
@@ -74,6 +76,14 @@ def test_fixed_schedule_has_full_preregistered_factorial_count() -> None:
 def test_reused_for22_map_configs_keep_their_canonical_hashes() -> None:
     configs = _build_configs()
     assert {map_id: config_hash(configs[map_id]) for map_id in MAP_IDS} == _EXPECTED_CONFIG_HASHES
+
+
+def test_manifest_canonicalizes_float_parameters_without_changing_policy_digest() -> None:
+    manifest = _manifest("a" * 40)
+    canonical_dumps(manifest)
+    balanced = manifest["policies"]["balanced"]
+    assert balanced["parameters"]["shared"]["food_stale_freshness_slope"] == "3"
+    assert balanced["parameters_sha256"] == "03c6760da2b2fc42108133c8b81a91b70e3c086327fbabedf9d3f30eb7dcdd0f"
 
 
 def test_frozen_observation_updates_only_time_and_ignores_live_world_values() -> None:

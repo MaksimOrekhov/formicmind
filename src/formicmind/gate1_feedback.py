@@ -111,6 +111,19 @@ def _float32_bytes(values: Sequence[float]) -> bytes:
     return struct.pack(f"<{len(values)}f", *values)
 
 
+def _canonical_value(value: Any) -> Any:
+    """Convert descriptive metadata to the canonical JSON type set."""
+    if type(value) is float:
+        return format(value, ".17g")
+    if type(value) is tuple:
+        return [_canonical_value(item) for item in value]
+    if type(value) is list:
+        return [_canonical_value(item) for item in value]
+    if type(value) is dict:
+        return {key: _canonical_value(item) for key, item in value.items()}
+    return value
+
+
 def _frozen_observation(initial: ObservationV2, live: ObservationV2) -> ObservationV2:
     """Copy the initial 223 floats, replacing only the two allowed time floats."""
     values = list(initial.values)
@@ -186,7 +199,7 @@ def _policy_descriptor(name: str) -> dict[str, Any]:
         "name": name,
         "id": spec.full_id,
         "policy_id": spec.policy_id,
-        "parameters": spec.parameter_object(),
+        "parameters": _canonical_value(spec.parameter_object()),
         "parameters_sha256": spec.digest(),
         "stream_ids": [policy_stream_id(spec.policy_id, replicate) for replicate in (0, 1)],
     }
