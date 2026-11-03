@@ -7,6 +7,7 @@ engineering constant (never a FOR-4 sealed seed).
 
 import json
 import os
+import re
 import subprocess
 import sys
 from collections import Counter
@@ -530,10 +531,19 @@ def test_contract_and_format_versions_are_pinned():
 def test_ci_workflow_is_windows_python_312_read_only_and_has_no_linux_job():
     text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     active = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
-    # two Windows jobs only: the current tree, and the pinned historical FOR-25 checkout (docs/starvation_debt_verification.md)
+    # Windows jobs only. The REQUIRED jobs are named, their number is not fixed: the current tree (`test`) and one pinned
+    # historical checkout per frozen study (docs/starvation_debt_verification.md, docs/starvation_confirm_verification.md).
+    job_names = re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", active.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
+    for required in ("test", "historical-for25", "historical-for35"):
+        assert required in job_names, required
     runs_on = [line.strip() for line in active.splitlines() if "runs-on:" in line]
-    assert runs_on == ["runs-on: windows-latest"] * 2
-    assert active.count("timeout-minutes") == 2 and "historical-for25:" in active
+    assert runs_on == ["runs-on: windows-latest"] * len(job_names)
+    assert active.count("timeout-minutes") == len(job_names)
+    # every historical job checks out an immutable SHA (never a branch) and asserts it
+    for pin in ("FOR25_PINNED_COMMIT", "FOR35_PINNED_COMMIT"):
+        assert re.search(pin + r": [0-9a-f]{40}\b", active), pin
+        assert "ref: ${{ env." not in active  # the SHA is spelled out literally in `ref:`, next to the assertion
+    assert len(re.findall(r"^\s+ref: [0-9a-f]{40}$", active, flags=re.MULTILINE)) == 2
     for forbidden in ("ubuntu", "macos", "matrix", "secrets.", "upload-artifact"):
         assert forbidden not in active, forbidden
     assert 'python-version: "3.12"' in active and "permissions:\n  contents: read" in active

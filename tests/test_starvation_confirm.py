@@ -43,16 +43,43 @@ def test_configs_and_policies_match_the_protocol():
         assert descriptor["policy_id"] == f"{name}-v2"
 
 
-def test_frozen_documents_and_engine_fingerprint():
+def test_frozen_documents_are_unchanged():
     assert sc._file_sha(ROOT / sc.PROTOCOL_PATH) == sc.PROTOCOL_SHA256
     for path, digest in sc.ERRATA.values():
         assert sc._file_sha(ROOT / path) == digest
-    assert sc.source_fingerprint(exclude_harness=True) == sc.BASE_ENGINE_FINGERPRINT
 
 
-def test_new_seeds_do_not_overlap_any_other_file():
-    assert sc._scan_seed_collisions() == []
+def test_engine_fingerprint_algorithm_is_stable_and_normalises_line_endings(tmp_path):
+    """Modern test: the algorithm, not equality of the whole current package with the 2026-11-03 engine.
+    The frozen-engine equality is the HISTORICAL check (`preflight`/`verify` on the pinned commit)."""
+    pkg = tmp_path / "src" / "formicmind"
+    pkg.mkdir(parents=True)
+    (pkg / "a.py").write_bytes(b"x = 1\r\ny = 2\r\n")
+    (pkg / "starvation_confirm.py").write_bytes(b"harness")
+    (pkg / "starvation_debt.py").write_bytes(b"harness")
+    plain = sc.source_fingerprint(exclude_harness=True, root=tmp_path)
+    (pkg / "a.py").write_bytes(b"x = 1\ny = 2\n")
+    assert sc.source_fingerprint(exclude_harness=True, root=tmp_path) == plain       # CRLF == LF
+    (pkg / "starvation_confirm.py").write_bytes(b"changed harness")
+    assert sc.source_fingerprint(exclude_harness=True, root=tmp_path) == plain       # harnesses are excluded
+    assert sc.source_fingerprint(root=tmp_path) != plain
+    (pkg / "b.py").write_bytes(b"new engine file")
+    assert sc.source_fingerprint(exclude_harness=True, root=tmp_path) != plain       # any engine file counts
+    assert len(plain) == 64 and plain != sc.BASE_ENGINE_FINGERPRINT
+
+
+def test_seed_collision_finder_detects_whole_number_mentions_outside_the_study():
+    seed = sc.SEEDS[3]
+    files = {"src/other.py": f"seeds = ({seed}, 1)".encode(), "docs/x.md": f"x{seed}1".encode(),
+             "docs/starvation_confirm_extra.md": str(seed).encode(), "tests/y.py": b"20270509"}
+    assert sc.find_seed_collisions(files) == ["src/other.py"]
+    assert sc.find_seed_collisions({}) == []
+
+
+def test_new_seeds_are_disjoint_from_the_seeds_of_earlier_studies():
     used = set(range(20261102, 20261108)) | set(range(20270301, 20270308)) | set(range(20270201, 20270208))
+    used |= set(range(20261111, 20261114)) | set(range(20261201, 20261210)) | set(range(20261221, 20261228))
+    used |= set(range(20270111, 20270118))
     assert not set(sc.SEEDS) & used
 
 
@@ -608,26 +635,74 @@ def test_rows_with_unmeasured_windows_serialise_and_stay_null():
     assert back == json.loads(json.dumps(rows))
 
 
-# --- committed results (cheap consistency; the full regeneration is `verify`) ---------------------------
+# --- committed results: STATIC verification (valid on any later tree; regeneration is the historical job) ---------
 
 RESULTS = ROOT / "results" / "starvation_confirm"
 
 
-@pytest.mark.skipif(not RESULTS.is_dir(), reason="results are produced after the preregistered run")
-def test_committed_results_match_the_manifest_and_the_summary_is_derivable():
-    manifest = json.loads((RESULTS / "manifest.json").read_text(encoding="utf-8"))
-    for name, digest in manifest["artifacts"].items():
-        assert sc._sha(sc._lf((RESULTS / name).read_bytes())) == digest, name
-    assert manifest["protocol_sha256"] == sc.PROTOCOL_SHA256
-    assert {n: e["sha256"] for n, e in manifest["errata"].items()} == {str(n): h for n, (_, h) in sc.ERRATA.items()}
-    assert manifest["engine_fingerprint"] == sc.BASE_ENGINE_FINGERPRINT
-    assert manifest["seeds"] == list(sc.SEEDS) and manifest["schedule"]["rows"] == sc.EXPECTED_ROWS
-    rows = [json.loads(line) for line in (RESULTS / "matches.jsonl").read_text(encoding="utf-8").splitlines()]
-    assert [r["row_id"] for r in rows] == sc.schedule_row_ids()
-    assert sum(r["calls"] for r in rows) == manifest["step_tick_calls"]["main"] <= sc.MAIN_BUDGET
-    anchors = json.loads((RESULTS / "anchors.json").read_text(encoding="utf-8"))["anchors"]
-    demo = json.loads((RESULTS / "minimal_demo.json").read_text(encoding="utf-8"))
-    stored = (RESULTS / "summary.json").read_bytes()
-    assert sc._lf(sc._dump_json(sc.build_summary(rows, demo, anchors))) == sc._lf(stored)
-    assert len(anchors) == sc.EXPECTED_ANCHORS and all(a["matches"] for a in anchors)
-    assert sum(a["calls"] for a in anchors) == manifest["step_tick_calls"]["anchor"] <= sc.ANCHOR_BUDGET
+def test_static_verification_of_the_committed_results():
+    report = sc.verify_static(RESULTS)
+    assert report["ok"] and report["rows"] == 4800 and report["anchors"] == 960
+    assert report["verdict"] == "INSUFFICIENT_DATA" and "not a reproduction" in report["mode"]
+
+
+def _copy_results(tmp_path):
+    import shutil
+    target = tmp_path / "results"
+    shutil.copytree(RESULTS, target)
+    return target
+
+
+def _write_json(path, value):
+    path.write_text(json.dumps(value, sort_keys=True, indent=1) + "\n", encoding="utf-8")
+
+
+@pytest.mark.parametrize("tamper", ["row", "summary", "manifest_field", "missing_file", "extra_row", "anchor"])
+def test_static_verification_rejects_tampering(tmp_path, tamper):
+    target = _copy_results(tmp_path)
+    rows_path = target / "matches.jsonl"
+    if tamper == "row":
+        lines = rows_path.read_bytes().split(b"\n")
+        row = json.loads(lines[0])
+        row["terminal"]["reason"] = "queen_death" if row["terminal"]["reason"] == "timeout" else "timeout"
+        lines[0] = json.dumps(row, sort_keys=True, separators=(",", ":")).encode()
+        rows_path.write_bytes(b"\n".join(lines))
+    elif tamper == "extra_row":
+        data = rows_path.read_bytes()
+        rows_path.write_bytes(data + data.split(b"\n")[0] + b"\n")
+    elif tamper == "summary":
+        summary = json.loads((target / "summary.json").read_text(encoding="utf-8"))
+        summary["decision"]["verdict"] = "NEW_RULES_VERSION"
+        _write_json(target / "summary.json", summary)
+    elif tamper == "manifest_field":
+        manifest = json.loads((target / "manifest.json").read_text(encoding="utf-8"))
+        manifest["seeds"][0] += 1
+        _write_json(target / "manifest.json", manifest)
+    elif tamper == "anchor":
+        anchors = json.loads((target / "anchors.json").read_text(encoding="utf-8"))
+        anchors["anchors"][0]["matches"] = False
+        _write_json(target / "anchors.json", anchors)
+    else:
+        (target / "summary.json").unlink()
+    with pytest.raises((sc.StarvationConfirmError, FileNotFoundError)):
+        sc.verify_static(target)
+
+
+def test_static_verification_does_not_read_the_engine_fingerprint_of_the_current_tree(monkeypatch):
+    """The ML modules of a later PR change the package fingerprint; static verification must not care."""
+    monkeypatch.setattr(sc, "source_fingerprint", lambda **kw: "f" * 64)
+    assert sc.verify_static(RESULTS)["ok"]
+
+
+def test_posthoc_sensitivity_is_reproducible_and_clearly_labelled():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("sc_posthoc", ROOT / "scripts" / "starvation_confirm_posthoc.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    fresh = module.sensitivity_without_previewed_group(RESULTS)
+    stored = ROOT / "results" / "starvation_confirm_posthoc" / "sensitivity_without_previewed_group.json"
+    assert sc._lf(sc._dump_json(fresh)) == sc._lf(stored.read_bytes())
+    assert fresh["status"].startswith("post-hoc only") and fresh["integrity_gate_applied"] is False
+    assert fresh["excluded"]["seed"] == 20270501 and fresh["excluded"]["rows_removed"] == 10
+    formal = json.loads((RESULTS / "summary.json").read_text(encoding="utf-8"))["decision"]
+    assert formal["verdict"] == "INSUFFICIENT_DATA"                    # the formal verdict is not touched

@@ -1235,21 +1235,24 @@ def _untracked_in_study_dirs() -> list[str]:
     return [p for p in out.split("\0") if p and not _is_study_file(p)]
 
 
-def _scan_seed_collisions() -> list[str]:
-    """Files outside this study that mention any of the new seeds as a whole number."""
+def find_seed_collisions(files: Mapping[str, bytes]) -> list[str]:
+    """Paths (outside this study) whose bytes mention any of the new seeds as a whole number."""
     pattern = re.compile(rb"(?<!\d)(" + b"|".join(str(s).encode() for s in SEEDS) + rb")(?!\d)")
-    hits = []
+    return sorted(rel for rel, data in files.items() if not _is_study_file(rel) and pattern.search(data))
+
+
+def _scan_seed_collisions() -> list[str]:
+    """Collisions among the tracked files of the checked-out tree (a historical, preregistration-time property)."""
     tracked = subprocess.run(["git", "ls-files", "-z"], cwd=_ROOT, check=True, capture_output=True).stdout.decode("utf-8")
+    files: dict[str, bytes] = {}
     for rel in tracked.split("\0"):
         if not rel or _is_study_file(rel) or rel.startswith("viewer/") or rel.endswith((".png", ".ico", ".svg")):
             continue
         try:
-            data = (_ROOT / rel).read_bytes()
+            files[rel] = (_ROOT / rel).read_bytes()
         except OSError:
             continue
-        if pattern.search(data):
-            hits.append(rel)
-    return hits
+    return find_seed_collisions(files)
 
 
 def preflight(*, require_clean: bool = True) -> dict[str, Any]:
@@ -1281,6 +1284,9 @@ def preflight(*, require_clean: bool = True) -> dict[str, Any]:
     ok = (all(v for k, v in checks.items() if isinstance(v, bool)) and not collisions)
     checks["ok"] = ok
     if not ok:
+        if not checks["engine_fingerprint_ok"] or collisions:
+            checks["hint"] = ("this is the HISTORICAL check: it is valid only on the pinned commit of the published results "
+                              "(see docs/starvation_confirm_verification.md); use `verify-static` on a moved tree")
         raise StarvationConfirmError("preflight failed: " + json.dumps(checks, sort_keys=True))
     return checks
 
@@ -1396,6 +1402,56 @@ def verify_study(directory: Path, workers: int) -> dict[str, Any]:
             "generator_fingerprint_matches": manifest.get("generator_package_fingerprint") == source_fingerprint()}
 
 
+def verify_static(directory: Path) -> dict[str, Any]:
+    """Engine-independent integrity of the published artifacts, valid on any later tree.
+
+    It checks hashes, the frozen documents, the schedule, the budgets, the stored anchors and that ``summary.json`` is
+    exactly what the stored rows imply. It does NOT regenerate a single match, so it is not a reproduction of the
+    study: that is `verify`, which is meaningful only on the pinned commit (docs/starvation_confirm_verification.md)."""
+    problems: list[str] = []
+    manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
+    if _file_sha(_ROOT / PROTOCOL_PATH) != PROTOCOL_SHA256 or manifest.get("protocol_sha256") != PROTOCOL_SHA256:
+        problems.append("protocol hash")
+    for number, (path, digest) in ERRATA.items():
+        if _file_sha(_ROOT / path) != digest or manifest.get("errata", {}).get(str(number), {}).get("sha256") != digest:
+            problems.append(f"erratum {number} hash")
+    expected_fixed = {
+        "engine_fingerprint": BASE_ENGINE_FINGERPRINT, "maps": CONFIG_SHA256, "seeds": list(SEEDS),
+        "seeds_sha256": SEEDS_SHA256, "seats_sha256": SEATS_SHA256, "variants": list(VARIANTS),
+        "base_commit": BASE_COMMIT, "protocol_commit": PROTOCOL_COMMIT, "t_max": T_MAX}
+    for key, value in expected_fixed.items():
+        if manifest.get(key) != value:
+            problems.append(f"manifest field {key}")
+    if {n: d["parameter_sha256"] for n, d in manifest.get("policies", {}).items()} != POLICY_PARAMETER_SHA256:
+        problems.append("policy parameter hashes")
+    if manifest.get("schedule") != {"rows": EXPECTED_ROWS, "anchors": EXPECTED_ANCHORS,
+                                    "row_ids_sha256": _canon_sha(schedule_row_ids())}:
+        problems.append("schedule")
+    raw = {}
+    for name in ("matches.jsonl", "anchors.json", "minimal_demo.json", "summary.json"):
+        raw[name] = _lf((directory / name).read_bytes())
+        if manifest.get("artifacts", {}).get(name) != _sha(raw[name]):
+            problems.append(f"artifact hash {name}")
+    rows = [json.loads(line) for line in raw["matches.jsonl"].decode("utf-8").splitlines()]
+    anchors = json.loads(raw["anchors.json"])["anchors"]
+    demo = json.loads(raw["minimal_demo.json"])
+    if [r["row_id"] for r in rows] != schedule_row_ids():
+        problems.append("row ids differ from the schedule")
+    if any(r["status"] != "complete" or r["config_sha256"] != CONFIG_SHA256[r["map_id"]] for r in rows):
+        problems.append("row status or config hash")
+    calls = {"main": sum(r["calls"] for r in rows), "anchor": sum(a["calls"] for a in anchors)}
+    if calls != manifest.get("step_tick_calls") or calls["main"] > MAIN_BUDGET or calls["anchor"] > ANCHOR_BUDGET:
+        problems.append("step_tick counters or budget")
+    if len(anchors) != EXPECTED_ANCHORS or not all(a["matches"] for a in anchors):
+        problems.append("anchors")
+    if not problems and _lf(_dump_json(build_summary(rows, demo, anchors))) != raw["summary.json"]:
+        problems.append("summary.json is not what the stored rows imply")
+    if problems:
+        raise StarvationConfirmError("static verification failed: " + "; ".join(problems))
+    return {"ok": True, "mode": "static (no regeneration; not a reproduction)", "rows": len(rows),
+            "anchors": len(anchors), "verdict": json.loads(raw["summary.json"])["decision"]["verdict"]}
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m formicmind.starvation_confirm")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -1403,6 +1459,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_p = sub.add_parser("run")
     run_p.add_argument("--out", type=Path, required=True)
     run_p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
+    static_p = sub.add_parser("verify-static")
+    static_p.add_argument("--input", type=Path, required=True)
     ver_p = sub.add_parser("verify")
     ver_p.add_argument("--input", type=Path, required=True)
     ver_p.add_argument("--workers", type=int, default=max(1, (os.cpu_count() or 2) - 1))
@@ -1413,6 +1471,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         elif args.command == "run":
             result = run_study(args.out, args.workers)
             result = {"ok": True, "rows": result["rows_written"], "step_tick_calls": result["step_tick_calls"]}
+        elif args.command == "verify-static":
+            result = verify_static(args.input)
         else:
             result = verify_study(args.input, args.workers)
     except StarvationConfirmError as exc:

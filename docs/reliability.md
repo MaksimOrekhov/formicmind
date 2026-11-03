@@ -24,8 +24,10 @@
 * `permissions: contents: read`, `timeout-minutes: 15`, без секретов, артефактов и внешних сервисов; actions закреплены
   по SHA коммитов (`actions/checkout` v4.2.2, `actions/setup-python` v5.6.0). `PYTHONUTF8=1` — чтобы вывод не зависел от кодовой
   страницы runner.
-* Два job, оба Windows: `test` (текущее дерево, merge-ref) и `historical-for25` (изолированный checkout закреплённого SHA FOR-25 для
-  проверок, которым нужен исторический движок; см. [starvation_debt_verification.md](starvation_debt_verification.md)).
+* Три job, все Windows: `test` (текущее дерево, merge-ref), `historical-for25` и `historical-for35` (изолированные checkout закреплённых
+  SHA FOR-25 и FOR-35 для проверок, которым нужен исторический движок; см.
+  [starvation_debt_verification.md](starvation_debt_verification.md) и [starvation_confirm_verification.md](starvation_confirm_verification.md)).
+  Тест структуры CI требует эти задачи, а не фиксированное их число.
 * Отдельных smoke-шагов нет: smoke-матчи уже входят в pytest (`tests/test_match.py`), полный матч `timeout_draw` (3000 тиков) идёт
   один раз как часть набора. ML, sealed-оценка и турниры в CI не запускаются.
 * Локально то же самое: `python -m pytest`. Тест `test_ci_workflow_is_windows_python_312_read_only_and_has_no_linux_job`

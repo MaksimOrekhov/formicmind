@@ -17,6 +17,57 @@ sys.path.insert(0, str(ROOT / "src"))
 from formicmind import starvation_confirm as sc  # noqa: E402
 
 
+PREVIEWED_GROUP = ("R0-T0", "turtle", "raider", 20270501)  # the schedule group looked at before the full run (E2.1)
+
+
+def sensitivity_without_previewed_group(source: Path) -> dict:
+    """POST-HOC ONLY. Recompute the preregistered analyses with every row of the previewed (map, pair, seed) removed.
+
+    Both seats and all five variants of that seed are dropped (a strictly larger exclusion than the single
+    ``first_A`` group that was previewed), because clusters need complete seat pairs. The integrity gate (complete
+    4800-row schedule) is deliberately not applied: this is a sensitivity table, not a replacement verdict. The formal
+    verdict and the 4800 published rows are untouched."""
+    rows = [json.loads(line) for line in (source / "matches.jsonl").read_text(encoding="utf-8").splitlines()]
+    demo = json.loads((source / "minimal_demo.json").read_text(encoding="utf-8"))
+    anchors = json.loads((source / "anchors.json").read_text(encoding="utf-8"))["anchors"]
+    original = json.loads((source / "summary.json").read_text(encoding="utf-8"))
+    pair = f"{PREVIEWED_GROUP[1]}-{PREVIEWED_GROUP[2]}"
+    kept_rows = [r for r in rows if (r["map_id"], r["first"], r["second"], r["seed"]) != PREVIEWED_GROUP]
+    kept_anchors = [a for a in anchors
+                    if a["row_id"].split("|")[1:4] != [PREVIEWED_GROUP[0], pair, str(PREVIEWED_GROUP[3])]]
+    summary = sc.build_summary(kept_rows, demo, kept_anchors)
+    exposure, variants = summary["exposure"], summary["variants"]
+    passing = {v: bool(exposure["E"] > 0 and all(variants[v]["criteria"].values())) for v in sc.CANDIDATES}
+    collateral = {v: (variants[v]["e1"]["x_changed"], variants[v]["e1"]["t_loss"] - variants[v]["e1"]["t_loss_a0"])
+                  for v in sc.CANDIDATES}
+    decision = sc.decide(integrity_ok=True, k1=summary["stage_m"]["k1"], exposure=exposure["E"],
+                         spread_ok=exposure["spread_ok"], n_clusters=summary["design"]["a0_clusters"],
+                         passing=passing, collateral=collateral)
+    keep = ("classes", "viable", "criteria")
+    return {
+        "schema": "formicmind.starvation-confirm-posthoc-sensitivity/v1", "status": "post-hoc only; not a verdict",
+        "excluded": {"map": PREVIEWED_GROUP[0], "pair": pair, "seed": PREVIEWED_GROUP[3],
+                     "rows_removed": len(rows) - len(kept_rows), "anchors_removed": len(anchors) - len(kept_anchors),
+                     "note": "both seats and all variants of the previewed seed"},
+        "integrity_gate_applied": False,
+        "rows_kept": len(kept_rows), "a0_clusters": summary["design"]["a0_clusters"],
+        "exposure": {"E": exposure["E"], "clusters": [c["cluster"] for c in exposure["clusters"]],
+                     "seeds_in_exposure_clusters": {c["cluster"]: c["seeds"] for c in exposure["clusters"]},
+                     "spread_ok": exposure["spread_ok"]},
+        "variants": {v: {k: variants[v][k] for k in keep} | {"e1": {k: variants[v]["e1"][k] for k in (
+            "t_loss", "t_loss_a0", "collapses", "collapses_a0", "x_changed", "n_non_exposed")}}
+            for v in sc.CANDIDATES},
+        "decision_if_the_gate_were_ignored": decision,
+        "same_as_formal": {
+            "E": exposure["E"] == original["exposure"]["E"],
+            "exposure_cells": [(c["map"], c["pair"]) for c in exposure["clusters"]]
+            == [(c["map"], c["pair"]) for c in original["exposure"]["clusters"]],
+            "classes": all(variants[v]["classes"] == original["variants"][v]["classes"] for v in sc.CANDIDATES),
+            "criteria": all(variants[v]["criteria"] == original["variants"][v]["criteria"] for v in sc.CANDIDATES),
+            "verdict": decision["verdict"] == original["decision"]["verdict"]},
+    }
+
+
 def main(source: Path, out: Path) -> None:
     rows = [json.loads(line) for line in (source / "matches.jsonl").read_text(encoding="utf-8").splitlines()]
     by_variant = {v: {} for v in sc.VARIANTS}
@@ -85,6 +136,8 @@ def main(source: Path, out: Path) -> None:
 
     out.mkdir(parents=True, exist_ok=True)
     (out / "posthoc.json").write_bytes(sc._dump_json(result))
+    (out / "sensitivity_without_previewed_group.json").write_bytes(
+        sc._dump_json(sensitivity_without_previewed_group(source)))
 
 
 if __name__ == "__main__":
