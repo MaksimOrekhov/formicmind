@@ -28,6 +28,10 @@ Headless-симулятор L0 (Python, только stdlib). Реализова
   `sim run/eval` diagnostics — [docs/strategic_baselines.md](docs/strategic_baselines.md). They are not trained or
   validated as strong agents.
 
+* Исследование голода (FOR-25): хронический дефицит и сброс `starvation_debt`, изолированные варианты правил, протокол и результаты —
+  [docs/starvation_debt_protocol.md](docs/starvation_debt_protocol.md), [docs/starvation_debt_findings.md](docs/starvation_debt_findings.md),
+  `python -m formicmind.starvation_debt run|verify`. Действующие правила не менялись.
+
 Smoke-прогоны: движения (90 тиков) `python -m formicmind.smoke`; экономики (120 тиков, PARTIAL) `python -m formicmind.economy_smoke`;
 **полные матчи** (4 сценария, функциональная проверка) `python -m formicmind.match_smoke`.
 
