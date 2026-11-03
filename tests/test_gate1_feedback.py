@@ -29,6 +29,7 @@ from formicmind.gate1_feedback import (
     _git_value,
     _manifest,
     _policy_streams,
+    _physical_state_difference_tick,
     _schedule,
     _step_episode,
     _target_label,
@@ -39,8 +40,8 @@ from formicmind.canonical import canonical_dumps
 from formicmind.observation import OBS_V2_LENGTH, ObservationV2
 from formicmind.rng import policy_stream_id
 from formicmind.runstate import RunState
-from formicmind.gate1_context import _build_configs
-from formicmind.serialization import config_hash
+from formicmind.gate1_context import _build_configs, _colony_metrics
+from formicmind.serialization import config_hash, state_hash
 
 
 def _f32(value: float) -> float:
@@ -125,6 +126,61 @@ def test_censored_episode_and_unreached_horizons_stay_unmeasured() -> None:
         horizon["reason"] == "engine_cutoff_without_terminal"
         for horizon in row["horizons"].values()
     )
+
+
+@pytest.mark.parametrize(
+    ("seed", "terminal_tick", "state_tick", "horizon_100_status"),
+    (
+        (20270114, 88, 88, "not_measured"),
+        (20270111, 299, 300, "reached"),
+    ),
+)
+def test_terminal_snapshot_records_both_colonies_without_filling_missing_horizons(
+    seed: int, terminal_tick: int, state_tick: int, horizon_100_status: str,
+) -> None:
+    episode = _new_episode(
+        "R0-T0", _build_configs()["R0-T0"], "balanced", "random", seed, True, "closed",
+    )
+    calls = [0]
+    while episode.run.outcome is None:
+        _step_episode(episode, calls)
+
+    row = _episode_row(episode)
+    snapshot = row["terminal_metrics"]
+
+    assert row["terminal"]["terminal_tick"] == terminal_tick
+    assert snapshot["status"] == "observed"
+    assert snapshot["state_tick"] == state_tick == episode.state.tick
+    assert snapshot["sides"]["target"] == _colony_metrics(episode.state, episode.target_side)
+    assert snapshot["sides"]["opponent"] == _colony_metrics(episode.state, episode.opponent_side)
+    assert snapshot["target_behavior_cumulative"] == row["target_behavior"]
+    assert row["horizons"]["100"]["status"] == horizon_100_status
+    if horizon_100_status == "not_measured":
+        assert row["horizons"]["100"]["reason"] == "episode_ended_before_horizon"
+
+
+def test_physical_divergence_ignores_orders_but_detects_world_changes() -> None:
+    episode = _new_episode(
+        "R0-T0", _build_configs()["R0-T0"], "balanced", "random", SEEDS[0], True, "closed",
+    )
+    base = episode.state
+    order_only = base.clone()
+    colony = order_only.colonies[0]
+    colony.lay_order = 2 if colony.lay_order != 2 else 1
+    colony.army_choice = 2 if colony.army_choice != 2 else 1
+    colony.avoid_center = not colony.avoid_center
+
+    assert state_hash(base) != state_hash(order_only)
+    assert _physical_state_difference_tick(base, order_only, 0, 0) is None
+
+    for mutate in (
+        lambda state: setattr(state.colonies[0], "food", state.colonies[0].food + 1),
+        lambda state: setattr(state.colonies[0], "queen_hp", state.colonies[0].queen_hp - 1),
+        lambda state: setattr(state.colonies[0].units[0], "hp", state.colonies[0].units[0].hp + 1),
+    ):
+        changed = base.clone()
+        mutate(changed)
+        assert _physical_state_difference_tick(base, changed, 0, 0) == 0
 
 
 def test_strict_verifier_rejects_a_tampered_artifact_before_replay(tmp_path, monkeypatch) -> None:

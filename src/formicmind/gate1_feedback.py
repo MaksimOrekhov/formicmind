@@ -20,6 +20,7 @@ from .baselines import baseline_spec, make_baseline
 from .canonical import canonical_dumps, canonical_loads
 from .decoder import PolicyLogitsV2, decode_action_logits
 from .events import HarvestEvent, OrderEvent, StarvationEvent, events_hash
+from .gate1_causal import _physical_state_object
 from .gate1_context import _build_configs, _colony_metrics
 from .observation import OBS_V2_OFFSETS, ObservationV2, flatten_v2
 from .reset import reset
@@ -458,6 +459,17 @@ def _episode_row(episode: _Episode) -> dict[str, Any]:
         "opponent": opponent_trace_sha,
     }))
     target_decisions = episode.decisions["target"]
+    terminal_metrics: dict[str, Any] = {"status": "unknown_censored"}
+    if complete:
+        terminal_metrics = {
+            "status": "observed",
+            "state_tick": episode.state.tick,
+            "sides": {
+                "target": _colony_metrics(episode.state, episode.target_side),
+                "opponent": _colony_metrics(episode.state, episode.opponent_side),
+            },
+            "target_behavior_cumulative": _behavior_summary(episode),
+        }
     return {
         "schema": SCHEMA_MATCH,
         "status": "complete" if complete else "censored_incomplete",
@@ -482,6 +494,7 @@ def _episode_row(episode: _Episode) -> dict[str, Any]:
         "ticks_executed": episode.ticks_executed,
         "target_score_x2": _target_action_score(episode),
         "terminal": terminal,
+        "terminal_metrics": terminal_metrics,
         "time_zero_control": {
             "policy_input_sha256": target_decisions[0]["policy_input_sha256"],
             "policy_mask_sha256": target_decisions[0]["policy_mask_sha256"],
@@ -569,6 +582,18 @@ def _control_fields(row: dict[str, Any]) -> tuple[str, ...]:
     ))
 
 
+def _physical_state_difference_tick(
+    closed_state: Any,
+    frozen_state: Any,
+    target_side: int,
+    stepped_tick: int,
+) -> int | None:
+    """Return the tick whose completed step first changed the physical projection."""
+    closed_projection = _physical_state_object(closed_state, target_side)
+    frozen_projection = _physical_state_object(frozen_state, target_side)
+    return stepped_tick if closed_projection != frozen_projection else None
+
+
 def _episode_order(row: dict[str, Any]) -> tuple[str, bool, str]:
     return (
         row["target_mode"],
@@ -614,10 +639,12 @@ def _execute_block(
                 continue
             closed_tick, frozen_tick = stepped[id(closed)], stepped[id(frozen)]
             if closed_tick != frozen_tick:
-                first_state_divergence[seat] = min(closed_tick, frozen_tick)
-                continue
-            if state_hash(closed.state) != state_hash(frozen.state):
-                first_state_divergence[seat] = closed_tick
+                raise Gate1FeedbackError(
+                    f"closed/frozen arms left lockstep at {map_id}/{target}/{opponent}/{seed}"
+                )
+            first_state_divergence[seat] = _physical_state_difference_tick(
+                closed.state, frozen.state, closed.target_side, closed_tick,
+            )
 
     block_rows = [
         _episode_row(arms[(seat, mode)])
