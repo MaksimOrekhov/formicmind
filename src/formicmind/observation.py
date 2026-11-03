@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import struct
 from dataclasses import dataclass
+from enum import IntEnum
 
 from .config import SimConfig
 from .model import NOWHERE
@@ -67,6 +68,53 @@ def _offsets() -> dict[str, tuple[int, int]]:
 OBS_V2_OFFSETS: dict[str, tuple[int, int]] = _offsets()
 assert sum(length for _, length in OBS_V2_BLOCKS) == OBS_V2_LENGTH
 
+
+class OwnGlobalIndex(IntEnum):
+    """Именованные позиции блока own_global без изменения ObservationV2."""
+
+    FOOD = 0
+    WORKERS = 1
+    SOLDIERS = 2
+    WORKER_HP_SUM = 3
+    SOLDIER_HP_SUM = 4
+    QUEEN_HP = 5
+    WORKER_BROOD = 6
+    SOLDIER_BROOD = 7
+    WORKER_BROOD_ETA = 8
+    SOLDIER_BROOD_ETA = 9
+    LAY_COOLDOWN = 10
+    UPKEEP_REMAINDER = 11
+    STARVATION_DEBT = 12
+    HARVEST = 13
+    UPKEEP_PAID = 14
+    EGG_SPEND = 15
+    STARVATION_DELTA = 16
+    WINDOW_TICKS = 17
+
+
+@dataclass(frozen=True, slots=True)
+class OwnGlobalObservation:
+    """Типизированный вид own_global; нормализованные значения float32 не меняются."""
+
+    food: float
+    workers: float
+    soldiers: float
+    worker_hp_sum: float
+    soldier_hp_sum: float
+    queen_hp: float
+    worker_brood: float
+    soldier_brood: float
+    worker_brood_eta: float
+    soldier_brood_eta: float
+    lay_cooldown: float
+    upkeep_remainder: float
+    starvation_debt: float
+    harvest: float
+    upkeep_paid: float
+    egg_spend: float
+    starvation_delta: float
+    window_ticks: float
+
 # Normalizer constants (FOR-2 v0.2 section 3.3).
 _EDGE_NORM = 4
 _CAPACITY_NORM = 120
@@ -115,6 +163,26 @@ class ObservationV2:
     def block(self, name: str) -> tuple[float, ...]:
         offset, length = OBS_V2_OFFSETS[name]
         return self.values[offset:offset + length]
+
+    @property
+    def own_global(self) -> OwnGlobalObservation:
+        values = self.block("own_global")
+        return OwnGlobalObservation(*(values[index] for index in OwnGlobalIndex))
+
+    def enemy_counts(self, node: int) -> tuple[float, float]:
+        """Вернуть нормализованные счётчики рабочих и солдат в локальном узле."""
+        if type(node) is not int or not 0 <= node < 7:
+            raise IndexError("enemy node must be in 0..6")
+        counts = self.block("enemy_count_last")
+        return counts[2 * node], counts[2 * node + 1]
+
+    @property
+    def enemy_queen_known(self) -> bool:
+        return self.block("enemy_queen_known")[0] > 0.0
+
+    @property
+    def enemy_queen_current(self) -> bool:
+        return self.block("enemy_queen_current")[0] > 0.0
 
 
 def flatten_v2(obs: ObservationV2) -> bytes:

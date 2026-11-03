@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from .baselines import baseline_names, baseline_spec, make_baseline
+from .baselines import baseline_selectors, baseline_spec
 from .match import _register_streams
 from .match_smoke import SCENARIOS as SCENARIO_FIXTURES
 from .rng import policy_stream_id
@@ -191,7 +191,7 @@ def controller_pair(
         replicate_by_seat.append(replicate)
     specs = (spec_a, spec_b)
     controllers: tuple[Controller, Controller] = tuple(
-        PolicyController(make_baseline(spec.name), policy_stream_id(spec.policy_id, replicate_by_seat[index]))
+        PolicyController(spec.build(), policy_stream_id(spec.policy_id, replicate_by_seat[index]))
         for index, spec in enumerate(specs)
     )  # type: ignore[assignment]
     ids = tuple(f"{spec.full_id}#replicate-{replicate_by_seat[index]}" for index, spec in enumerate(specs))
@@ -826,7 +826,7 @@ def _validate_manifest_parameters(command: str, params: dict[str, Any], config) 
         },
     }[command]
     if not scripted:
-        if params.get("a") not in baseline_names() or params.get("b") not in baseline_names():
+        if params.get("a") not in baseline_selectors() or params.get("b") not in baseline_selectors():
             raise EvaluationError("manifest a/b must name supported baseline policies.")
         expected_keys = {*expected_keys, "a", "b"}
     if set(params) != expected_keys:
