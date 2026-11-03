@@ -1104,7 +1104,7 @@ def verify(input_path: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[A
     if set(manifest.get("artifacts", {})) != expected_names:
         raise StarvationDebtError("manifest artifact list differs from the protocol")
     for name, digest in manifest["artifacts"].items():
-        if _sha((root / name).read_bytes()) != digest:
+        if _sha(_lf((root / name).read_bytes())) != digest:  # a Windows checkout may have converted LF to CRLF
             raise StarvationDebtError(f"artifact {name} does not match its manifest hash")
     for key, current in (("protocol_sha256", protocol_sha256()), ("package_fingerprint", source_fingerprint()),
                          ("engine_fingerprint_excluding_harness", source_fingerprint(exclude_harness=True))):
@@ -1119,7 +1119,7 @@ def verify(input_path: str | Path, jobs: int = 1, *, _schedule: Sequence[tuple[A
     result = generate(jobs, _schedule)
     files = _artifact_bytes(result)
     for name, data in files.items():
-        if (root / name).read_bytes() != data:
+        if _lf((root / name).read_bytes()) != data:
             raise StarvationDebtError(f"regenerated {name} differs from the saved artifact")
     if manifest["calls"] != result["calls"]:
         raise StarvationDebtError("recorded call counts differ")

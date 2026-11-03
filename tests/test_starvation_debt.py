@@ -384,6 +384,15 @@ def test_a_short_run_verifies_strictly(short_run):
     assert sd.verify(out, 1, _schedule=SHORT)["ok"] is True
 
 
+def test_verification_accepts_artifacts_converted_to_crlf_by_a_windows_checkout(short_run, tmp_path):
+    out, _ = short_run
+    target = tmp_path / "crlf"
+    target.mkdir()
+    for f in out.iterdir():
+        (target / f.name).write_bytes(f.read_bytes().replace(b"\n", b"\r\n"))
+    assert sd.verify(target, 1, _schedule=SHORT)["ok"] is True
+
+
 def test_run_refuses_a_non_empty_directory(short_run):
     out, _ = short_run
     with pytest.raises(sd.StarvationDebtError):
