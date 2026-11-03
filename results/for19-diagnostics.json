@@ -1,0 +1,4311 @@
+{
+  "matchups": [
+    {
+      "a": "balanced",
+      "aggregate": {
+        "attempted": 10,
+        "draws": 0,
+        "finished": 10,
+        "mean_episode_ticks": 277.0,
+        "mean_finished_episode_ticks": 277.0,
+        "mean_score_finished_only": {
+          "A": 0.5,
+          "B": 0.5
+        },
+        "median_episode_ticks": 277.0,
+        "paired_seat": true,
+        "requested_episodes": 5,
+        "seed_pairs": 5,
+        "terminal_reasons": {
+          "economic_collapse": 10
+        },
+        "ticks_executed": 2770,
+        "truncated": 0,
+        "wins_A": 5,
+        "wins_B": 5
+      },
+      "b": "rush",
+      "command": "sim eval --episodes 5 --seed-start 20261103 --a balanced --b rush --paired",
+      "manifest": {
+        "command": "eval",
+        "config": {
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "id": "default_config",
+          "policy_interval_k": 30,
+          "t_max": 3000
+        },
+        "controllers": {
+          "A": {
+            "id": "balanced:v1",
+            "kind": "policy",
+            "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+            "parameters": {
+              "profile": {
+                "avoid_center_score_when_idle": -0.25,
+                "avoid_center_when_defending": true,
+                "defense_threat": 0.35,
+                "forage_support_normal": 2,
+                "forage_support_when_hungry": 3,
+                "hungry_food_below": 65,
+                "hungry_starvation_debt": 0.08,
+                "hungry_starvation_delta": 0.08,
+                "lay_none_food_below": 30,
+                "lay_none_starvation_debt": 0.15,
+                "minimum_soldiers_to_raid": 6,
+                "raid_requires_current_known_enemy_queen": true,
+                "soldier_lay_food_at_least": 45,
+                "soldier_worker_ratio": 0.28
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "balanced-v1",
+            "replicate": 0,
+            "stream_id": "policy:balanced-v1:0",
+            "version": "v1"
+          },
+          "B": {
+            "id": "rush:v1",
+            "kind": "policy",
+            "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+            "parameters": {
+              "profile": {
+                "avoid_center_when_allowed": false,
+                "defense_threat": 1.0,
+                "forage_support": 1,
+                "lay_none_food_below": 35,
+                "lay_none_starvation_debt": 0.12,
+                "minimum_soldiers_to_raid": 4,
+                "soldier_worker_ratio": 0.42
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "rush-v1",
+            "replicate": 0,
+            "stream_id": "policy:rush-v1:0",
+            "version": "v1"
+          }
+        },
+        "git_commit": "e519d1928133568500588d7a8c89e42764188826",
+        "git_worktree_dirty": false,
+        "parameters": {
+          "a": "balanced",
+          "b": "rush",
+          "episodes": 5,
+          "max_ticks": null,
+          "paired_seat": true,
+          "scenario": null,
+          "seed_schedule": "seed_start + episode_index; one seed per pair",
+          "seed_start": 20261103
+        },
+        "schema_version": "formicmind.eval-manifest/v1",
+        "versions": {
+          "action": "ActionV2",
+          "balance": "candidate-FOR1-v0.2.1-unvalidated",
+          "decoder": "FOR-2-decoder-v0.2.1",
+          "observation": "FOR-2-v0.2+errata-v0.2.1",
+          "replay_format": "formicmind.replay",
+          "replay_schema": "v1",
+          "rng": "pcg32-xsh-rr-64-32-v1",
+          "rules": "l0-proto-FOR1-v0.2.2",
+          "serialization": "formicmind-canonical-json-v1",
+          "stream_derivation": "sha256-lenprefixed-v1"
+        }
+      },
+      "manifest_sha256": "fb9ca461f8817258f12e39322677639a072238eb93f70df88c05cd70e39feb51",
+      "results": [
+        {
+          "brood": {
+            "A": 2,
+            "B": 0
+          },
+          "checkpoint_hash": "0ef485f07b2a6e1de9ccbbf2b297f2a49e06ff9e0902bd5e417eb6773dc4ae47",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 0,
+          "food": {
+            "A": 128,
+            "B": 0
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "rush:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 9,
+            "B": 0
+          },
+          "state_hash": "f9e0870af7d1d7227d73ecc6cdb2b132e8e35aba8a7ed6c29cbc8234faf4fd5f",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 16,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 2
+          },
+          "checkpoint_hash": "b6f44a11a2b9005e6da4714bf17e9cabd76acd3d6f337125f9555760c1332a91",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 1,
+          "food": {
+            "A": 0,
+            "B": 128
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "rush:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 0,
+            "B": 9
+          },
+          "state_hash": "f112e24de178b2c60ba9157aa1ead95719f25d33cb67f333eea99b8e0232ccd8",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 16
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 0
+          },
+          "checkpoint_hash": "d66b72f529ea894932671bd4d3dda9a92ceb0c758b1a63690e8975eea6a76939",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 2,
+          "food": {
+            "A": 128,
+            "B": 0
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "rush:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 9,
+            "B": 0
+          },
+          "state_hash": "f9e0870af7d1d7227d73ecc6cdb2b132e8e35aba8a7ed6c29cbc8234faf4fd5f",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 16,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 2
+          },
+          "checkpoint_hash": "961e4240bb055c736bd290db2aba10fdda3b73907fec88092260a98646ac0d98",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 3,
+          "food": {
+            "A": 0,
+            "B": 128
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "rush:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 0,
+            "B": 9
+          },
+          "state_hash": "f112e24de178b2c60ba9157aa1ead95719f25d33cb67f333eea99b8e0232ccd8",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 16
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 0
+          },
+          "checkpoint_hash": "71a6ddbc1f29ffd570148c6622d2b61ec7311d8fdaf13c8b2c7ca8364907296e",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 4,
+          "food": {
+            "A": 128,
+            "B": 0
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "rush:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 9,
+            "B": 0
+          },
+          "state_hash": "f9e0870af7d1d7227d73ecc6cdb2b132e8e35aba8a7ed6c29cbc8234faf4fd5f",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 16,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 2
+          },
+          "checkpoint_hash": "a2b6923373aa8590d6d6e735b08c9fdf4f185dd7908bd1e5fa09d736a06f6c80",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 5,
+          "food": {
+            "A": 0,
+            "B": 128
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "rush:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 0,
+            "B": 9
+          },
+          "state_hash": "f112e24de178b2c60ba9157aa1ead95719f25d33cb67f333eea99b8e0232ccd8",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 16
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 0
+          },
+          "checkpoint_hash": "d2b8c08512b55f44b2116faa1fb0fcb5468c76bb36afd4e227e6ebaa2bb7960a",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 6,
+          "food": {
+            "A": 128,
+            "B": 0
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "rush:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 9,
+            "B": 0
+          },
+          "state_hash": "f9e0870af7d1d7227d73ecc6cdb2b132e8e35aba8a7ed6c29cbc8234faf4fd5f",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 16,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 2
+          },
+          "checkpoint_hash": "5883bf926c03c7dd1d535d29470f1b1efb83cbda9282616b1046b5335f7e93df",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 7,
+          "food": {
+            "A": 0,
+            "B": 128
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "rush:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 0,
+            "B": 9
+          },
+          "state_hash": "f112e24de178b2c60ba9157aa1ead95719f25d33cb67f333eea99b8e0232ccd8",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 16
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 0
+          },
+          "checkpoint_hash": "575688ccc83c97f97373cba344b0c88986129e1f3d618b9868738d2d95fb8f62",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 8,
+          "food": {
+            "A": 128,
+            "B": 0
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "rush:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 9,
+            "B": 0
+          },
+          "state_hash": "f9e0870af7d1d7227d73ecc6cdb2b132e8e35aba8a7ed6c29cbc8234faf4fd5f",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 16,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 2
+          },
+          "checkpoint_hash": "c549e4618550cef90e3940a4d0c709241c2887612ecd431a3714ce88734ee37d",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "rush:v1",
+              "kind": "policy",
+              "parameter_sha256": "cfea106a71257d8ebe79cfa6ac090b1927fd3010ca905516e2e41512460ea496",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": false,
+                  "defense_threat": 1.0,
+                  "forage_support": 1,
+                  "lay_none_food_below": 35,
+                  "lay_none_starvation_debt": 0.12,
+                  "minimum_soldiers_to_raid": 4,
+                  "soldier_worker_ratio": 0.42
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "rush-v1",
+              "replicate": 0,
+              "stream_id": "policy:rush-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 9,
+          "food": {
+            "A": 0,
+            "B": 128
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "rush:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 0,
+            "B": 9
+          },
+          "state_hash": "f112e24de178b2c60ba9157aa1ead95719f25d33cb67f333eea99b8e0232ccd8",
+          "state_tick": 277,
+          "terminal_tick": 276,
+          "tick_completed": true,
+          "ticks_executed": 277,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 16
+          }
+        }
+      ]
+    },
+    {
+      "a": "turtle",
+      "aggregate": {
+        "attempted": 10,
+        "draws": 0,
+        "finished": 10,
+        "mean_episode_ticks": 67.0,
+        "mean_finished_episode_ticks": 67.0,
+        "mean_score_finished_only": {
+          "A": 0.5,
+          "B": 0.5
+        },
+        "median_episode_ticks": 67.0,
+        "paired_seat": true,
+        "requested_episodes": 5,
+        "seed_pairs": 5,
+        "terminal_reasons": {
+          "economic_collapse": 10
+        },
+        "ticks_executed": 670,
+        "truncated": 0,
+        "wins_A": 5,
+        "wins_B": 5
+      },
+      "b": "raider",
+      "command": "sim eval --episodes 5 --seed-start 20261103 --a turtle --b raider --paired",
+      "manifest": {
+        "command": "eval",
+        "config": {
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "id": "default_config",
+          "policy_interval_k": 30,
+          "t_max": 3000
+        },
+        "controllers": {
+          "A": {
+            "id": "turtle:v1",
+            "kind": "policy",
+            "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+            "parameters": {
+              "profile": {
+                "avoid_center_when_allowed": true,
+                "defense_threat": 0.5,
+                "forage_support_normal": 1,
+                "forage_support_when_food_below": 2,
+                "lay_none_food_below": 55,
+                "lay_none_starvation_debt": 0.08,
+                "lay_none_starvation_delta": 0.08,
+                "lay_soldier_food_at_least": 80,
+                "soldier_lay_requires_known_threat": true,
+                "worker_soldier_ratio": 0.18
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "turtle-v1",
+            "replicate": 0,
+            "stream_id": "policy:turtle-v1:0",
+            "version": "v1"
+          },
+          "B": {
+            "id": "raider:v1",
+            "kind": "policy",
+            "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+            "parameters": {
+              "profile": {
+                "avoid_center_when_allowed": true,
+                "defense_target_requires_current_enemy": true,
+                "forage_support": 2,
+                "hungry_food_below": 45,
+                "hungry_starvation_debt": 0.1,
+                "hungry_starvation_delta": 0.1,
+                "lay_none_food_below": 25,
+                "minimum_soldiers_to_raid": 5,
+                "outermost_reachable_position_fallback": true,
+                "raid_requires_current_known_enemy_queen": true,
+                "soldier_lay_food_at_least": 35,
+                "soldier_worker_ratio_to_raid": 0.4,
+                "visible_intercept_priority": "farthest_local_node_then_threat"
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "raider-v1",
+            "replicate": 0,
+            "stream_id": "policy:raider-v1:0",
+            "version": "v1"
+          }
+        },
+        "git_commit": "e519d1928133568500588d7a8c89e42764188826",
+        "git_worktree_dirty": false,
+        "parameters": {
+          "a": "turtle",
+          "b": "raider",
+          "episodes": 5,
+          "max_ticks": null,
+          "paired_seat": true,
+          "scenario": null,
+          "seed_schedule": "seed_start + episode_index; one seed per pair",
+          "seed_start": 20261103
+        },
+        "schema_version": "formicmind.eval-manifest/v1",
+        "versions": {
+          "action": "ActionV2",
+          "balance": "candidate-FOR1-v0.2.1-unvalidated",
+          "decoder": "FOR-2-decoder-v0.2.1",
+          "observation": "FOR-2-v0.2+errata-v0.2.1",
+          "replay_format": "formicmind.replay",
+          "replay_schema": "v1",
+          "rng": "pcg32-xsh-rr-64-32-v1",
+          "rules": "l0-proto-FOR1-v0.2.2",
+          "serialization": "formicmind-canonical-json-v1",
+          "stream_derivation": "sha256-lenprefixed-v1"
+        }
+      },
+      "manifest_sha256": "5fcd193e39d9625e5d9ddc2d7f8dceebea747d3e633a2783c51d02d436ba6bee",
+      "results": [
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "ce781aaf7867a9de9032459aecaacb4c35ccce0fc321026e5d23c2f382415831",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 0,
+          "food": {
+            "A": 0,
+            "B": 44
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "turtle:v1#replicate-0",
+            "B": "raider:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "616150b3e46549a1b568cb7d4cc2504d7f6726a1c24649aca03d28d56fa6faf0",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 12
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "2da453f6795b15c3d0d7c3e540809ca2fc96ab45cbabc8c2df7c48ced0b12d91",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 1,
+          "food": {
+            "A": 44,
+            "B": 0
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "raider:v1#replicate-0",
+            "B": "turtle:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "d66bf6e99e1d0eafb38c5175c9bd21edd12c6f27c186213f60841f366599731f",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 12,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "5044ad2cf6563785c63249aa5e02ab9cbca62b5fef1789f95f9aeabad1bcd0ed",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 2,
+          "food": {
+            "A": 0,
+            "B": 44
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "turtle:v1#replicate-0",
+            "B": "raider:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "616150b3e46549a1b568cb7d4cc2504d7f6726a1c24649aca03d28d56fa6faf0",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 12
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "c87a18400ea03e1fd69e96448c23d1e4514f85652b7d38b48f7f0cb9b226d31e",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 3,
+          "food": {
+            "A": 44,
+            "B": 0
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "raider:v1#replicate-0",
+            "B": "turtle:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "d66bf6e99e1d0eafb38c5175c9bd21edd12c6f27c186213f60841f366599731f",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 12,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "6c59396fe39e3a436d8f715d2e5052b36d8e2257df3884e51e17555eba195703",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 4,
+          "food": {
+            "A": 0,
+            "B": 44
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "turtle:v1#replicate-0",
+            "B": "raider:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "616150b3e46549a1b568cb7d4cc2504d7f6726a1c24649aca03d28d56fa6faf0",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 12
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "b9bb877fc49d9007659940f80400e75433370b71f8c47fa24e07ccbc97dc4bea",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 5,
+          "food": {
+            "A": 44,
+            "B": 0
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "raider:v1#replicate-0",
+            "B": "turtle:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "d66bf6e99e1d0eafb38c5175c9bd21edd12c6f27c186213f60841f366599731f",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 12,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "52a26308f945b7649f232092b8bb2bc3d8654a84d70caa2f16d6bd3dacb8820c",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 6,
+          "food": {
+            "A": 0,
+            "B": 44
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "turtle:v1#replicate-0",
+            "B": "raider:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "616150b3e46549a1b568cb7d4cc2504d7f6726a1c24649aca03d28d56fa6faf0",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 12
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "1a1d87be652130c5c4980613cdc5474b2e03e88e8c0a55809bd9c015ee4f8055",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 7,
+          "food": {
+            "A": 44,
+            "B": 0
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "raider:v1#replicate-0",
+            "B": "turtle:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "d66bf6e99e1d0eafb38c5175c9bd21edd12c6f27c186213f60841f366599731f",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 12,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "5222b00dc31996d5cd3620ba08b24fafca52194b7fa75522642fc52df68a8271",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 8,
+          "food": {
+            "A": 0,
+            "B": 44
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "turtle:v1#replicate-0",
+            "B": "raider:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "616150b3e46549a1b568cb7d4cc2504d7f6726a1c24649aca03d28d56fa6faf0",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 12
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "89d1bd40f2f0249f91b022ead1f8ba30f321f120e26460ee9890d67616eff500",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "raider:v1",
+              "kind": "policy",
+              "parameter_sha256": "4d4c83879e646b352f3c0ae38db5922a5bd1e0c7da32737e503a32a2c10ced12",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_target_requires_current_enemy": true,
+                  "forage_support": 2,
+                  "hungry_food_below": 45,
+                  "hungry_starvation_debt": 0.1,
+                  "hungry_starvation_delta": 0.1,
+                  "lay_none_food_below": 25,
+                  "minimum_soldiers_to_raid": 5,
+                  "outermost_reachable_position_fallback": true,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 35,
+                  "soldier_worker_ratio_to_raid": 0.4,
+                  "visible_intercept_priority": "farthest_local_node_then_threat"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "raider-v1",
+              "replicate": 0,
+              "stream_id": "policy:raider-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "turtle:v1",
+              "kind": "policy",
+              "parameter_sha256": "6c9fa1c676a553294c26ffb4f3372953f93ecec73b5d8669f99a451a05e0ee4e",
+              "parameters": {
+                "profile": {
+                  "avoid_center_when_allowed": true,
+                  "defense_threat": 0.5,
+                  "forage_support_normal": 1,
+                  "forage_support_when_food_below": 2,
+                  "lay_none_food_below": 55,
+                  "lay_none_starvation_debt": 0.08,
+                  "lay_none_starvation_delta": 0.08,
+                  "lay_soldier_food_at_least": 80,
+                  "soldier_lay_requires_known_threat": true,
+                  "worker_soldier_ratio": 0.18
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "turtle-v1",
+              "replicate": 0,
+              "stream_id": "policy:turtle-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 9,
+          "food": {
+            "A": 44,
+            "B": 0
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "raider:v1#replicate-0",
+            "B": "turtle:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "d66bf6e99e1d0eafb38c5175c9bd21edd12c6f27c186213f60841f366599731f",
+          "state_tick": 67,
+          "terminal_tick": 66,
+          "tick_completed": true,
+          "ticks_executed": 67,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 12,
+            "B": 0
+          }
+        }
+      ]
+    },
+    {
+      "a": "random",
+      "aggregate": {
+        "attempted": 10,
+        "draws": 0,
+        "finished": 10,
+        "mean_episode_ticks": 317.0,
+        "mean_finished_episode_ticks": 317.0,
+        "mean_score_finished_only": {
+          "A": 0.5,
+          "B": 0.5
+        },
+        "median_episode_ticks": 351.0,
+        "paired_seat": true,
+        "requested_episodes": 5,
+        "seed_pairs": 5,
+        "terminal_reasons": {
+          "economic_collapse": 8,
+          "queen_death": 2
+        },
+        "ticks_executed": 3170,
+        "truncated": 0,
+        "wins_A": 5,
+        "wins_B": 5
+      },
+      "b": "balanced",
+      "command": "sim eval --episodes 5 --seed-start 20261103 --a random --b balanced --paired",
+      "manifest": {
+        "command": "eval",
+        "config": {
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "id": "default_config",
+          "policy_interval_k": 30,
+          "t_max": 3000
+        },
+        "controllers": {
+          "A": {
+            "id": "random:v1",
+            "kind": "policy",
+            "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+            "parameters": {
+              "profile": {
+                "avoid_center_threshold": 0.5,
+                "base_random_logits": 17,
+                "forage_support_max": 3,
+                "forage_support_selection": "uniform_1_to_3",
+                "forage_target_selection": "pcg32_fisher_yates",
+                "selection": "pcg32_uniform_legal_logits"
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "random-v1",
+            "replicate": 0,
+            "stream_id": "policy:random-v1:0",
+            "version": "v1"
+          },
+          "B": {
+            "id": "balanced:v1",
+            "kind": "policy",
+            "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+            "parameters": {
+              "profile": {
+                "avoid_center_score_when_idle": -0.25,
+                "avoid_center_when_defending": true,
+                "defense_threat": 0.35,
+                "forage_support_normal": 2,
+                "forage_support_when_hungry": 3,
+                "hungry_food_below": 65,
+                "hungry_starvation_debt": 0.08,
+                "hungry_starvation_delta": 0.08,
+                "lay_none_food_below": 30,
+                "lay_none_starvation_debt": 0.15,
+                "minimum_soldiers_to_raid": 6,
+                "raid_requires_current_known_enemy_queen": true,
+                "soldier_lay_food_at_least": 45,
+                "soldier_worker_ratio": 0.28
+              },
+              "shared": {
+                "enemy_stale_freshness_slope": 3.0,
+                "enemy_worker_threat_weight": 0.2,
+                "food_regeneration_weight": 1.5,
+                "food_score_floor": 0.01,
+                "food_stale_freshness_slope": 3.0,
+                "forage_logit_delta_ceiling": 1.0,
+                "forage_logit_delta_floor": -0.75,
+                "forage_logit_positive_base": 1.0,
+                "forage_logit_rank_penalty": 0.01,
+                "forage_logit_unselected": -1.0,
+                "forage_support_limit": 3,
+                "public_route_cost_per_edge_length": 0.08,
+                "selected_categorical_logit": 2.0,
+                "unknown_food_capacity_prior": 0.2,
+                "unreachable_route_penalty": 8.0,
+                "unselected_categorical_logit": -2.0
+              }
+            },
+            "policy_id": "balanced-v1",
+            "replicate": 0,
+            "stream_id": "policy:balanced-v1:0",
+            "version": "v1"
+          }
+        },
+        "git_commit": "e519d1928133568500588d7a8c89e42764188826",
+        "git_worktree_dirty": false,
+        "parameters": {
+          "a": "random",
+          "b": "balanced",
+          "episodes": 5,
+          "max_ticks": null,
+          "paired_seat": true,
+          "scenario": null,
+          "seed_schedule": "seed_start + episode_index; one seed per pair",
+          "seed_start": 20261103
+        },
+        "schema_version": "formicmind.eval-manifest/v1",
+        "versions": {
+          "action": "ActionV2",
+          "balance": "candidate-FOR1-v0.2.1-unvalidated",
+          "decoder": "FOR-2-decoder-v0.2.1",
+          "observation": "FOR-2-v0.2+errata-v0.2.1",
+          "replay_format": "formicmind.replay",
+          "replay_schema": "v1",
+          "rng": "pcg32-xsh-rr-64-32-v1",
+          "rules": "l0-proto-FOR1-v0.2.2",
+          "serialization": "formicmind-canonical-json-v1",
+          "stream_derivation": "sha256-lenprefixed-v1"
+        }
+      },
+      "manifest_sha256": "9fb7a2ff0ef699cde6618c43bd2438bba29e6640867024bdf27a35fd98d25857",
+      "results": [
+        {
+          "brood": {
+            "A": 3,
+            "B": 2
+          },
+          "checkpoint_hash": "32638fceb446b55b3a6028307098f17f5ff8b3eb447721bca3188338acdacd22",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 0,
+          "food": {
+            "A": 1,
+            "B": 460
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 240,
+            "B": 232
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "random:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 0,
+            "B": 6
+          },
+          "state_hash": "db2501f132e0fa31973af45700c66075f26a7e3a62782c260f7b54300100ff02",
+          "state_tick": 351,
+          "terminal_tick": 350,
+          "tick_completed": true,
+          "ticks_executed": 351,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 20
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 3
+          },
+          "checkpoint_hash": "28381c1830a4fff00d0144d8b98a0d02d23e4955ac47b090b842dfb753bc9560",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 1,
+          "food": {
+            "A": 460,
+            "B": 1
+          },
+          "pair_id": "seed-20261103",
+          "queen_hp": {
+            "A": 232,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "random:v1#replicate-0"
+          },
+          "seed": 20261103,
+          "soldiers": {
+            "A": 6,
+            "B": 0
+          },
+          "state_hash": "bb2bf141e5a52b63725dc0768094f32ae56469f12bb240e3404d35836a2b056c",
+          "state_tick": 351,
+          "terminal_tick": 350,
+          "tick_completed": true,
+          "ticks_executed": 351,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 20,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 1,
+            "B": 2
+          },
+          "checkpoint_hash": "4b685abbcb2b052df3486d219f9aeee6aaf889849ad2f61b98a1487bc2ef8979",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 2,
+          "food": {
+            "A": 6,
+            "B": 279
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "random:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 8,
+            "B": 8
+          },
+          "state_hash": "7939ed758b3a1ff49f07bdeb8d888c64ff00715f8d406857130ceacfabd9e442",
+          "state_tick": 437,
+          "terminal_tick": 436,
+          "tick_completed": true,
+          "ticks_executed": 437,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 31
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 1
+          },
+          "checkpoint_hash": "cea33a972a9b2da99ad319959e50e1dd79852685208404929b349627fc7d42a1",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 3,
+          "food": {
+            "A": 279,
+            "B": 6
+          },
+          "pair_id": "seed-20261104",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "random:v1#replicate-0"
+          },
+          "seed": 20261104,
+          "soldiers": {
+            "A": 8,
+            "B": 8
+          },
+          "state_hash": "bd710395cab499d5fbc3cf6b56ca0d0df63e1dd5ef391fc2babf30cc0c685a02",
+          "state_tick": 437,
+          "terminal_tick": 436,
+          "tick_completed": true,
+          "ticks_executed": 437,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 31,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 0
+          },
+          "checkpoint_hash": "3e8ce24e526d25a3b6ef69f8582d51986e5388e77547ef4f6b5281f58531e4c2",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 4,
+          "food": {
+            "A": 0,
+            "B": 60
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "random:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 0,
+            "B": 4
+          },
+          "state_hash": "d23e445b12f6d2034e65cb1118d15428759425d588ef5a6670270d65bc8c212c",
+          "state_tick": 60,
+          "terminal_tick": 59,
+          "tick_completed": true,
+          "ticks_executed": 60,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 9
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 0
+          },
+          "checkpoint_hash": "6da9c40b778199e6ff6746685a5462bbb490894cbb965a9326e1fafe361afa98",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 5,
+          "food": {
+            "A": 60,
+            "B": 0
+          },
+          "pair_id": "seed-20261105",
+          "queen_hp": {
+            "A": 240,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "random:v1#replicate-0"
+          },
+          "seed": 20261105,
+          "soldiers": {
+            "A": 4,
+            "B": 0
+          },
+          "state_hash": "5cfbe54bcc1aa19d87e4874e77a7bba4e330e56464a8584e5866928577ea488f",
+          "state_tick": 60,
+          "terminal_tick": 59,
+          "tick_completed": true,
+          "ticks_executed": 60,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 9,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 0,
+            "B": 3
+          },
+          "checkpoint_hash": "ecfa101eadee74c984555594fdbce8db255ca7846104ba94c80be1da49bdd355",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 6,
+          "food": {
+            "A": 0,
+            "B": 21
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 240,
+            "B": 236
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "random:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 0,
+            "B": 8
+          },
+          "state_hash": "1b2710ae2cf710de65fd2cbb89c64af1cb6dabb3e803925e4ddf281f2fe6b4f0",
+          "state_tick": 501,
+          "terminal_tick": 500,
+          "tick_completed": true,
+          "ticks_executed": 501,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 0,
+            "B": 37
+          }
+        },
+        {
+          "brood": {
+            "A": 3,
+            "B": 0
+          },
+          "checkpoint_hash": "20b7fd372ca85dd00aa1764d673672b9ad17b4d9bbac366e98e5bd6c2978da0d",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 7,
+          "food": {
+            "A": 21,
+            "B": 0
+          },
+          "pair_id": "seed-20261106",
+          "queen_hp": {
+            "A": 236,
+            "B": 240
+          },
+          "reason": "economic_collapse",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "random:v1#replicate-0"
+          },
+          "seed": 20261106,
+          "soldiers": {
+            "A": 8,
+            "B": 0
+          },
+          "state_hash": "578afa71b240703032bed66c1ddc72657da9e7d3c8b88212e59862950ec85402",
+          "state_tick": 501,
+          "terminal_tick": 500,
+          "tick_completed": true,
+          "ticks_executed": 501,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 37,
+            "B": 0
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 2
+          },
+          "checkpoint_hash": "03ca5f0672d9e716f0bc44b8829e04255d49e67518972077e6d10174f30cf3a4",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 8,
+          "food": {
+            "A": 233,
+            "B": 9
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 240,
+            "B": 0
+          },
+          "reason": "queen_death",
+          "score": {
+            "A": 1.0,
+            "B": 0.0
+          },
+          "seat_assignment": {
+            "A": "random:v1#replicate-0",
+            "B": "balanced:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 6,
+            "B": 9
+          },
+          "state_hash": "08146ade49d6982598125abed8d0597a28f269a5d8c73bdeac9d660a7b49e8eb",
+          "state_tick": 235,
+          "terminal_tick": 235,
+          "tick_completed": false,
+          "ticks_executed": 236,
+          "truncated": false,
+          "winner": "A",
+          "workers": {
+            "A": 22,
+            "B": 6
+          }
+        },
+        {
+          "brood": {
+            "A": 2,
+            "B": 2
+          },
+          "checkpoint_hash": "74e23206c0c3a592de1d2f353999fa37743f8d27fb7caf38bef9d9522d1ba97b",
+          "config_hash": "3f6aaa36a0d3d15888fa42f142df1151376794e62b553ab8e5f7659c9794145d",
+          "controller_config": {
+            "A": {
+              "id": "balanced:v1",
+              "kind": "policy",
+              "parameter_sha256": "752d51cc3e7fb45fc925f9528e3614025afc868d6cb6e8a9fbc4473ebe60dc47",
+              "parameters": {
+                "profile": {
+                  "avoid_center_score_when_idle": -0.25,
+                  "avoid_center_when_defending": true,
+                  "defense_threat": 0.35,
+                  "forage_support_normal": 2,
+                  "forage_support_when_hungry": 3,
+                  "hungry_food_below": 65,
+                  "hungry_starvation_debt": 0.08,
+                  "hungry_starvation_delta": 0.08,
+                  "lay_none_food_below": 30,
+                  "lay_none_starvation_debt": 0.15,
+                  "minimum_soldiers_to_raid": 6,
+                  "raid_requires_current_known_enemy_queen": true,
+                  "soldier_lay_food_at_least": 45,
+                  "soldier_worker_ratio": 0.28
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "balanced-v1",
+              "replicate": 0,
+              "stream_id": "policy:balanced-v1:0",
+              "version": "v1"
+            },
+            "B": {
+              "id": "random:v1",
+              "kind": "policy",
+              "parameter_sha256": "254037fbbe5f089fc1f909405ebcc3567573682553d3715d9bab8cf292b07f2c",
+              "parameters": {
+                "profile": {
+                  "avoid_center_threshold": 0.5,
+                  "base_random_logits": 17,
+                  "forage_support_max": 3,
+                  "forage_support_selection": "uniform_1_to_3",
+                  "forage_target_selection": "pcg32_fisher_yates",
+                  "selection": "pcg32_uniform_legal_logits"
+                },
+                "shared": {
+                  "enemy_stale_freshness_slope": 3.0,
+                  "enemy_worker_threat_weight": 0.2,
+                  "food_regeneration_weight": 1.5,
+                  "food_score_floor": 0.01,
+                  "food_stale_freshness_slope": 3.0,
+                  "forage_logit_delta_ceiling": 1.0,
+                  "forage_logit_delta_floor": -0.75,
+                  "forage_logit_positive_base": 1.0,
+                  "forage_logit_rank_penalty": 0.01,
+                  "forage_logit_unselected": -1.0,
+                  "forage_support_limit": 3,
+                  "public_route_cost_per_edge_length": 0.08,
+                  "selected_categorical_logit": 2.0,
+                  "unknown_food_capacity_prior": 0.2,
+                  "unreachable_route_penalty": 8.0,
+                  "unselected_categorical_logit": -2.0
+                }
+              },
+              "policy_id": "random-v1",
+              "replicate": 0,
+              "stream_id": "policy:random-v1:0",
+              "version": "v1"
+            }
+          },
+          "episode_index": 9,
+          "food": {
+            "A": 9,
+            "B": 233
+          },
+          "pair_id": "seed-20261107",
+          "queen_hp": {
+            "A": 0,
+            "B": 240
+          },
+          "reason": "queen_death",
+          "score": {
+            "A": 0.0,
+            "B": 1.0
+          },
+          "seat_assignment": {
+            "A": "balanced:v1#replicate-0",
+            "B": "random:v1#replicate-0"
+          },
+          "seed": 20261107,
+          "soldiers": {
+            "A": 9,
+            "B": 6
+          },
+          "state_hash": "3c3ef6d79554d3fccb0f500128264ca55913c9c9a4117ce28dfd5aa2faee2889",
+          "state_tick": 235,
+          "terminal_tick": 235,
+          "tick_completed": false,
+          "ticks_executed": 236,
+          "truncated": false,
+          "winner": "B",
+          "workers": {
+            "A": 6,
+            "B": 22
+          }
+        }
+      ]
+    }
+  ],
+  "purpose": "open engineering diagnostics; not tuning, statistical evidence, or balance validation",
+  "schema_version": "formicmind.for19-diagnostics/v1",
+  "seed_schedule": {
+    "count": 5,
+    "paired_seat": true,
+    "start": 20261103
+  },
+  "source_commit": "e519d1928133568500588d7a8c89e42764188826"
+}
