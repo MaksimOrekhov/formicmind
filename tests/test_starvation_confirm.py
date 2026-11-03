@@ -606,3 +606,28 @@ def test_rows_with_unmeasured_windows_serialise_and_stay_null():
     data = sc._dump_lines(rows)
     back = [json.loads(line) for line in data.splitlines()]
     assert back == json.loads(json.dumps(rows))
+
+
+# --- committed results (cheap consistency; the full regeneration is `verify`) ---------------------------
+
+RESULTS = ROOT / "results" / "starvation_confirm"
+
+
+@pytest.mark.skipif(not RESULTS.is_dir(), reason="results are produced after the preregistered run")
+def test_committed_results_match_the_manifest_and_the_summary_is_derivable():
+    manifest = json.loads((RESULTS / "manifest.json").read_text(encoding="utf-8"))
+    for name, digest in manifest["artifacts"].items():
+        assert sc._sha(sc._lf((RESULTS / name).read_bytes())) == digest, name
+    assert manifest["protocol_sha256"] == sc.PROTOCOL_SHA256
+    assert {n: e["sha256"] for n, e in manifest["errata"].items()} == {str(n): h for n, (_, h) in sc.ERRATA.items()}
+    assert manifest["engine_fingerprint"] == sc.BASE_ENGINE_FINGERPRINT
+    assert manifest["seeds"] == list(sc.SEEDS) and manifest["schedule"]["rows"] == sc.EXPECTED_ROWS
+    rows = [json.loads(line) for line in (RESULTS / "matches.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert [r["row_id"] for r in rows] == sc.schedule_row_ids()
+    assert sum(r["calls"] for r in rows) == manifest["step_tick_calls"]["main"] <= sc.MAIN_BUDGET
+    anchors = json.loads((RESULTS / "anchors.json").read_text(encoding="utf-8"))["anchors"]
+    demo = json.loads((RESULTS / "minimal_demo.json").read_text(encoding="utf-8"))
+    stored = (RESULTS / "summary.json").read_bytes()
+    assert sc._lf(sc._dump_json(sc.build_summary(rows, demo, anchors))) == sc._lf(stored)
+    assert len(anchors) == sc.EXPECTED_ANCHORS and all(a["matches"] for a in anchors)
+    assert sum(a["calls"] for a in anchors) == manifest["step_tick_calls"]["anchor"] <= sc.ANCHOR_BUDGET
