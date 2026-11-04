@@ -87,20 +87,33 @@ def benchmark_inference(policy: MLPPolicy, examples: list[DatasetExample], *, me
             benchmark_rng,
         )
     synchronize(device)
-    start = time.perf_counter()
+    latencies: list[float] = []
     for index in range(measured_calls):
         example = examples[index % len(examples)]
+        started = time.perf_counter()
         policy(
             ObservationV2(example.observation),
             example.mask,
             benchmark_rng,
         )
-    synchronize(device)
-    elapsed = time.perf_counter() - start
+        synchronize(device)
+        latencies.append(time.perf_counter() - started)
+    elapsed = sum(latencies)
+
+    def percentile(values: list[float], fraction: float) -> float:
+        ordered = sorted(values)
+        position = (len(ordered) - 1) * fraction
+        lower = int(position)
+        upper = min(lower + 1, len(ordered) - 1)
+        weight = position - lower
+        return ordered[lower] * (1 - weight) + ordered[upper] * weight
+
     return {
         "calls": measured_calls,
         "seconds": elapsed,
         "milliseconds_per_decision": elapsed * 1000 / measured_calls,
+        "milliseconds_p50": percentile(latencies, 0.50) * 1000,
+        "milliseconds_p95": percentile(latencies, 0.95) * 1000,
         "decisions_per_second": measured_calls / elapsed if elapsed else float("inf"),
     }
 

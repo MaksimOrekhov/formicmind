@@ -66,7 +66,7 @@ Manifest v2 хранит source Git SHA/dirty state, SHA-256 файла данн
 
 ## Заранее объявленные критерии решения
 
-Технический **GO только к отдельному проектированию самостоятельного обучения**, не к автоматическому запуску RL, возможен, если: (1) held-out после дедупликации достаточен по порогам выше; (2) полный held-out exact-action accuracy не ниже 0.80 и минимум на 0.20 выше необученной MLP; (3) held-out logit MSE ниже необученного контроля; (4) legal action rate — 100%, загрузка checkpoint стабильна; (5) разрыв validation→held-out по exact accuracy не больше 0.15; (6) provenance и split проверки проходят. Матчевые результаты при этом рассматриваются отдельно и не превращаются в утверждение о стратегической силе.
+Технический **GO только к отдельному проектированию самостоятельного обучения**, не к автоматическому запуску RL, возможен, если: (1) held-out после дедупликации содержит не менее 200 решений и 4 полных уникальных траекторий, каждый из пяти held-out map/opponent contexts — не менее 100 решений; (2) полный held-out exact-action accuracy не ниже 0.80 и минимум на 0.20 выше необученной MLP; (3) held-out logit MSE ниже необученного контроля; (4) legal action rate — 100%, загрузка checkpoint стабильна; (5) разрыв validation→held-out по exact accuracy не больше 0.15; (6) provenance и split проверки проходят. Матчевые результаты при этом рассматриваются отдельно и не превращаются в утверждение о стратегической силе.
 
 Иначе вывод — **NO-GO/недостаточно данных** с указанием конкретного провала (качество, переобучение, дубликаты, sample size, легальность или инфраструктура). Даже GO не разрешает смешивать teacher targets, менять physics/economy, decoder, rules version, baseline, запускать PPO/self-play или использовать sealed/historical данные.
 
@@ -80,3 +80,11 @@ Manifest v2 хранит source Git SHA/dirty state, SHA-256 файла данн
 6. Запустить полный pytest, Vue production build, Vitest, Windows CI и неизменённые pinned historical FOR-25/FOR-35 jobs. Не менять их pins или исходные артефакты.
 
 PR открывается без merge; в его описании будут commit HEAD, итоги эксперимента, ссылка/состояние Windows CI и ограничения вывода.
+
+Команды фиксированного профиля:
+
+```powershell
+formicmind-ml collect-quality --output results\ml_quality_for37\quality.jsonl
+formicmind-ml train-quality --dataset results\ml_quality_for37\quality.jsonl --output results\ml_quality_for37\checkpoint --device auto
+formicmind-ml eval-quality --model results\ml_quality_for37\checkpoint --dataset results\ml_quality_for37\quality.jsonl --device auto --output results\ml_quality_for37\report.json
+```
