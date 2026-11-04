@@ -1,10 +1,7 @@
 name: CI
 
-# Correctness regression only (unit tests, goldens, invariants, checkpoint/determinism checks).
-# It is NOT a performance benchmark and not a scientific gate; see docs/reliability.md.
-# Windows only on purpose: the project is developed and verified on Windows, Python 3.12
-# (pyproject.toml: requires-python >= 3.12). No matrix, no secrets, no artifacts, no third-party services.
-
+# Required PR correctness checks. Full pinned historical reproduction is conditional on a fail-closed path policy;
+# the independent weekly/manual workflow is .github/workflows/historical.yml.
 on:
   push:
     branches: [main, "for-*"]
@@ -47,14 +44,30 @@ jobs:
       - name: Install package and test dependencies
         run: python -m pip install -e ".[dev]"
 
+      - name: FOR-25 manifest and artifact integrity (no regeneration)
+        run: python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4 --manifest-only
+
+      - name: FOR-35 static historical artifact integrity (no regeneration)
+        run: python -m formicmind.starvation_confirm verify-static --input results/starvation_confirm
+
       - name: Install CPU-only PyTorch for ML smoke coverage
         run: python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
 
       - name: Verify ML smoke runtime
         run: python -c "import torch; print('torch', torch.__version__, 'cuda available:', torch.cuda.is_available())"
 
-      - name: Run tests
+      - name: Run all Python tests
         run: python -m pytest -q -ra
+
+  viewer:
+    name: Viewer build and Vitest (Node 22)
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
 
       - name: Set up Node 22
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -75,101 +88,107 @@ jobs:
         working-directory: viewer
         run: npm run test
 
-  # FOR-25 is bound to the engine of the FOR-24 base (c2a887c). `test` above runs the current tree (the merge of
-  # the PR with main), whose engine may legitimately move on (FOR-26, FOR-27, learning). This job instead checks
-  # out the PINNED FOR-25 commit - an immutable SHA, never a branch - and runs the engine-dependent checks there:
-  # the historical pytest set and a strict `verify` that regenerates all 4320 published matches byte for byte.
-  # To bump the pin, a later task must publish new results under its own protocol; do not edit the SHA to follow main.
+  historical-policy:
+    name: Historical sensitivity gate
+    runs-on: windows-latest
+    timeout-minutes: 10
+    outputs:
+      historical_required: ${{ steps.paths.outputs.historical_required }}
+    steps:
+      - name: Check out changed tree and history
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python 3.12 for the path policy
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: "3.12"
+
+      - name: Classify changed paths (fail closed)
+        id: paths
+        shell: pwsh
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if (-not $env:BASE_SHA -or $env:BASE_SHA -match '^0+$') {
+            Write-Host "Missing usable base SHA; requiring full historical checks."
+            $changed = @("__unknown_base_sha__")
+          } else {
+            $changed = git diff --no-renames --name-only "$env:BASE_SHA...$env:HEAD_SHA"
+            if ($LASTEXITCODE -ne 0) { throw "Could not compute the changed-file set; refusing a fast-only result." }
+          }
+          $changed | python scripts/ci_historical_policy.py --github-output "$env:GITHUB_OUTPUT"
+
   historical-for25:
     name: Historical FOR-25 (frozen engine, pinned commit)
+    needs: [historical-policy]
+    if: ${{ always() && needs.historical-policy.result != 'cancelled' }}
     runs-on: windows-latest
     timeout-minutes: 90
     env:
       PYTHONUTF8: "1"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
-      FOR25_PINNED_COMMIT: 737de9cd7ed2451d45a59ca21da9167476a47660
     steps:
-      # Full history so that the manifest's source_commit (4c2cbeb) is available for the fingerprint binding.
-      - name: Check out the pinned FOR-25 commit
+      - name: Fail closed if the sensitivity decision is missing or failed
+        shell: pwsh
+        env:
+          POLICY_RESULT: ${{ needs.historical-policy.result }}
+          HISTORICAL_REQUIRED: ${{ needs.historical-policy.outputs.historical_required }}
+        run: |
+          if ($env:POLICY_RESULT -ne "success") { throw "Historical path policy ended as $env:POLICY_RESULT." }
+          if ($env:HISTORICAL_REQUIRED -notin @("true", "false")) { throw "Historical path policy output is missing or invalid." }
+
+      - name: Explain why full regeneration is not required for this diff
+        if: ${{ needs.historical-policy.result == 'success' && needs.historical-policy.outputs.historical_required == 'false' }}
+        shell: pwsh
+        run: Write-Host "Path policy classified this change as ML/viewer/nonhistorical documentation. Full regeneration was not run; use Historical verification manual/weekly workflow or the sensitive PR gate when applicable."
+
+      - name: Check out the local pinned verification action
+        if: ${{ needs.historical-policy.outputs.historical_required == 'true' }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 737de9cd7ed2451d45a59ca21da9167476a47660
-          fetch-depth: 0
+          ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Assert the checkout is exactly the pinned commit
-        shell: pwsh
-        run: |
-          $head = git rev-parse HEAD
-          Write-Host "HEAD=$head"
-          if ($head -ne $env:FOR25_PINNED_COMMIT) { throw "checkout $head is not the pinned commit $env:FOR25_PINNED_COMMIT" }
+      - name: Run pinned FOR-25 tests and strict regeneration
+        if: ${{ needs.historical-policy.outputs.historical_required == 'true' }}
+        uses: ./.github/actions/historical-for25
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install package and test dependencies
-        run: python -m pip install -e ".[dev]"
-
-      - name: Historical pytest (frozen engine, no skips)
-        run: python -m pytest historical/for25 -q -ra
-
-      - name: Strict verify, full regeneration of the published results
-        run: python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4 --record "$env:RUNNER_TEMP/verification_record.json"
-
-      - name: Show the verification record
-        shell: pwsh
-        run: Get-Content "$env:RUNNER_TEMP/verification_record.json"
-
-  # FOR-35 is bound to the engine of the FOR-26 base (0bb12ad, fingerprint ff8b73e4...). `test` above runs the current
-  # tree, whose package grows legitimately (ML modules, later studies) and therefore tests only engine-independent
-  # properties of the published results (`verify-static`, tamper tests). This job checks out the PINNED FOR-35 commit -
-  # an immutable SHA, never a branch - which contains the original results and the original strict verifier, and runs
-  # the engine-dependent checks there: the original test module and a `verify` that regenerates all 4800 matches and
-  # 960 anchors byte for byte (docs/starvation_confirm_verification.md). To bump the pin, a later task must publish new
-  # results under its own protocol; do not edit the SHA to follow main.
   historical-for35:
     name: Historical FOR-35 (frozen engine, pinned commit)
+    needs: [historical-policy]
+    if: ${{ always() && needs.historical-policy.result != 'cancelled' }}
     runs-on: windows-latest
     timeout-minutes: 150
     env:
       PYTHONUTF8: "1"
       PIP_DISABLE_PIP_VERSION_CHECK: "1"
-      FOR35_PINNED_COMMIT: 3139c7b953c38d96d35e0baf2267781138ebcb71
     steps:
-      # Full history: preflight requires the protocol commit and the FOR-25 merge to be ancestors of the pinned commit.
-      - name: Check out the pinned FOR-35 commit
+      - name: Fail closed if the sensitivity decision is missing or failed
+        shell: pwsh
+        env:
+          POLICY_RESULT: ${{ needs.historical-policy.result }}
+          HISTORICAL_REQUIRED: ${{ needs.historical-policy.outputs.historical_required }}
+        run: |
+          if ($env:POLICY_RESULT -ne "success") { throw "Historical path policy ended as $env:POLICY_RESULT." }
+          if ($env:HISTORICAL_REQUIRED -notin @("true", "false")) { throw "Historical path policy output is missing or invalid." }
+
+      - name: Explain why full regeneration is not required for this diff
+        if: ${{ needs.historical-policy.result == 'success' && needs.historical-policy.outputs.historical_required == 'false' }}
+        shell: pwsh
+        run: Write-Host "Path policy classified this change as ML/viewer/nonhistorical documentation. Full regeneration was not run; use Historical verification manual/weekly workflow or the sensitive PR gate when applicable."
+
+      - name: Check out the local pinned verification action
+        if: ${{ needs.historical-policy.outputs.historical_required == 'true' }}
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: 3139c7b953c38d96d35e0baf2267781138ebcb71
-          fetch-depth: 0
+          ref: ${{ github.sha }}
           persist-credentials: false
 
-      - name: Assert the checkout is exactly the pinned commit
-        shell: pwsh
-        run: |
-          $head = git rev-parse HEAD
-          Write-Host "HEAD=$head"
-          if ($head -ne $env:FOR35_PINNED_COMMIT) { throw "checkout $head is not the pinned commit $env:FOR35_PINNED_COMMIT" }
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
-        with:
-          python-version: "3.12"
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install package and test dependencies
-        run: python -m pip install -e ".[dev]"
-
-      - name: Historical preflight (frozen engine fingerprint, protocol, errata, seeds)
-        run: python -m formicmind.starvation_confirm preflight
-
-      - name: Historical pytest (original FOR-35 test module, frozen engine, no skips)
-        run: python -m pytest tests/test_starvation_confirm.py -q -ra -p no:cacheprovider
-
-      - name: Strict verify, full regeneration of the 4800 published matches
-        run: python -m formicmind.starvation_confirm verify --input results/starvation_confirm --workers 4
+      - name: Run pinned FOR-35 preflight, tests, and strict regeneration
+        if: ${{ needs.historical-policy.outputs.historical_required == 'true' }}
+        uses: ./.github/actions/historical-for35

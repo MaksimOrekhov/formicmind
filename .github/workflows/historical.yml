@@ -1,0 +1,76 @@
+name: Historical verification
+
+on:
+  schedule:
+    - cron: "23 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: Optional commit SHA, branch, or tag to verify as the request ref; study runners remain pinned.
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  request-ref:
+    name: Verify requested ref and record run context
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out selected workflow/request ref
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.target_ref || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Record the selected request ref and resolved SHA
+        shell: pwsh
+        env:
+          TARGET_REF: ${{ inputs.target_ref }}
+        run: |
+          $head = git rev-parse HEAD
+          $selected = $env:TARGET_REF
+          if (-not $selected) { $selected = $env:GITHUB_REF }
+          Write-Host "selected_ref=$selected"
+          Write-Host "workflow_ref=$env:GITHUB_REF"
+          Write-Host "workflow_sha=$env:GITHUB_SHA"
+          Write-Host "resolved_request_sha=$head"
+
+  historical-for25:
+    name: FOR-25 strict pinned regeneration
+    needs: [request-ref]
+    runs-on: windows-latest
+    timeout-minutes: 90
+    env:
+      PYTHONUTF8: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - name: Check out this workflow's local verification action
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Run pinned FOR-25 tests and strict regeneration
+        uses: ./.github/actions/historical-for25
+
+  historical-for35:
+    name: FOR-35 strict pinned regeneration
+    needs: [request-ref]
+    runs-on: windows-latest
+    timeout-minutes: 150
+    env:
+      PYTHONUTF8: "1"
+      PIP_DISABLE_PIP_VERSION_CHECK: "1"
+    steps:
+      - name: Check out this workflow's local verification action
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Run pinned FOR-35 preflight, tests, and strict regeneration
+        uses: ./.github/actions/historical-for35

@@ -8,6 +8,7 @@ engineering constant (never a FOR-4 sealed seed).
 import json
 import os
 import re
+import runpy
 import subprocess
 import sys
 from collections import Counter
@@ -528,27 +529,166 @@ def test_contract_and_format_versions_are_pinned():
     assert doc["schema"] == "formicmind.checkpoint/3" and doc["state"]["rules_version"] == versions.RULES_VERSION
 
 
-def test_ci_workflow_is_windows_python_312_read_only_and_has_no_linux_job():
-    text = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
-    active = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
-    # Windows jobs only. The REQUIRED jobs are named, their number is not fixed: the current tree (`test`) and one pinned
-    # historical checkout per frozen study (docs/starvation_debt_verification.md, docs/starvation_confirm_verification.md).
-    job_names = re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", active.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
-    for required in ("test", "historical-for25", "historical-for35"):
-        assert required in job_names, required
+def _active_workflow(name):
+    text = (ROOT / ".github" / "workflows" / name).read_text(encoding="utf-8")
+    return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
+
+
+def _workflow_jobs(active):
+    return re.findall(r"^  ([A-Za-z0-9_-]+):\s*$", active.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
+
+
+def _assert_windows_read_only_workflow(active):
+    job_names = _workflow_jobs(active)
     runs_on = [line.strip() for line in active.splitlines() if "runs-on:" in line]
     assert runs_on == ["runs-on: windows-latest"] * len(job_names)
     assert active.count("timeout-minutes") == len(job_names)
-    # every historical job checks out an immutable SHA (never a branch) and asserts it
-    for pin in ("FOR25_PINNED_COMMIT", "FOR35_PINNED_COMMIT"):
-        assert re.search(pin + r": [0-9a-f]{40}\b", active), pin
-        assert "ref: ${{ env." not in active  # the SHA is spelled out literally in `ref:`, next to the assertion
-    assert len(re.findall(r"^\s+ref: [0-9a-f]{40}$", active, flags=re.MULTILINE)) == 2
-    for forbidden in ("ubuntu", "macos", "matrix", "secrets.", "upload-artifact"):
+    assert "permissions:\n  contents: read" in active
+    for forbidden in ("ubuntu", "macos", "matrix", "secrets.", "upload-artifact", "continue-on-error"):
         assert forbidden not in active, forbidden
-    assert 'python-version: "3.12"' in active and "permissions:\n  contents: read" in active
-    assert "pip install -e" in active and "python -m pytest" in active and "timeout-minutes" in active
-    for trigger in ("push:", "pull_request:", "for-*", "main"):
-        assert trigger in active
+    for ref in re.findall(r"^\s+uses:\s+([^\s]+)", active, flags=re.MULTILINE):
+        if not ref.startswith("./"):
+            assert re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@[0-9a-f]{40}", ref), ref
+
+
+def test_ci_keeps_stable_pr_checks_and_runs_fast_suite_plus_static_history_checks():
+    active = _active_workflow("ci.yml")
+    _assert_windows_read_only_workflow(active)
+    job_names = _workflow_jobs(active)
+    for required in ("test", "historical-policy", "historical-for25", "historical-for35"):
+        assert required in job_names, required
+    assert 'name: CI' in active
+    assert 'name: Windows CI (Python 3.12, Node 22)' in active
+    assert 'name: Historical FOR-25 (frozen engine, pinned commit)' in active
+    assert 'name: Historical FOR-35 (frozen engine, pinned commit)' in active
+    assert "pull_request:" in active and "branches: [main]" in active
+    assert "workflow_dispatch:" not in active and "schedule:" not in active
+    assert 'python-version: "3.12"' in active
+    assert "python -m pip install -e \".[dev]\"" in active
+    assert "python -m pip install torch --index-url https://download.pytorch.org/whl/cpu" in active
+    assert "python -m pytest -q -ra" in active
+    assert "npm ci --no-audit --fund=false" in active
+    assert "npm run build" in active and "npm run test" in active
+    assert "python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4 --manifest-only" in active
+    assert "python -m formicmind.starvation_confirm verify-static --input results/starvation_confirm" in active
+    assert "python scripts/ci_historical_policy.py --github-output" in active
+    assert 'git diff --no-renames --name-only "$env:BASE_SHA...$env:HEAD_SHA"' in active
+    assert "if: ${{ always() && needs.historical-policy.result != 'cancelled' }}" in active
+    assert "HISTORICAL_REQUIRED -notin @(\"true\", \"false\")" in active
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert 'requires-python = ">=3.12"' in pyproject
+
+
+def test_historical_workflow_is_weekly_manual_and_uses_unchanged_pinned_actions():
+    active = _active_workflow("historical.yml")
+    _assert_windows_read_only_workflow(active)
+    assert "schedule:" in active and 'cron: "23 3 * * 1"' in active
+    assert "workflow_dispatch:" in active and "target_ref:" in active
+    assert "selected workflow/request ref" in active
+    assert "resolved_request_sha" in active
+    assert "./.github/actions/historical-for25" in active
+    assert "./.github/actions/historical-for35" in active
+
+    for action_name, pin, command in (
+        ("historical-for25", "737de9cd7ed2451d45a59ca21da9167476a47660",
+         "python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4"),
+        ("historical-for35", "3139c7b953c38d96d35e0baf2267781138ebcb71",
+         "python -m formicmind.starvation_confirm verify --input results/starvation_confirm --workers 4"),
+    ):
+        action = (ROOT / ".github" / "actions" / action_name / "action.yml").read_text(encoding="utf-8")
+        checkout_dir = f"{action_name}-checkout"
+        assert pin in action and f"ref: {pin}" in action
+        assert f"-ne $env:{'FOR25' if action_name.endswith('for25') else 'FOR35'}_PINNED_COMMIT" in action
+        assert command in action
+        assert "fetch-depth: 0" in action
+        assert f"path: {checkout_dir}" in action
+        assert f"cache-dependency-path: {checkout_dir}/pyproject.toml" in action
+        assert f"git -C {checkout_dir} rev-parse HEAD" in action
+        # The HEAD assertion uses `git -C`; all package/test/verify commands run in the isolated checkout.
+        assert action.count("working-directory: "+checkout_dir) == sum(
+            line.lstrip().startswith("run:") for line in action.splitlines()
+        ) - 1
+
+    for original in ("historical/for25 -q -ra", "tests/test_starvation_confirm.py -q -ra -p no:cacheprovider",
+                     "python -m formicmind.starvation_confirm preflight"):
+        assert original in (ROOT / ".github" / "actions" / "historical-for25" / "action.yml").read_text(encoding="utf-8") + \
+            (ROOT / ".github" / "actions" / "historical-for35" / "action.yml").read_text(encoding="utf-8")
+
+
+def test_historical_path_gate_is_fail_closed_but_keeps_regular_ml_prs_fast():
+    classify_paths = runpy.run_path(str(ROOT / "scripts" / "ci_historical_policy.py"))["classify_paths"]
+    assert classify_paths([])["historical_required"] is True
+    assert classify_paths([".github/workflows/ci.yml"])["historical_required"] is True
+    assert classify_paths(["results/starvation_debt/manifest.json"])["historical_required"] is True
+    assert classify_paths(["results/starvation_confirm/matches.jsonl"])["historical_required"] is True
+    assert classify_paths(["src/formicmind/rules.py"])["historical_required"] is True
+    assert classify_paths(["scripts/ci_historical_policy.py"])["historical_required"] is True
+    assert classify_paths(["unknown/new-area/file.py"])["historical_required"] is True
+    assert classify_paths([
+        "src/formicmind/ml/quality.py", "tests/test_ml_quality.py", "viewer/src/App.vue",
+        "docs/ml_quality_protocol.md", "docs/ci_strategy.md",
+    ])["historical_required"] is False
+    assert classify_paths(["src/formicmind/ml/quality.py", "src/formicmind/rules.py"])["historical_required"] is True
+
+
+@pytest.mark.parametrize(("old_path", "new_path", "expected_required"), [
+    ("docs/reliability.md", "docs/ml_reliability.md", True),
+    ("src/formicmind/ml/old_policy.py", "src/formicmind/ml/new_policy.py", False),
+    ("docs/reliability.md", "docs/ci_reliability.md", True),
+])
+def test_git_rename_diff_without_rename_detection_classifies_both_paths(
+    tmp_path, old_path, new_path, expected_required,
+):
+    """Exercise the actual workflow diff so a sensitive source cannot hide behind an allowlisted rename."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "config", "user.name", "FOR-39 test"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.email", "for39@example.invalid"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True)
+
+    original = repo / Path(old_path)
+    original.parent.mkdir(parents=True, exist_ok=True)
+    original.write_text("sensitive before rename\n", encoding="utf-8")
+    subprocess.run(["git", "add", "--", old_path], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "base"], cwd=repo, check=True, capture_output=True, text=True)
+    base_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+
+    subprocess.run(["git", "mv", "--", old_path, new_path], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "rename"], cwd=repo, check=True, capture_output=True, text=True)
+    head_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+
+    changed = subprocess.run(
+        ["git", "diff", "--no-renames", "--name-only", f"{base_sha}...{head_sha}"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    assert set(changed) == {old_path, new_path}
+
+    classify_paths = runpy.run_path(str(ROOT / "scripts" / "ci_historical_policy.py"))["classify_paths"]
+    decision = classify_paths(changed)
+    assert decision["historical_required"] is expected_required
+    if old_path.startswith("docs/") and new_path.startswith("docs/ml_"):
+        assert old_path in decision["sensitive_paths"]
+
+
+def test_historical_path_policy_emits_explicit_github_outputs(tmp_path):
+    output = tmp_path / "github-output.txt"
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "ci_historical_policy.py"), "--github-output", str(output)],
+        input=".github/workflows/ci.yml\n",
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert '"historical_required": true' in result.stdout
+    assert output.read_text(encoding="utf-8").splitlines() == [
+        "historical_required=true",
+        'sensitive_paths=[".github/workflows/ci.yml"]',
+    ]
