@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
+from types import SimpleNamespace
 
 import pytest
 
@@ -154,3 +157,157 @@ def test_quality_cpu_training_saves_v2_provenance_and_weights_only_checkpoint(tm
     assert result["data"]["schema"] == "formicmind.behavior-cloning/v2"
     assert manifest["data"]["seed_sets"]["heldout"] == [2301, 2302]
     assert manifest["weights"]["serialization"] == "torch.state_dict/weights_only"
+
+
+@pytest.fixture(scope="module")
+def quality_eval_artifacts(tmp_path_factory):
+    pytest.importorskip("torch", reason="quality eval smoke runs in Windows CI")
+    from formicmind.ml.quality import train_quality_model
+
+    root = tmp_path_factory.mktemp("quality-eval")
+    dataset = root / "quality.jsonl"
+    collect_quality_dataset(
+        dataset,
+        train_seeds=[4101, 4102],
+        validation_seeds=[4201, 4202],
+        heldout_seeds=[4301, 4302],
+        max_ticks=120,
+    )
+    checkpoint = root / "checkpoint"
+    train_quality_model(
+        dataset, checkpoint, seed=410037, epochs=1, batch_size=32, requested_device="cpu",
+    )
+    return {"root": root, "dataset": dataset, "checkpoint": checkpoint}
+
+
+def test_quality_loader_rejects_teacher_side_that_differs_from_match_metadata(
+    quality_eval_artifacts, tmp_path,
+):
+    dataset = quality_eval_artifacts["dataset"]
+    source_manifest = json.loads(dataset.with_name("quality.manifest.json").read_text(encoding="utf-8"))
+    rows = [json.loads(line) for line in dataset.read_text(encoding="utf-8").splitlines()]
+    row = rows[0]
+    source_match = next(match for match in source_manifest["matches"] if match["match_id"] == row["match_id"])
+    assert row["teacher_side"] == source_match["teacher_side"]
+    row["teacher_side"] = 1 - source_match["teacher_side"]
+
+    tampered_dataset = tmp_path / "teacher-side-tampered.jsonl"
+    raw = ("\n".join(json.dumps(item, sort_keys=True, separators=(",", ":")) for item in rows) + "\n").encode()
+    tampered_dataset.write_bytes(raw)
+    source_manifest["dataset_file"] = tampered_dataset.name
+    source_manifest["dataset_sha256"] = hashlib.sha256(raw).hexdigest()
+    tampered_dataset.with_name("teacher-side-tampered.manifest.json").write_text(
+        json.dumps(source_manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8",
+    )
+
+    with pytest.raises(DatasetError, match="example provenance differs from its retained match"):
+        load_quality_dataset(tampered_dataset)
+
+
+@pytest.mark.parametrize(
+    ("mismatch", "message"),
+    [
+        ("sha", "checkpoint dataset SHA-256 does not match quality dataset"),
+        ("teacher", "checkpoint quality teacher provenance differs from dataset"),
+        ("splits", "checkpoint quality split_by_seed provenance differs from dataset"),
+    ],
+)
+def test_eval_quality_rejects_checkpoint_dataset_provenance_mismatch(
+    quality_eval_artifacts, tmp_path, mismatch, message,
+):
+    from formicmind.ml.quality import evaluate_quality_model
+
+    checkpoint = tmp_path / "checkpoint"
+    shutil.copytree(quality_eval_artifacts["checkpoint"], checkpoint)
+    manifest_path = checkpoint / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    data = manifest["data"]
+    if mismatch == "sha":
+        data["sha256"] = "0" * 64
+    elif mismatch == "teacher":
+        data["teacher"]["policy_id"] = "tampered-teacher"
+    else:
+        data["split_by_seed"]["4101"] = "heldout"
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+    with pytest.raises(DatasetError, match=message):
+        evaluate_quality_model(checkpoint, quality_eval_artifacts["dataset"], device="cpu")
+
+
+def test_eval_quality_smoke_reports_provenance_metrics_and_terminal_status(
+    quality_eval_artifacts, monkeypatch,
+):
+    from formicmind.ml import quality
+    from formicmind.ml.quality_dataset import load_quality_dataset
+
+    dataset_manifest, examples = load_quality_dataset(quality_eval_artifacts["dataset"])
+    match_seed = 433700037
+    monkeypatch.setattr(quality, "QUALITY_MATCH_SEEDS", (match_seed,))
+    monkeypatch.setattr(quality, "QUALITY_MATCH_OPPONENTS", ("turtle:v2",))
+    calls = []
+
+    def fake_run_episode(config, seed, controller0, controller1, *, max_ticks):
+        calls.append((seed, max_ticks))
+        terminal = len(calls) == 1
+        return SimpleNamespace(
+            score=(1.0, 0.0) if terminal else None,
+            ticks_executed=20 if terminal else max_ticks,
+            final_tick=20 if terminal else max_ticks,
+            truncated=not terminal,
+            winner=0 if terminal else None,
+            reason="queen_death" if terminal else "max_ticks",
+            queen_hp=(240, 0) if terminal else (240, 240),
+            food=(100, 0) if terminal else (100, 100),
+            workers=(10, 0) if terminal else (10, 10),
+            soldiers=(2, 0) if terminal else (2, 2),
+            config_hash="config-sha",
+            events_hash="events-sha",
+            state_hash="state-sha",
+        )
+
+    monkeypatch.setattr(quality, "run_episode", fake_run_episode)
+    report = quality.evaluate_quality_model(
+        quality_eval_artifacts["checkpoint"], quality_eval_artifacts["dataset"], device="cpu",
+    )
+
+    assert calls == [(match_seed, 3000), (match_seed, 3000)]
+    assert report["dataset"]["sha256"] == dataset_manifest["dataset_sha256"]
+    assert report["model"]["weights_sha256"] == json.loads(
+        (quality_eval_artifacts["checkpoint"] / "manifest.json").read_text(encoding="utf-8")
+    )["weights"]["sha256"]
+    assert report["match_seeds"] == [match_seed]
+    assert set(report["imitation"]["trained"]) == {"train", "validation", "heldout"}
+    for split in ("train", "validation", "heldout"):
+        assert report["imitation"]["trained"][split]["examples"] == sum(
+            example.split == split for example in examples
+        )
+    assert report["imitation"]["untrained_heldout"]["examples"] == sum(
+        example.split == "heldout" for example in examples
+    )
+    oracle = report["imitation"]["teacher_oracle_heldout"]
+    assert oracle["examples"] == report["imitation"]["untrained_heldout"]["examples"]
+    assert oracle["teacher_logit_mse"] == 0.0
+    assert oracle["legal_action_rate"] == oracle["exact_action_accuracy"] == 1.0
+    matches = report["matches"]
+    assert len(matches["completed"]) == 1
+    assert matches["completed"][0]["truncated"] is False
+    assert matches["completed"][0]["model_score"] == 1.0
+    assert len(matches["truncated"]) == 1
+    assert matches["truncated"][0]["truncated"] is True
+    assert matches["truncated"][0]["model_score"] is None
+    summary = matches["summary_by_opponent"]["turtle:v2"]
+    assert summary["matches"] == 2
+    assert summary["completed_matches"] == 1
+    assert summary["truncated_matches"] == 1
+    assert summary["model_wins"] == 1
+    assert summary["mean_model_score_completed_only"] == 1.0
+
+
+def test_eval_quality_rejects_match_seeds_overlapping_dataset(quality_eval_artifacts, monkeypatch):
+    from formicmind.ml import quality
+
+    monkeypatch.setattr(quality, "QUALITY_MATCH_SEEDS", (4101,))
+    with pytest.raises(DatasetError, match="match-evaluation seeds overlap quality dataset seeds"):
+        quality.evaluate_quality_model(
+            quality_eval_artifacts["checkpoint"], quality_eval_artifacts["dataset"], device="cpu",
+        )

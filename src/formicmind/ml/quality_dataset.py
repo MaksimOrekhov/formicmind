@@ -503,6 +503,7 @@ def load_quality_dataset(path: str | Path) -> tuple[dict[str, Any], list[Quality
         context = contexts.get(match.get("context_id"))
         if (context is None or match.get("map_id") != context.get("map_id")
                 or match.get("opponent_id") != context.get("opponent", {}).get("id")
+                or type(match.get("teacher_side")) is not int or match.get("teacher_side") not in (0, 1)
                 or match.get("split") not in normalized_sets
                 or match.get("seed") not in normalized_sets[match["split"]]
                 or match.get("split") != split_by_seed.get(str(match.get("seed")))):
@@ -554,6 +555,7 @@ def load_quality_dataset(path: str | Path) -> tuple[dict[str, Any], list[Quality
             if (type(item.get("seed")) is not int or type(item.get("teacher_side")) is not int
                     or item["teacher_side"] not in (0, 1) or type(item.get("tick")) is not int
                     or item["tick"] < 0 or item.get("split") != match["split"]
+                    or item["teacher_side"] != match["teacher_side"]
                     or item.get("seed") != match["seed"] or item.get("context_id") != match["context_id"]
                     or item.get("map_id") != match["map_id"] or item.get("opponent_id") != match["opponent_id"]
                     or item["trajectory_sha256"] != match.get("trajectory_sha256")
