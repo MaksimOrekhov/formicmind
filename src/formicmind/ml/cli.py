@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Sequence
 
 from .dataset import collect_dataset
+from .quality_dataset import QUALITY_SEED_RANGES
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -41,6 +42,26 @@ def _parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--max-ticks", type=int, default=120)
     evaluate.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     evaluate.add_argument("--output", type=Path, required=True, help="JSON отчёт")
+
+    collect_quality = subparsers.add_parser(
+        "collect-quality", help="собрать заранее зафиксированные multi-context данные FOR-37/v2",
+    )
+    collect_quality.add_argument("--output", type=Path, required=True, help="путь к объединённому JSONL датасету")
+
+    train_quality = subparsers.add_parser(
+        "train-quality", help="обучить MLP по фиксированному протоколу FOR-37/v2",
+    )
+    train_quality.add_argument("--dataset", type=Path, required=True)
+    train_quality.add_argument("--output", type=Path, required=True, help="каталог checkpoint")
+    train_quality.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+
+    evaluate_quality = subparsers.add_parser(
+        "eval-quality", help="сравнить FOR-37 checkpoint на held-out, с controls и реальными матчами",
+    )
+    evaluate_quality.add_argument("--model", type=Path, required=True)
+    evaluate_quality.add_argument("--dataset", type=Path, required=True)
+    evaluate_quality.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    evaluate_quality.add_argument("--output", type=Path, required=True, help="JSON отчёт")
     return parser
 
 
@@ -100,6 +121,54 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "matches": result["match_summary"]["matches"],
                 "validation_imitation": result["imitation"],
                 "classification": result["classification"],
+            }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "collect-quality":
+            from .quality_dataset import collect_quality_dataset
+
+            seed_sets = {
+                split: tuple(range(bounds[0], bounds[1] + 1))
+                for split, bounds in QUALITY_SEED_RANGES.items()
+            }
+            result = collect_quality_dataset(
+                args.output,
+                train_seeds=seed_sets["train"],
+                validation_seeds=seed_sets["validation"],
+                heldout_seeds=seed_sets["heldout"],
+                max_ticks=3000,
+            )
+            print(json.dumps({
+                "dataset": str(args.output),
+                "manifest": str(args.output.with_name(f"{args.output.stem}.manifest.json")),
+                "examples": result["example_count"],
+                "matches": result["match_count"],
+                "sha256": result["dataset_sha256"],
+                "deduplication": result["deduplication"],
+            }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "train-quality":
+            from .quality import train_quality_model
+
+            result = train_quality_model(args.dataset, args.output, requested_device=args.device)
+            print(json.dumps({
+                "checkpoint": str(args.output),
+                "weights_sha256": result["weights"]["sha256"],
+                "device": result["performance"]["training_device"],
+                "train": result["training"]["train"],
+                "validation": result["training"]["validation"],
+            }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "eval-quality":
+            from .quality import evaluate_quality_model
+
+            result = evaluate_quality_model(
+                args.model, args.dataset, device=args.device, output=args.output,
+            )
+            print(json.dumps({
+                "report": str(args.output),
+                "heldout": result["imitation"]["trained"]["heldout"],
+                "untrained_heldout": result["imitation"]["untrained_heldout"],
+                "matches": result["matches"]["summary_by_opponent"],
             }, indent=2, ensure_ascii=False))
             return 0
     except (ValueError, RuntimeError, OSError) as exc:
