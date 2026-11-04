@@ -118,7 +118,7 @@ jobs:
             Write-Host "Missing usable base SHA; requiring full historical checks."
             $changed = @("__unknown_base_sha__")
           } else {
-            $changed = git diff --name-only "$env:BASE_SHA...$env:HEAD_SHA"
+            $changed = git diff --no-renames --name-only "$env:BASE_SHA...$env:HEAD_SHA"
             if ($LASTEXITCODE -ne 0) { throw "Could not compute the changed-file set; refusing a fast-only result." }
           }
           $changed | python scripts/ci_historical_policy.py --github-output "$env:GITHUB_OUTPUT"

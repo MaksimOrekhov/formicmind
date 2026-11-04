@@ -572,6 +572,7 @@ def test_ci_keeps_stable_pr_checks_and_runs_fast_suite_plus_static_history_check
     assert "python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4 --manifest-only" in active
     assert "python -m formicmind.starvation_confirm verify-static --input results/starvation_confirm" in active
     assert "python scripts/ci_historical_policy.py --github-output" in active
+    assert 'git diff --no-renames --name-only "$env:BASE_SHA...$env:HEAD_SHA"' in active
     assert "if: ${{ always() && needs.historical-policy.result != 'cancelled' }}" in active
     assert "HISTORICAL_REQUIRED -notin @(\"true\", \"false\")" in active
     pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
@@ -628,6 +629,53 @@ def test_historical_path_gate_is_fail_closed_but_keeps_regular_ml_prs_fast():
         "docs/ml_quality_protocol.md", "docs/ci_strategy.md",
     ])["historical_required"] is False
     assert classify_paths(["src/formicmind/ml/quality.py", "src/formicmind/rules.py"])["historical_required"] is True
+
+
+@pytest.mark.parametrize(("old_path", "new_path", "expected_required"), [
+    ("docs/reliability.md", "docs/ml_reliability.md", True),
+    ("src/formicmind/ml/old_policy.py", "src/formicmind/ml/new_policy.py", False),
+    ("docs/reliability.md", "docs/ci_reliability.md", True),
+])
+def test_git_rename_diff_without_rename_detection_classifies_both_paths(
+    tmp_path, old_path, new_path, expected_required,
+):
+    """Exercise the actual workflow diff so a sensitive source cannot hide behind an allowlisted rename."""
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init", "--quiet"], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "config", "user.name", "FOR-39 test"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "user.email", "for39@example.invalid"], cwd=repo, check=True)
+    subprocess.run(["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True)
+
+    original = repo / Path(old_path)
+    original.parent.mkdir(parents=True, exist_ok=True)
+    original.write_text("sensitive before rename\n", encoding="utf-8")
+    subprocess.run(["git", "add", "--", old_path], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "base"], cwd=repo, check=True, capture_output=True, text=True)
+    base_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+
+    subprocess.run(["git", "mv", "--", old_path, new_path], cwd=repo, check=True, capture_output=True, text=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "rename"], cwd=repo, check=True, capture_output=True, text=True)
+    head_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True,
+    ).stdout.strip()
+
+    changed = subprocess.run(
+        ["git", "diff", "--no-renames", "--name-only", f"{base_sha}...{head_sha}"],
+        cwd=repo,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.splitlines()
+    assert set(changed) == {old_path, new_path}
+
+    classify_paths = runpy.run_path(str(ROOT / "scripts" / "ci_historical_policy.py"))["classify_paths"]
+    decision = classify_paths(changed)
+    assert decision["historical_required"] is expected_required
+    if old_path.startswith("docs/") and new_path.startswith("docs/ml_"):
+        assert old_path in decision["sensitive_paths"]
 
 
 def test_historical_path_policy_emits_explicit_github_outputs(tmp_path):
