@@ -17,10 +17,10 @@ FOR-36 `formicmind.behavior-cloning/v1` записывает один `SimConfig
 | map_id | Топология |
 | --- | --- |
 | `classic` | Неизменённая `default_topology()` (9 рёбер). |
-| `sparse` | `classic` без ребра `(N2, N5)`; путь между сторонами сохраняется через `C`. |
+| `cross` | `classic` без `(N2, N5)`, плюс зеркальная пара `(N1, N5)` и `(N2, N4)`, длина 4 (10 рёбер). Сохраняет связность и маршруты с `avoid_center`. |
 | `dense` | `classic` плюс зеркальная пара `(N1, N5)` и `(N2, N4)`, длина 4. |
 
-В manifest записываются сериализованный `SimConfig`, map ID и config SHA-256. Идентификатор карты не подменяет проверку hash.
+Все пары узлов должны иметь маршрут как с разрешённым центром, так и с `avoid_center` (кроме destination C, запрещённого самим контрактом). В manifest записываются сериализованный `SimConfig`, map ID и config SHA-256. Идентификатор карты не подменяет проверку hash.
 
 ## Seeds, контексты и split
 
@@ -28,9 +28,9 @@ Seeds — новые открытые инженерные значения из
 
 | Split | Seeds | Карты | Opponents | Число контекстов |
 | --- | --- | --- | --- | ---: |
-| train | `370000001–370000024` (24) | classic, sparse | turtle:v2, random:v2 | 4 |
-| validation | `371000001–371000008` (8) | classic, sparse | turtle:v2, random:v2 | 4 |
-| held-out test | `372000001–372000008` (8) | classic, sparse, dense | turtle:v2, random:v2, rush:v2; только dense × все три и classic/sparse × rush | 5 |
+| train | `370000001–370000024` (24) | classic, cross | turtle:v2, random:v2 | 4 |
+| validation | `371000001–371000008` (8) | classic, cross | turtle:v2, random:v2 | 4 |
+| held-out test | `372000001–372000008` (8) | classic, cross, dense | turtle:v2, random:v2, rush:v2; только dense × все три и classic/cross × rush | 5 |
 
 Каждый контекст запускается с обеими сторонами teacher, `max_ticks=3000` (полная штатная граница `T_max`). Получается до 192 train, 64 validation и 80 held-out эпизодов до дедупликации. Held-out использует новые seeds, целиком неиспользованную карту `dense` и целиком неиспользованный профиль `rush:v2`; комбинации контекстов заранее заданы таблицей и не расширяются по увиденным метрикам. Никакие закрытые evaluation seeds не используются.
 
