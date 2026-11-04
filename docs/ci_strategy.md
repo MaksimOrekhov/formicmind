@@ -17,8 +17,8 @@ Jobs запускались параллельно. В первом run посл
 
 1. Оставить workflow `CI` для каждого PR и сохранить job IDs и отображаемые имена существующих проверок: `test` / `Windows CI (Python 3.12, Node 22)`, `historical-for25` / `Historical FOR-25 (frozen engine, pinned commit)` и `historical-for35` / `Historical FOR-35 (frozen engine, pinned commit)`. Эти contexts могут быть выбраны как required checks; число jobs не является контрактом.
 2. Сохранить в PR полный pytest с CPU PyTorch, Vue build, Vitest, FOR-25 `verify --manifest-only` и FOR-35 `verify-static`. Вынести viewer в отдельный Windows job, чтобы он выполнялся параллельно с Python suite, не дублируя Python/PyTorch installation.
-3. Всегда запускать короткий Windows path-policy gate. Изменения в CI/workflow, классификаторе, исходниках симулятора, исторических тестах, протоколах, зависимостях и опубликованных historical results требуют полных pinned FOR-25/FOR-35 jobs в этом PR. Их прежние check contexts остаются настоящими успешными/неуспешными checks. Для явно независимых областей (ML-only, viewer и неисторическая документация) jobs завершаются с явным сообщением о решении policy gate; они не заявляют, что regeneration запускалась. Ошибка определения diff должна завершить gate ошибкой. Новые/неизвестные пути классифицируются как sensitive.
-4. Добавить отдельный Windows workflow `Historical verification`: полный preflight/tests/строгая byte-for-byte регенерация только на неизменных FOR-25 и FOR-35 SHA. Он запускается еженедельно и вручную. Manual run принимает выбранный target ref/SHA и выводит его в логе; исторические генераторы при этом всё равно checkout-ят только зафиксированные pin SHA.
+3. Всегда запускать короткий Windows path-policy gate. Изменения в CI/workflow/actions, классификаторе, исходниках симулятора, исторических тестах, протоколах, зависимостях и опубликованных historical results требуют полных pinned FOR-25/FOR-35 jobs в этом PR. Их прежние check contexts остаются настоящими успешными/неуспешными checks. Fast-only allowlist ограничен `src/formicmind/ml/`, `tests/test_ml_*`, `viewer/`, `docs/ml_*` и этим файлом стратегии. Для этих явно независимых областей jobs завершаются с явным сообщением о решении policy gate; они не заявляют, что regeneration запускалась. Любой другой, неизвестный или пустой набор путей считается sensitive. Ошибка определения diff или policy gate должна завершить run ошибкой.
+4. Добавить отдельный Windows workflow `Historical verification`: полный preflight/tests/строгая byte-for-byte регенерация только на неизменных FOR-25 и FOR-35 SHA. Он запускается еженедельно и вручную. Manual run принимает выбранный target ref/SHA и выводит его в логе; исторические генераторы при этом всё равно checkout-ят только зафиксированные pin SHA. GitHub разрешает `workflow_dispatch` только если workflow-файл присутствует в default branch ([документация](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)); поскольку PR оставлен открытым, ручной dispatch до merge не запускался.
 5. Проверка branch-protection API для `main` вернула 403 `Resource not accessible by integration`; доступные через connector repo rulesets не дают основания утверждать, какие checks фактически обязательны. Поэтому сохраняем три существующих имени в workflow `CI`, не меняем и не предполагаем настройки защиты. В PR следует отдельно проверить требуемые contexts в настройках репозитория.
 
 ### Замороженные исторические pins
@@ -28,6 +28,19 @@ Jobs запускались параллельно. В первом run посл
 
 Ни SHA, ни исторические документы/manifest/results в этой задаче не редактируются. Быстрые static checks явно не называются полной воспроизводимостью: полная строгая регенерация сохраняется на чувствительном PR и в weekly/manual workflow.
 
-## Проверка результата
+## Измеренный результат после изменения
 
-После изменения записать те же показатели из Actions API: время каждого PR job, исторические job и verify steps, время от run start до final status и дополнительный status lag после последнего job. Публиковать ссылку на обычный PR run и на новый manual historical run; сравнивать с таблицей выше, отмечая влияние кэшей и runner очередей.
+Измерения взяты из GitHub Actions API для [run 41892800504](https://github.com/MaksimOrekhov/formicmind/actions/runs/41892800504), HEAD `f7836118d628d21ef7ccd5daf765ced62b0dc626`. Все пять jobs прошли успешно.
+
+| Проверка | Время job | Полный verify |
+|---|---:|---:|
+| Windows CI: Python, полный pytest и ML smoke | 4:11 | — |
+| Viewer: Vue build и Vitest | 0:57 | — |
+| Historical sensitivity gate | 0:18 | — |
+| FOR-25: tests и pinned full regeneration | 13:36 | 10:06 |
+| FOR-35: preflight, tests и pinned full regeneration | 10:16 | 8:59 |
+| Весь run до final status | 14:02 | status lag после последнего job: 0:01 |
+
+Проверки fast-path выполняются параллельно: в этом run от старта workflow до завершения последней из них прошло 4:14. Старый единый modern job занял 3:52 во втором baseline run и 6:30 в первом; это не показывает гарантированного ускорения короткого пути, поскольку runner/cache и разделение viewer job меняют нагрузку. Этот PR меняет CI и потому намеренно классифицируется как sensitive: он запускал также обе полные исторические проверки, которые и определили общее время 14:02. Отдельный PR только из allowlist здесь не создавался, поэтому 4:14 — измеренное время fast jobs в составе sensitive run, а не отдельный end-to-end замер ML-only PR.
+
+FOR-25 подтвердил 4 320 строк, 2 073 000 main и 404 004 anchor verification calls; FOR-35 подтвердил 4 800 строк и 960 anchors. Перед исправлением изоляции оба verify тоже прошли, однако job ошибался при post-cleanup; успешным CI считается только последующий run выше, где action cleanup завершился успешно.
