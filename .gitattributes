@@ -1,3 +1,4 @@
 viewer/test-fixtures/*.jsonl text eol=lf
 viewer/test-fixtures/*.json text eol=lf
 viewer/test-fixtures/*.b64 text eol=lf
+results/ml_quality_for37/quality.jsonl -text
