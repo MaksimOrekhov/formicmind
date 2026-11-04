@@ -595,10 +595,18 @@ def test_historical_workflow_is_weekly_manual_and_uses_unchanged_pinned_actions(
          "python -m formicmind.starvation_confirm verify --input results/starvation_confirm --workers 4"),
     ):
         action = (ROOT / ".github" / "actions" / action_name / "action.yml").read_text(encoding="utf-8")
+        checkout_dir = f"{action_name}-checkout"
         assert pin in action and f"ref: {pin}" in action
         assert f"-ne $env:{'FOR25' if action_name.endswith('for25') else 'FOR35'}_PINNED_COMMIT" in action
         assert command in action
         assert "fetch-depth: 0" in action
+        assert f"path: {checkout_dir}" in action
+        assert f"cache-dependency-path: {checkout_dir}/pyproject.toml" in action
+        assert f"git -C {checkout_dir} rev-parse HEAD" in action
+        # The HEAD assertion uses `git -C`; all package/test/verify commands run in the isolated checkout.
+        assert action.count("working-directory: "+checkout_dir) == sum(
+            line.lstrip().startswith("run:") for line in action.splitlines()
+        ) - 1
 
     for original in ("historical/for25 -q -ra", "tests/test_starvation_confirm.py -q -ra -p no:cacheprovider",
                      "python -m formicmind.starvation_confirm preflight"):

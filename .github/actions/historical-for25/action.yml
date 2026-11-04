@@ -7,6 +7,7 @@ runs:
       uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       with:
         ref: 737de9cd7ed2451d45a59ca21da9167476a47660
+        path: historical-for25-checkout
         fetch-depth: 0
         persist-credentials: false
 
@@ -15,7 +16,7 @@ runs:
       env:
         FOR25_PINNED_COMMIT: 737de9cd7ed2451d45a59ca21da9167476a47660
       run: |
-        $head = git rev-parse HEAD
+        $head = git -C historical-for25-checkout rev-parse HEAD
         Write-Host "HEAD=$head"
         if ($head -ne $env:FOR25_PINNED_COMMIT) { throw "checkout $head is not the pinned commit $env:FOR25_PINNED_COMMIT" }
 
@@ -24,20 +25,24 @@ runs:
       with:
         python-version: "3.12"
         cache: pip
-        cache-dependency-path: pyproject.toml
+        cache-dependency-path: historical-for25-checkout/pyproject.toml
 
     - name: Install package and test dependencies
       shell: pwsh
+      working-directory: historical-for25-checkout
       run: python -m pip install -e ".[dev]"
 
     - name: Historical pytest (frozen engine, no skips)
       shell: pwsh
+      working-directory: historical-for25-checkout
       run: python -m pytest historical/for25 -q -ra
 
     - name: Strict verify, full regeneration of the published results
       shell: pwsh
+      working-directory: historical-for25-checkout
       run: python -m formicmind.starvation_debt verify --input results/starvation_debt --jobs 4 --record "$env:RUNNER_TEMP/verification_record.json"
 
     - name: Show the verification record
       shell: pwsh
+      working-directory: historical-for25-checkout
       run: Get-Content "$env:RUNNER_TEMP/verification_record.json"
