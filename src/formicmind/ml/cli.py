@@ -62,6 +62,30 @@ def _parser() -> argparse.ArgumentParser:
     evaluate_quality.add_argument("--dataset", type=Path, required=True)
     evaluate_quality.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     evaluate_quality.add_argument("--output", type=Path, required=True, help="JSON отчёт")
+
+    diagnose = subparsers.add_parser(
+        "diagnose-quality", help="FOR-38: read-only forensic анализ замороженного FOR-37 checkpoint (без обучения)",
+    )
+    diagnose.add_argument("--model", type=Path, required=True)
+    diagnose.add_argument("--dataset", type=Path, required=True)
+    diagnose.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cpu")
+    diagnose.add_argument("--report", type=Path, default=None, help="замороженный report.json для сверки метрик")
+    diagnose.add_argument("--rollout", action="store_true", help="повторить матчи модели и сравнить с Balanced v2")
+    diagnose.add_argument("--output", type=Path, required=True, help="JSON отчёт")
+
+    audit = subparsers.add_parser(
+        "audit-diversity", help="FOR-38: эффективные независимые единицы в замороженном v2 датасете",
+    )
+    audit.add_argument("--dataset", type=Path, required=True)
+    audit.add_argument("--resimulate", action="store_true", help="переиграть по одному матчу на уникальную траекторию")
+    audit.add_argument("--output", type=Path, required=True, help="JSON отчёт")
+
+    pilot = subparsers.add_parser(
+        "diversity-pilot", help="FOR-38: заранее ограниченный пилот источников новых состояний (без обучения)",
+    )
+    pilot.add_argument("--dataset", type=Path, required=True, help="замороженный FOR-37 датасет (только для сравнения)")
+    pilot.add_argument("--output", type=Path, required=True, help="JSON отчёт")
+    pilot.add_argument("--rows-output", type=Path, default=None, help="необязательный JSONL строк пилота")
     return parser
 
 
@@ -170,6 +194,34 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "untrained_heldout": result["imitation"]["untrained_heldout"],
                 "matches": result["matches"]["summary_by_opponent"],
             }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "diagnose-quality":
+            from .diagnostics import diagnose_quality
+
+            result = diagnose_quality(
+                args.model, args.dataset, device=args.device, report_path=args.report,
+                include_rollout=args.rollout, output=args.output,
+            )
+            print(json.dumps({
+                "report": str(args.output),
+                "heldout_forage_exact": result["splits"]["heldout"]["action_accuracy"]["forage_share_exact"],
+                "heldout_forage_support_equal": result["splits"]["heldout"]["forage"]["support_equal_rate"],
+                "heldout_forage_tv_mean": result["splits"]["heldout"]["forage"]["tv_mean"],
+                "pipeline_checks": result["pipeline_checks"],
+            }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "audit-diversity":
+            from .diversity import audit_dataset
+
+            result = audit_dataset(args.dataset, resimulate=args.resimulate, output=args.output)
+            print(json.dumps({"report": str(args.output), "hierarchy": result["hierarchy"]}, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "diversity-pilot":
+            from .diversity import run_diversity_pilot
+
+            result = run_diversity_pilot(args.dataset, rows_output=args.rows_output, output=args.output)
+            print(json.dumps({"report": str(args.output), "budget": result["budget"], "totals": result["totals"]},
+                             indent=2, ensure_ascii=False))
             return 0
     except (ValueError, RuntimeError, OSError) as exc:
         print(f"formicmind-ml: {exc}", file=sys.stderr)
