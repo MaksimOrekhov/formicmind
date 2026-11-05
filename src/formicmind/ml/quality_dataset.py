@@ -187,7 +187,12 @@ class _RecordingTeacher:
         }
         row["decision_sha256"] = _sha256(_decision_payload(row))
         self.rows.append(row)
-        return validate_action(observation, mask, action)
+        return validate_action(observation, mask, self._executed_action(tick, observation, mask, action, run))
+
+    def _executed_action(self, tick: int, observation: ObservationV2, mask: Any,
+                         teacher_action: ActionV2, run: Any) -> ActionV2:
+        """The action actually played; FOR-37 plays the teacher action. FOR-38 pilots override this hook."""
+        return teacher_action
 
 
 def _validate_seed_sets(seed_sets: dict[str, tuple[int, ...] | list[int]]) -> dict[str, tuple[int, ...]]:
