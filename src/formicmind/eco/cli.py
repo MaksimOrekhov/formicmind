@@ -1,9 +1,12 @@
-"""Command line of Ecosystem v1 (E1-a): ``python -m formicmind.eco {map,verify,bench,sweep}``.
+"""Command line of Ecosystem v1: ``python -m formicmind.eco {map,verify,bench,sweep,run,sim-sweep,bench-run}``.
 
 * ``map``    generate one shared world and print stable JSON (config, map, optional fairness report and tick-0 state summary)
 * ``verify`` re-check a saved ``map`` document: strict schema, hashes, regeneration from the seed, report
-* ``bench``  latency of map generation and of the fairness report (NOT simulated worlds per second; there is no simulation yet)
+* ``bench``  latency of map generation and of the fairness report
 * ``sweep``  fairness statistics over many seeds, sizes and scenarios
+* ``run``    one headless, peaceful world with physical cohort travel and food transport
+* ``sim-sweep`` multi-map, multi-scenario comparison of peaceful diagnostic fixtures
+* ``bench-run`` simulation throughput and traced peak memory
 
 The JSON holds the engine/viewer view of the world (full map). It contains no policy observation and no policy metadata.
 """
@@ -25,6 +28,8 @@ from .fairness import evaluate, report_hash
 from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
+from .fixtures import FIXTURE_CHOICES
+from .simulation import benchmark_simulation, run_simulation, sweep_simulations
 from .versions import (
     ACTION_VERSION, CLI_SCHEMA, ECO_BALANCE_VERSION, ECO_RULES_VERSION, GENERATOR_ALGORITHM, OBSERVATION_VERSION,
 )
@@ -233,6 +238,52 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     return 0 if all(r["failed"] == 0 for r in rows) else 1
 
 
+def cmd_run(args: argparse.Namespace) -> int:
+    config = _config_from_args(args)
+    result = run_simulation(config, args.seed, args.fixture, ticks=args.ticks,
+                            sample_interval=args.sample_every, include_map=not args.omit_map,
+                            collect_timeline=not args.no_time_series)
+    _write(json.dumps(result.report, sort_keys=True, indent=None if args.compact else 2,
+                      separators=(",", ":") if args.compact else None, ensure_ascii=True) + "\n", args.out)
+    if args.summary:
+        report = result.report
+        signals, final, totals = report["first_signals"], report["final"], report["totals"]
+        sys.stderr.write(
+            f"Ecosystem simulation seed={args.seed} fixture={report['fixture']} "
+            f"colonies={config.n_colonies} scenario={config.scenario} ticks={report['ticks_completed']}\n"
+            f"  population adults={final['adults']} maintenance_WE={final['maintenance_we']} "
+            f"survivors={sum(c['status'] == 'alive' for c in final['colonies'])}/{config.n_colonies}\n"
+            f"  food delivered={totals['delivered']} warehouse={final['food_in_warehouses']} "
+            f"patches={final['food_on_patches']} cargo={final['food_in_transit']} "
+            f"ledger_delta={report['food_ledger']['difference']}\n"
+            f"  first contention={signals['contention_tick']} depletion={signals['patch_depletion_tick']} "
+            f"shortfall={signals['upkeep_shortfall_tick']} starvation={signals['starvation_death_tick']}\n"
+            f"  performance {report['performance']['ticks_per_second']} ticks/s "
+            f"({report['performance']['wall_seconds']} s)\n"
+        )
+    return 0
+
+
+def cmd_sim_sweep(args: argparse.Namespace) -> int:
+    def progress(completed: int, total: int, colonies: int, scenario: str, fixture: str) -> None:
+        sys.stderr.write(f"completed {completed}/{total}: {colonies} colonies, {scenario}, {fixture}, "
+                         f"{args.seeds} maps × {args.ticks} ticks\n")
+        sys.stderr.flush()
+
+    report = sweep_simulations(sizes=tuple(args.sizes), scenarios=tuple(args.scenarios),
+                               fixtures=tuple(args.fixtures), seeds=args.seeds, seed0=args.seed0,
+                               ticks=args.ticks, progress=progress)
+    _write(json.dumps(report, sort_keys=True, indent=2, ensure_ascii=True) + "\n", args.out)
+    return 0
+
+
+def cmd_sim_bench(args: argparse.Namespace) -> int:
+    config = _config_from_args(args)
+    report = benchmark_simulation(config, args.seed0, args.fixture, runs=args.runs, ticks=args.ticks)
+    _write(json.dumps(report, sort_keys=True, indent=2, ensure_ascii=True) + "\n", args.out)
+    return 0
+
+
 def _add_world_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--colonies", type=int, default=8, choices=SIZES, help="number of colonies (default 8)")
     p.add_argument("--scenario", default="moderate", choices=SCENARIOS, help="resource scenario (default moderate)")
@@ -271,6 +322,38 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--scenarios", nargs="+", default=list(SCENARIOS), choices=SCENARIOS)
     s.add_argument("--out", default=None)
     s.set_defaults(run=cmd_sweep)
+
+    r = sub.add_parser("run", help="run a peaceful headless E1-b simulation on a generated real map")
+    r.add_argument("--seed", type=int, default=42, help="map seed (u64)")
+    _add_world_args(r)
+    r.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES)
+    r.add_argument("--ticks", type=int, default=None, help="world ticks (default: configured horizon)")
+    r.add_argument("--sample-every", type=int, default=100, help="time-series sampling interval")
+    r.add_argument("--no-time-series", action="store_true", help="omit per-tick summary snapshots")
+    r.add_argument("--omit-map", action="store_true", help="omit the full map from the JSON report")
+    r.add_argument("--compact", action="store_true", help="write compact stable JSON")
+    r.add_argument("--summary", action="store_true", help="print key metrics to stderr")
+    r.add_argument("--out", default=None, help="write JSON to a file instead of stdout")
+    r.set_defaults(run=cmd_run)
+
+    ss = sub.add_parser("sim-sweep", help="compare fixtures across real maps, colony counts and resource scenarios")
+    ss.add_argument("--seeds", type=int, default=30)
+    ss.add_argument("--seed0", type=int, default=50000)
+    ss.add_argument("--sizes", type=int, nargs="+", default=list(SIZES), choices=SIZES)
+    ss.add_argument("--scenarios", nargs="+", default=list(SCENARIOS), choices=SCENARIOS)
+    ss.add_argument("--fixtures", nargs="+", default=["peaceful_fair", "greedy_scarcity"], choices=FIXTURE_CHOICES)
+    ss.add_argument("--ticks", type=int, default=6000)
+    ss.add_argument("--out", default=None)
+    ss.set_defaults(run=cmd_sim_sweep)
+
+    sb = sub.add_parser("bench-run", help="measure real-map simulation throughput and peak traced memory")
+    _add_world_args(sb)
+    sb.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES)
+    sb.add_argument("--ticks", type=int, default=6000)
+    sb.add_argument("--runs", type=int, default=3)
+    sb.add_argument("--seed0", type=int, default=90000)
+    sb.add_argument("--out", default=None)
+    sb.set_defaults(run=cmd_sim_bench)
     return parser
 
 

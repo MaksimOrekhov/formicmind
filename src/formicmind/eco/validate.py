@@ -5,7 +5,7 @@ from __future__ import annotations
 from ..canonical import CanonicalError
 from ..rng import Pcg32, check_stream_id
 from .config import ConfigE1, config_hash, patch_parameters
-from .model import ColonyMemoryE1, MapE1, RunStateE1, WorldStateE1
+from .model import ColonyMemoryE1, EdgeFlow, MapE1, RunStateE1, WorldStateE1
 from .versions import GENERATOR_ALGORITHM, MAP_SCHEMA, STATE_SCHEMA
 
 
@@ -107,11 +107,13 @@ def _validate_memory(memory: ColonyMemoryE1, colony_id: int, config: ConfigE1, w
     _need(len(memory.sightings) <= 32 and len(memory.events) <= 16, "memory ring buffers overflow")
 
 
-def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1) -> None:
+def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
+                   validate_memory: bool = True, validate_config_binding: bool = True) -> None:
     e = config.economy
     _need(state.schema == STATE_SCHEMA, f"unknown state schema {state.schema!r}")
-    _need(state.config_hash == config_hash(config), "state belongs to a different config")
-    _need(state.map_hash == world_map.map_hash, "state belongs to a different map")
+    if validate_config_binding:
+        _need(state.config_hash == config_hash(config), "state belongs to a different config")
+        _need(state.map_hash == world_map.map_hash, "state belongs to a different map")
     _need(0 <= state.tick <= config.horizon, "tick out of range")
     n_col = config.n_colonies
     patch_nodes = [node for node in world_map.nodes if node.patch]
@@ -174,10 +176,26 @@ def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1) -> N
         slots = len(col.memory.nodes)
         _need(all(0 <= t < slots for t in o.forage_targets + o.scout_targets)
               and all(-1 <= s.target_node_slot < slots and 0 <= s.size_q <= 4 for s in o.squads), "order targets must be known slots")
-        _validate_memory(col.memory, index, config, world_map, edge_index)
+        if validate_memory:
+            _validate_memory(col.memory, index, config, world_map, edge_index)
         _need(min(col.rolling.income_ema_q, col.rolling.burn_ema_q, col.rolling.pop_ema_q) >= 0, "negative rolling average")
+    flow_totals: dict[tuple[int, int, int], int] = {}
+    for cohort in state.cohorts:
+        if cohort.loc.kind != "edge":
+            continue
+        a, b = sorted((cohort.loc.edge_from, cohort.loc.edge_to))
+        edge = edge_index.get((a, b))
+        _need(edge is not None, f"cohort {cohort.cohort_id}: on a missing edge")
+        _need(cohort.loc.depart_tick < cohort.loc.arrive_tick, f"cohort {cohort.cohort_id}: bad edge schedule")
+        direction = 0 if cohort.loc.edge_from == edge.a else 1
+        key = (a, b, direction)
+        flow_totals[key] = flow_totals.get(key, 0) + cohort.count
+    expected_flows = [EdgeFlow(a, b, direction, units) for (a, b, direction), units in sorted(flow_totals.items())]
+    _need(state.edge_flow == expected_flows, "edge_flow differs from the cohorts currently in transit")
     for flow in state.edge_flow:
-        _need((flow.a, flow.b) in edge_index and flow.direction in (0, 1) and flow.in_flight_units >= 0, "bad edge flow")
+        edge = edge_index.get((flow.a, flow.b))
+        _need(edge is not None and flow.direction in (0, 1) and flow.in_flight_units > 0, "bad edge flow")
+        _need(flow.in_flight_units <= edge.lane_cap, "directed edge lane capacity exceeded")
     for outcome in state.outcomes:
         _need(outcome.finished == bool(outcome.reason) and (outcome.terminal_tick >= 0) == outcome.finished, "bad colony outcome")
     wo = state.world_outcome

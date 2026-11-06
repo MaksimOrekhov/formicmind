@@ -8,6 +8,11 @@ from .config import ConfigE1, default_config
 from .initial import World, build_world, initial_world_state
 from .mapgen import MapGenerationError, generate_map
 from .model import MapE1, WorldStateE1
+from .engine import RouteTable, TickRecord, step_world_tick
+from .fixtures import FIXTURE_CHOICES, FIXTURE_NAMES, PeacefulFixture, fixture_controller
+from .simulation import SimulationResult, benchmark_simulation, run_simulation, sweep_simulations
 
 __all__ = ["ConfigE1", "MapE1", "MapGenerationError", "World", "WorldStateE1", "build_world", "default_config",
-           "generate_map", "initial_world_state"]
+           "generate_map", "initial_world_state", "RouteTable", "TickRecord", "step_world_tick",
+           "FIXTURE_NAMES", "FIXTURE_CHOICES", "PeacefulFixture", "fixture_controller", "SimulationResult", "run_simulation",
+           "sweep_simulations", "benchmark_simulation"]
