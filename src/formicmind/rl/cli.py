@@ -91,6 +91,14 @@ def _cmd_bench(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_analyse(args: argparse.Namespace) -> int:
+    from .analysis import analyse_run
+
+    result = analyse_run(args.run, args.eval, args.output)
+    print(json.dumps(result["gates"], indent=2, sort_keys=True))
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="formicmind-rl", description="FOR-42 PPO / self-play")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -114,6 +122,11 @@ def main(argv: list[str] | None = None) -> int:
     bench.add_argument("--chunk-size", type=int, default=4)
     bench.add_argument("--output")
     bench.set_defaults(func=_cmd_bench)
+    analyse = sub.add_parser("analyse", help="protocol gates, learning curve and policy shift of a finished run")
+    analyse.add_argument("--run", required=True)
+    analyse.add_argument("--eval", required=True, help="the final `full` evaluation json")
+    analyse.add_argument("--output", required=True)
+    analyse.set_defaults(func=_cmd_analyse)
     args = parser.parse_args(argv)
     started = time.perf_counter()
     code = args.func(args)

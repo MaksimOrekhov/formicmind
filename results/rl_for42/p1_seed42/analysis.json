@@ -1,0 +1,3194 @@
+{
+  "curve": {
+    "monitor_evals": [
+      {
+        "balanced:v2": {
+          "d": 0,
+          "l": 3,
+          "score": 0.7,
+          "w": 7
+        },
+        "init": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "iteration": 10,
+        "raider:v2": {
+          "d": 0,
+          "l": 7,
+          "score": 0.3,
+          "w": 3
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 2,
+          "score": 0.8,
+          "w": 8
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 4,
+          "score": 0.6,
+          "w": 6
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 0,
+          "l": 3,
+          "score": 0.7,
+          "w": 7
+        },
+        "init": {
+          "d": 0,
+          "l": 2,
+          "score": 0.8,
+          "w": 8
+        },
+        "iteration": 20,
+        "raider:v2": {
+          "d": 0,
+          "l": 6,
+          "score": 0.4,
+          "w": 4
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 0,
+          "l": 8,
+          "score": 0.2,
+          "w": 2
+        },
+        "init": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "iteration": 30,
+        "raider:v2": {
+          "d": 0,
+          "l": 9,
+          "score": 0.1,
+          "w": 1
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 4,
+          "score": 0.6,
+          "w": 6
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 0,
+          "l": 9,
+          "score": 0.1,
+          "w": 1
+        },
+        "init": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "iteration": 40,
+        "raider:v2": {
+          "d": 0,
+          "l": 8,
+          "score": 0.2,
+          "w": 2
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 0,
+          "l": 9,
+          "score": 0.1,
+          "w": 1
+        },
+        "init": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "iteration": 50,
+        "raider:v2": {
+          "d": 0,
+          "l": 7,
+          "score": 0.3,
+          "w": 3
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 1,
+          "l": 8,
+          "score": 0.15,
+          "w": 1
+        },
+        "init": {
+          "d": 0,
+          "l": 2,
+          "score": 0.8,
+          "w": 8
+        },
+        "iteration": 60,
+        "raider:v2": {
+          "d": 0,
+          "l": 6,
+          "score": 0.4,
+          "w": 4
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 1,
+          "l": 7,
+          "score": 0.25,
+          "w": 2
+        },
+        "init": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "iteration": 70,
+        "raider:v2": {
+          "d": 0,
+          "l": 9,
+          "score": 0.1,
+          "w": 1
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 1,
+          "score": 0.9,
+          "w": 9
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 4,
+          "score": 0.6,
+          "w": 6
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      },
+      {
+        "balanced:v2": {
+          "d": 1,
+          "l": 3,
+          "score": 0.65,
+          "w": 6
+        },
+        "init": {
+          "d": 0,
+          "l": 2,
+          "score": 0.8,
+          "w": 8
+        },
+        "iteration": 80,
+        "raider:v2": {
+          "d": 0,
+          "l": 9,
+          "score": 0.1,
+          "w": 1
+        },
+        "random:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        },
+        "rush:v2": {
+          "d": 0,
+          "l": 3,
+          "score": 0.7,
+          "w": 7
+        },
+        "turtle:v2": {
+          "d": 0,
+          "l": 0,
+          "score": 1.0,
+          "w": 10
+        }
+      }
+    ],
+    "train": [
+      {
+        "approx_kl": 0.009761340875411407,
+        "army_fraction": [
+          0.14008725157537566,
+          0.13669413475521086,
+          0.1512360639844886,
+          0.15802229762481823,
+          0.13184682501211828,
+          0.1420261754726127,
+          0.14008725157537566
+        ],
+        "clipfrac": 0.14087890908122064,
+        "decisions_per_second": 535.2971655638129,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.972740626335144,
+        "episodes_per_second": 33.21281492591762,
+        "explained_variance": 0.14674025774002075,
+        "home_share": 0.15846010507275196,
+        "iteration": 1,
+        "lay_fraction": [
+          0.3238002908385846,
+          0.33107125545322347,
+          0.34512845370819195
+        ],
+        "matches_total": 128,
+        "mean_match_ticks": 302.65625,
+        "param_delta_l2": 0.7136873006820679,
+        "reasons": {
+          "economic_collapse": 96,
+          "queen_death": 32
+        },
+        "samples": 2063,
+        "value_loss": 0.2624790474772453,
+        "win_rate_vs_snapshots": 0.5409836065573771
+      },
+      {
+        "approx_kl": 0.008325114526087418,
+        "army_fraction": [
+          0.14058851004203643,
+          0.14245679588977114,
+          0.14619336758524054,
+          0.15973843998131715,
+          0.13638486688463336,
+          0.13124708080336292,
+          0.14339093881363849
+        ],
+        "clipfrac": 0.12810294888913631,
+        "decisions_per_second": 1786.9140470138873,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.989550518989563,
+        "episodes_per_second": 106.83091920494049,
+        "explained_variance": 0.19300901889801025,
+        "home_share": 0.16518099313140897,
+        "iteration": 2,
+        "lay_fraction": [
+          0.31293787949556284,
+          0.35684259691732834,
+          0.3302195235871088
+        ],
+        "matches_total": 256,
+        "mean_match_ticks": 316.0078125,
+        "param_delta_l2": 0.6421769261360168,
+        "reasons": {
+          "economic_collapse": 88,
+          "queen_death": 40
+        },
+        "samples": 2141,
+        "value_loss": 0.24093482717871667,
+        "win_rate_vs_snapshots": 0.5873015873015873
+      },
+      {
+        "approx_kl": 0.00710068226326257,
+        "army_fraction": [
+          0.13559322033898305,
+          0.15655664585191792,
+          0.1360392506690455,
+          0.15477252453166815,
+          0.1462979482604817,
+          0.12444246208742195,
+          0.1462979482604817
+        ],
+        "clipfrac": 0.10086481084581464,
+        "decisions_per_second": 1568.021317256691,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.031851005554199,
+        "episodes_per_second": 89.52128840716166,
+        "explained_variance": 0.2479535937309265,
+        "home_share": 0.1419838851933516,
+        "iteration": 3,
+        "lay_fraction": [
+          0.3438893844781445,
+          0.34255129348795715,
+          0.3135593220338983
+        ],
+        "matches_total": 384,
+        "mean_match_ticks": 342.6796875,
+        "param_delta_l2": 0.6380337476730347,
+        "reasons": {
+          "economic_collapse": 87,
+          "queen_death": 41
+        },
+        "samples": 2242,
+        "value_loss": 0.22321085557341575,
+        "win_rate_vs_snapshots": 0.484375
+      },
+      {
+        "approx_kl": 0.008603911956015509,
+        "army_fraction": [
+          0.11731207289293849,
+          0.1378132118451025,
+          0.14749430523917995,
+          0.15034168564920272,
+          0.15546697038724375,
+          0.12813211845102507,
+          0.16343963553530752
+        ],
+        "clipfrac": 0.1278009577654302,
+        "decisions_per_second": 1668.1143923698955,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.041926831007004,
+        "episodes_per_second": 121.59375980828396,
+        "explained_variance": 0.2835054397583008,
+        "home_share": 0.12635089702367394,
+        "iteration": 4,
+        "lay_fraction": [
+          0.36161731207289294,
+          0.33029612756264237,
+          0.3080865603644647
+        ],
+        "matches_total": 512,
+        "mean_match_ticks": 264.03125,
+        "param_delta_l2": 0.590162992477417,
+        "reasons": {
+          "economic_collapse": 90,
+          "queen_death": 38
+        },
+        "samples": 1756,
+        "value_loss": 0.23464190121740103,
+        "win_rate_vs_snapshots": 0.5
+      },
+      {
+        "approx_kl": 0.008542542709619738,
+        "army_fraction": [
+          0.09037212049616067,
+          0.1488481984642646,
+          0.13290017720023628,
+          0.16952155936207916,
+          0.14766686355581807,
+          0.13939751919669227,
+          0.17129356172474897
+        ],
+        "clipfrac": 0.12577285338193178,
+        "decisions_per_second": 1463.6975767374506,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.092363446950912,
+        "episodes_per_second": 110.66349073974818,
+        "explained_variance": 0.32919836044311523,
+        "home_share": 0.12917821063948604,
+        "iteration": 5,
+        "lay_fraction": [
+          0.34376845835794445,
+          0.3390431187241583,
+          0.31718842291789723
+        ],
+        "matches_total": 640,
+        "mean_match_ticks": 256.2734375,
+        "param_delta_l2": 0.6189054250717163,
+        "reasons": {
+          "economic_collapse": 82,
+          "queen_death": 46
+        },
+        "samples": 1693,
+        "value_loss": 0.24339420348405838,
+        "win_rate_vs_snapshots": 0.640625
+      },
+      {
+        "approx_kl": 0.007983984229213092,
+        "army_fraction": [
+          0.11133102424542306,
+          0.11479465611083622,
+          0.11726867887184562,
+          0.17169717961405245,
+          0.14200890648193965,
+          0.14596734289955468,
+          0.19693221177634834
+        ],
+        "clipfrac": 0.11691315704956651,
+        "decisions_per_second": 1856.5197740934732,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.099861562252045,
+        "episodes_per_second": 117.58264774070489,
+        "explained_variance": 0.2236073613166809,
+        "home_share": 0.10046593623442752,
+        "iteration": 6,
+        "lay_fraction": [
+          0.3374567046016823,
+          0.33399307273626916,
+          0.3285502226620485
+        ],
+        "matches_total": 768,
+        "mean_match_ticks": 288.90625,
+        "param_delta_l2": 0.5947381854057312,
+        "reasons": {
+          "economic_collapse": 64,
+          "queen_death": 64
+        },
+        "samples": 2021,
+        "value_loss": 0.2484725657850504,
+        "win_rate_vs_snapshots": 0.6727272727272727
+      },
+      {
+        "approx_kl": 0.011017495409760159,
+        "army_fraction": [
+          0.09762979683972912,
+          0.11794582392776523,
+          0.12189616252821671,
+          0.16930022573363432,
+          0.13318284424379231,
+          0.1455981941309255,
+          0.2144469525959368
+        ],
+        "clipfrac": 0.16434181295335293,
+        "decisions_per_second": 1659.8450967361055,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.086886465549469,
+        "episodes_per_second": 119.89851714572319,
+        "explained_variance": 0.1774725317955017,
+        "home_share": 0.09905796206634715,
+        "iteration": 7,
+        "lay_fraction": [
+          0.3064334085778781,
+          0.3927765237020316,
+          0.3007900677200903
+        ],
+        "matches_total": 896,
+        "mean_match_ticks": 250.1171875,
+        "param_delta_l2": 0.5521016120910645,
+        "reasons": {
+          "economic_collapse": 61,
+          "queen_death": 67
+        },
+        "samples": 1772,
+        "value_loss": 0.27640965208411217,
+        "win_rate_vs_snapshots": 0.7321428571428571
+      },
+      {
+        "approx_kl": 0.010746042338723782,
+        "army_fraction": [
+          0.10096735187424426,
+          0.1124546553808948,
+          0.10822249093107618,
+          0.16989117291414751,
+          0.13845223700120918,
+          0.1505441354292624,
+          0.21946795646916567
+        ],
+        "clipfrac": 0.16082246508449316,
+        "decisions_per_second": 1489.4555283611003,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.038671523332596,
+        "episodes_per_second": 115.26620775708635,
+        "explained_variance": 0.22134971618652344,
+        "home_share": 0.1039532214110831,
+        "iteration": 8,
+        "lay_fraction": [
+          0.3307134220072551,
+          0.34582829504232165,
+          0.3234582829504232
+        ],
+        "matches_total": 1024,
+        "mean_match_ticks": 243.0625,
+        "param_delta_l2": 0.5165507197380066,
+        "reasons": {
+          "economic_collapse": 68,
+          "queen_death": 60
+        },
+        "samples": 1654,
+        "value_loss": 0.26246337685734034,
+        "win_rate_vs_snapshots": 0.6721311475409836
+      },
+      {
+        "approx_kl": 0.01108232990372926,
+        "army_fraction": [
+          0.10506798516687268,
+          0.0896168108776267,
+          0.09950556242274412,
+          0.1619283065512979,
+          0.16625463535228677,
+          0.13288009888751545,
+          0.24474660074165636
+        ],
+        "clipfrac": 0.16770376614294946,
+        "decisions_per_second": 1557.1781775616328,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 8.098869264125824,
+        "episodes_per_second": 123.1883848750859,
+        "explained_variance": 0.22914791107177734,
+        "home_share": 0.08502544852140743,
+        "iteration": 9,
+        "lay_fraction": [
+          0.3399258343634116,
+          0.3510506798516687,
+          0.30902348578491967
+        ],
+        "matches_total": 1152,
+        "mean_match_ticks": 244.3359375,
+        "param_delta_l2": 0.49671298265457153,
+        "reasons": {
+          "economic_collapse": 60,
+          "queen_death": 68
+        },
+        "samples": 1618,
+        "value_loss": 0.2681095916777849,
+        "win_rate_vs_snapshots": 0.6865671641791045
+      },
+      {
+        "approx_kl": 0.012761120306095108,
+        "army_fraction": [
+          0.10014619883040936,
+          0.10599415204678363,
+          0.11330409356725146,
+          0.17178362573099415,
+          0.12938596491228072,
+          0.14108187134502925,
+          0.23830409356725146
+        ],
+        "clipfrac": 0.19585377226273218,
+        "decisions_per_second": 1587.3463433073616,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.99970022837321,
+        "episodes_per_second": 148.52363446150753,
+        "explained_variance": 0.2451777458190918,
+        "home_share": 0.07839920367537191,
+        "iteration": 10,
+        "lay_fraction": [
+          0.32090643274853803,
+          0.3567251461988304,
+          0.3223684210526316
+        ],
+        "matches_total": 1280,
+        "mean_match_ticks": 209.109375,
+        "param_delta_l2": 0.40182262659072876,
+        "reasons": {
+          "economic_collapse": 64,
+          "queen_death": 64
+        },
+        "samples": 1368,
+        "value_loss": 0.2631061573823293,
+        "win_rate_vs_snapshots": 0.6911764705882353
+      },
+      {
+        "approx_kl": 0.012237867689691484,
+        "army_fraction": [
+          0.07320540156361052,
+          0.10803127221037669,
+          0.09879175550817342,
+          0.19402985074626866,
+          0.15778251599147122,
+          0.13077469793887705,
+          0.23738450604122247
+        ],
+        "clipfrac": 0.18540323774019876,
+        "decisions_per_second": 1414.5225724931934,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.999903122584025,
+        "episodes_per_second": 128.6843562751448,
+        "explained_variance": 0.23089998960494995,
+        "home_share": 0.06762618476354673,
+        "iteration": 11,
+        "lay_fraction": [
+          0.29850746268656714,
+          0.35465529495380244,
+          0.3468372423596304
+        ],
+        "matches_total": 1408,
+        "mean_match_ticks": 216.9453125,
+        "param_delta_l2": 0.4775409698486328,
+        "reasons": {
+          "economic_collapse": 57,
+          "queen_death": 71
+        },
+        "samples": 1407,
+        "value_loss": 0.2800670961538951,
+        "win_rate_vs_snapshots": 0.6515151515151515
+      },
+      {
+        "approx_kl": 0.008939420018577948,
+        "army_fraction": [
+          0.08237232289950576,
+          0.1013179571663921,
+          0.09472817133443164,
+          0.19604612850082373,
+          0.13591433278418452,
+          0.1243822075782537,
+          0.2652388797364086
+        ],
+        "clipfrac": 0.1294630654156208,
+        "decisions_per_second": 1497.1815618767582,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.903051137924194,
+        "episodes_per_second": 157.85769350924633,
+        "explained_variance": 0.3201788067817688,
+        "home_share": 0.05949987864426985,
+        "iteration": 12,
+        "lay_fraction": [
+          0.2808896210873147,
+          0.3500823723228995,
+          0.36902800658978585
+        ],
+        "matches_total": 1536,
+        "mean_match_ticks": 195.3515625,
+        "param_delta_l2": 0.41647201776504517,
+        "reasons": {
+          "economic_collapse": 55,
+          "queen_death": 73
+        },
+        "samples": 1214,
+        "value_loss": 0.25219009816646576,
+        "win_rate_vs_snapshots": 0.8051948051948052
+      },
+      {
+        "approx_kl": 0.01468904436721156,
+        "army_fraction": [
+          0.06847457627118644,
+          0.11796610169491525,
+          0.07728813559322034,
+          0.1857627118644068,
+          0.1369491525423729,
+          0.14440677966101695,
+          0.26915254237288133
+        ],
+        "clipfrac": 0.1978538708644919,
+        "decisions_per_second": 1552.2160752129219,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.838720917701721,
+        "episodes_per_second": 134.70078483203662,
+        "explained_variance": 0.22157186269760132,
+        "home_share": 0.0510168379427218,
+        "iteration": 13,
+        "lay_fraction": [
+          0.29627118644067796,
+          0.3383050847457627,
+          0.36542372881355933
+        ],
+        "matches_total": 1664,
+        "mean_match_ticks": 218.2578125,
+        "param_delta_l2": 0.40838050842285156,
+        "reasons": {
+          "economic_collapse": 40,
+          "queen_death": 88
+        },
+        "samples": 1475,
+        "value_loss": 0.28744923571745556,
+        "win_rate_vs_snapshots": 0.6212121212121212
+      },
+      {
+        "approx_kl": 0.012628726564192524,
+        "army_fraction": [
+          0.05279034690799397,
+          0.10030165912518854,
+          0.06334841628959276,
+          0.1907993966817496,
+          0.13423831070889894,
+          0.1455505279034691,
+          0.3129713423831071
+        ],
+        "clipfrac": 0.1950742875536283,
+        "decisions_per_second": 1751.2919740512407,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.80145529905955,
+        "episodes_per_second": 169.05382554944103,
+        "explained_variance": 0.2518553137779236,
+        "home_share": 0.04148231846453272,
+        "iteration": 14,
+        "lay_fraction": [
+          0.2790346907993967,
+          0.33559577677224733,
+          0.385369532428356
+        ],
+        "matches_total": 1792,
+        "mean_match_ticks": 186.984375,
+        "param_delta_l2": 0.3877304196357727,
+        "reasons": {
+          "economic_collapse": 41,
+          "queen_death": 87
+        },
+        "samples": 1326,
+        "value_loss": 0.28752482930819195,
+        "win_rate_vs_snapshots": 0.6896551724137931
+      },
+      {
+        "approx_kl": 0.009483860533994934,
+        "army_fraction": [
+          0.05762987012987013,
+          0.08522727272727272,
+          0.07061688311688312,
+          0.19318181818181818,
+          0.11363636363636363,
+          0.1387987012987013,
+          0.3409090909090909
+        ],
+        "clipfrac": 0.13454026612453163,
+        "decisions_per_second": 1537.993687234211,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.764776269594829,
+        "episodes_per_second": 159.7915519204375,
+        "explained_variance": 0.27050209045410156,
+        "home_share": 0.035775557127697186,
+        "iteration": 15,
+        "lay_fraction": [
+          0.28165584415584416,
+          0.31412337662337664,
+          0.4042207792207792
+        ],
+        "matches_total": 1920,
+        "mean_match_ticks": 175.5078125,
+        "param_delta_l2": 0.4106067419052124,
+        "reasons": {
+          "economic_collapse": 29,
+          "queen_death": 99
+        },
+        "samples": 1232,
+        "value_loss": 0.28095923115809757,
+        "win_rate_vs_snapshots": 0.8245614035087719
+      },
+      {
+        "approx_kl": 0.011419003076298395,
+        "army_fraction": [
+          0.04265873015873016,
+          0.08035714285714286,
+          0.06547619047619048,
+          0.20932539682539683,
+          0.11507936507936507,
+          0.1527777777777778,
+          0.3343253968253968
+        ],
+        "clipfrac": 0.16840977687388659,
+        "decisions_per_second": 1584.4891091540226,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.618278980255127,
+        "episodes_per_second": 201.20496624178065,
+        "explained_variance": 0.28985458612442017,
+        "home_share": 0.03575101030468391,
+        "iteration": 16,
+        "lay_fraction": [
+          0.2757936507936508,
+          0.2867063492063492,
+          0.4375
+        ],
+        "matches_total": 2048,
+        "mean_match_ticks": 150.78125,
+        "param_delta_l2": 0.28643450140953064,
+        "reasons": {
+          "economic_collapse": 30,
+          "queen_death": 98
+        },
+        "samples": 1008,
+        "value_loss": 0.28883328288793564,
+        "win_rate_vs_snapshots": 0.7397260273972602
+      },
+      {
+        "approx_kl": 0.010566476943495218,
+        "army_fraction": [
+          0.04504504504504504,
+          0.07107107107107107,
+          0.07707707707707707,
+          0.22622622622622623,
+          0.0960960960960961,
+          0.1001001001001001,
+          0.3843843843843844
+        ],
+        "clipfrac": 0.15122130792587996,
+        "decisions_per_second": 1605.1116781755206,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.549444854259491,
+        "episodes_per_second": 205.65995476122788,
+        "explained_variance": 0.29717475175857544,
+        "home_share": 0.021301777859342504,
+        "iteration": 17,
+        "lay_fraction": [
+          0.2652652652652653,
+          0.2802802802802803,
+          0.4544544544544545
+        ],
+        "matches_total": 2176,
+        "mean_match_ticks": 141.8515625,
+        "param_delta_l2": 0.2739837169647217,
+        "reasons": {
+          "economic_collapse": 23,
+          "queen_death": 105
+        },
+        "samples": 999,
+        "value_loss": 0.27859534323215485,
+        "win_rate_vs_snapshots": 0.8507462686567164
+      },
+      {
+        "approx_kl": 0.013859412332143014,
+        "army_fraction": [
+          0.030274361400189215,
+          0.06717123935666983,
+          0.04446546830652791,
+          0.2507095553453169,
+          0.1021759697256386,
+          0.09366130558183539,
+          0.41154210028382215
+        ],
+        "clipfrac": 0.2232382446527481,
+        "decisions_per_second": 1355.0541983213939,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.317597548166911,
+        "episodes_per_second": 164.09360206730219,
+        "explained_variance": 0.26358240842819214,
+        "home_share": 0.028367330130959784,
+        "iteration": 18,
+        "lay_fraction": [
+          0.23557237464522232,
+          0.28666035950804164,
+          0.47776726584673607
+        ],
+        "matches_total": 2304,
+        "mean_match_ticks": 152.015625,
+        "param_delta_l2": 0.37375593185424805,
+        "reasons": {
+          "economic_collapse": 27,
+          "queen_death": 101
+        },
+        "samples": 1057,
+        "value_loss": 0.2894248341520627,
+        "win_rate_vs_snapshots": 0.85
+      },
+      {
+        "approx_kl": 0.007244112024636706,
+        "army_fraction": [
+          0.033707865168539325,
+          0.052808988764044947,
+          0.04269662921348315,
+          0.2303370786516854,
+          0.09887640449438202,
+          0.07640449438202247,
+          0.4651685393258427
+        ],
+        "clipfrac": 0.1034135757945478,
+        "decisions_per_second": 1072.281405194481,
+        "draw_fraction_mirror": 0.017241379310344827,
+        "entropy_discrete": 7.326333224773407,
+        "episodes_per_second": 154.2157526571838,
+        "explained_variance": 0.17147845029830933,
+        "home_share": 0.021793826611219834,
+        "iteration": 19,
+        "lay_fraction": [
+          0.2550561797752809,
+          0.23146067415730337,
+          0.5134831460674157
+        ],
+        "matches_total": 2432,
+        "mean_match_ticks": 130.171875,
+        "param_delta_l2": 0.27564117312431335,
+        "reasons": {
+          "economic_collapse": 33,
+          "queen_death": 95
+        },
+        "samples": 890,
+        "value_loss": 0.3378526531159878,
+        "win_rate_vs_snapshots": 0.7285714285714285
+      },
+      {
+        "approx_kl": 0.007682584047870478,
+        "army_fraction": [
+          0.015317286652078774,
+          0.05579868708971553,
+          0.04157549234135667,
+          0.23851203501094093,
+          0.08424507658643327,
+          0.09190371991247265,
+          0.4726477024070022
+        ],
+        "clipfrac": 0.11337112984620035,
+        "decisions_per_second": 1489.778311532465,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.236920893192291,
+        "episodes_per_second": 208.63416179010454,
+        "explained_variance": 0.20290017127990723,
+        "home_share": 0.02247520367204855,
+        "iteration": 20,
+        "lay_fraction": [
+          0.24726477024070023,
+          0.19803063457330417,
+          0.5547045951859956
+        ],
+        "matches_total": 2560,
+        "mean_match_ticks": 129.90625,
+        "param_delta_l2": 0.2886570692062378,
+        "reasons": {
+          "economic_collapse": 24,
+          "queen_death": 104
+        },
+        "samples": 914,
+        "value_loss": 0.33830202370882034,
+        "win_rate_vs_snapshots": 0.7457627118644068
+      },
+      {
+        "approx_kl": 0.012177997319668066,
+        "army_fraction": [
+          0.01425438596491228,
+          0.03837719298245614,
+          0.039473684210526314,
+          0.23684210526315788,
+          0.06798245614035088,
+          0.06469298245614036,
+          0.5383771929824561
+        ],
+        "clipfrac": 0.1805566381663084,
+        "decisions_per_second": 1605.0550787299571,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 7.065229058265686,
+        "episodes_per_second": 225.270888242801,
+        "explained_variance": 0.22878217697143555,
+        "home_share": 0.023827949843327322,
+        "iteration": 21,
+        "lay_fraction": [
+          0.2236842105263158,
+          0.22697368421052633,
+          0.5493421052631579
+        ],
+        "matches_total": 2688,
+        "mean_match_ticks": 129.25,
+        "param_delta_l2": 0.2841736972332001,
+        "reasons": {
+          "economic_collapse": 17,
+          "queen_death": 111
+        },
+        "samples": 912,
+        "value_loss": 0.3148987963795662,
+        "win_rate_vs_snapshots": 0.8387096774193549
+      },
+      {
+        "approx_kl": 0.008706661959877238,
+        "army_fraction": [
+          0.01824817518248175,
+          0.031630170316301706,
+          0.052311435523114354,
+          0.23114355231143552,
+          0.0681265206812652,
+          0.052311435523114354,
+          0.5462287104622872
+        ],
+        "clipfrac": 0.12884796899743378,
+        "decisions_per_second": 1546.3001195463792,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 6.899733603000641,
+        "episodes_per_second": 240.7863933113583,
+        "explained_variance": 0.2384231686592102,
+        "home_share": 0.017589661140190498,
+        "iteration": 22,
+        "lay_fraction": [
+          0.23479318734793186,
+          0.18248175182481752,
+          0.5827250608272506
+        ],
+        "matches_total": 2816,
+        "mean_match_ticks": 114.7734375,
+        "param_delta_l2": 0.2783403694629669,
+        "reasons": {
+          "economic_collapse": 16,
+          "queen_death": 112
+        },
+        "samples": 822,
+        "value_loss": 0.32551512494683266,
+        "win_rate_vs_snapshots": 0.7049180327868853
+      },
+      {
+        "approx_kl": 0.010696697019739076,
+        "army_fraction": [
+          0.02282453637660485,
+          0.02710413694721826,
+          0.05563480741797432,
+          0.16975748930099857,
+          0.052781740370898715,
+          0.052781740370898715,
+          0.6191155492154066
+        ],
+        "clipfrac": 0.1685513248667121,
+        "decisions_per_second": 1068.1289519636275,
+        "draw_fraction_mirror": 0.017857142857142856,
+        "entropy_discrete": 6.816735565662384,
+        "episodes_per_second": 195.03638495198905,
+        "explained_variance": 0.20065265893936157,
+        "home_share": 0.0246443434359595,
+        "iteration": 23,
+        "lay_fraction": [
+          0.2225392296718973,
+          0.17118402282453637,
+          0.6062767475035663
+        ],
+        "matches_total": 2944,
+        "mean_match_ticks": 102.90625,
+        "param_delta_l2": 0.2638452351093292,
+        "reasons": {
+          "economic_collapse": 12,
+          "queen_death": 116
+        },
+        "samples": 701,
+        "value_loss": 0.315797820687294,
+        "win_rate_vs_snapshots": 0.9027777777777778
+      },
+      {
+        "approx_kl": 0.011344714381266385,
+        "army_fraction": [
+          0.01938610662358643,
+          0.017770597738287562,
+          0.03715670436187399,
+          0.15993537964458804,
+          0.06623586429725363,
+          0.046849757673667204,
+          0.6526655896607432
+        ],
+        "clipfrac": 0.1755758933722973,
+        "decisions_per_second": 1437.8976867258305,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 6.614974617958069,
+        "episodes_per_second": 297.33587059920245,
+        "explained_variance": 0.2896246910095215,
+        "home_share": 0.009367535728358843,
+        "iteration": 24,
+        "lay_fraction": [
+          0.172859450726979,
+          0.14862681744749595,
+          0.678513731825525
+        ],
+        "matches_total": 3072,
+        "mean_match_ticks": 89.734375,
+        "param_delta_l2": 0.2840811312198639,
+        "reasons": {
+          "economic_collapse": 16,
+          "queen_death": 112
+        },
+        "samples": 619,
+        "value_loss": 0.31253787502646446,
+        "win_rate_vs_snapshots": 0.7605633802816901
+      },
+      {
+        "approx_kl": 0.01645677182386862,
+        "army_fraction": [
+          0.018461538461538463,
+          0.03230769230769231,
+          0.027692307692307693,
+          0.13538461538461538,
+          0.052307692307692305,
+          0.02923076923076923,
+          0.7046153846153846
+        ],
+        "clipfrac": 0.20191845297813416,
+        "decisions_per_second": 1430.590605027447,
+        "draw_fraction_mirror": 0.04477611940298507,
+        "entropy_discrete": 6.438944041728973,
+        "episodes_per_second": 281.7163037592511,
+        "explained_variance": 0.25604063272476196,
+        "home_share": 0.009615906943441848,
+        "iteration": 25,
+        "lay_fraction": [
+          0.18923076923076923,
+          0.12,
+          0.6907692307692308
+        ],
+        "matches_total": 3200,
+        "mean_match_ticks": 90.578125,
+        "param_delta_l2": 0.3086809813976288,
+        "reasons": {
+          "economic_collapse": 12,
+          "queen_death": 116
+        },
+        "samples": 650,
+        "value_loss": 0.3121052160859108,
+        "win_rate_vs_snapshots": 0.8360655737704918
+      },
+      {
+        "approx_kl": 0.017640205085626803,
+        "army_fraction": [
+          0.0124804992199688,
+          0.0202808112324493,
+          0.0374414976599064,
+          0.11700468018720749,
+          0.0436817472698908,
+          0.0249609984399376,
+          0.7441497659906396
+        ],
+        "clipfrac": 0.23533642292022705,
+        "decisions_per_second": 1411.5684308993543,
+        "draw_fraction_mirror": 0.05172413793103448,
+        "entropy_discrete": 6.196401953697205,
+        "episodes_per_second": 281.87325921235157,
+        "explained_variance": 0.2770775556564331,
+        "home_share": 0.007571164828740095,
+        "iteration": 26,
+        "lay_fraction": [
+          0.1419656786271451,
+          0.11076443057722309,
+          0.7472698907956318
+        ],
+        "matches_total": 3328,
+        "mean_match_ticks": 90.75,
+        "param_delta_l2": 0.2540021240711212,
+        "reasons": {
+          "economic_collapse": 11,
+          "queen_death": 117
+        },
+        "samples": 641,
+        "value_loss": 0.32076509296894073,
+        "win_rate_vs_snapshots": 0.7714285714285715
+      },
+      {
+        "approx_kl": 0.010426078755699564,
+        "army_fraction": [
+          0.016891891891891893,
+          0.02027027027027027,
+          0.013513513513513514,
+          0.11824324324324324,
+          0.04054054054054054,
+          0.03209459459459459,
+          0.7584459459459459
+        ],
+        "clipfrac": 0.1510742213577032,
+        "decisions_per_second": 1380.5116987886913,
+        "draw_fraction_mirror": 0.046875,
+        "entropy_discrete": 6.058375239372253,
+        "episodes_per_second": 298.48901595431164,
+        "explained_variance": 0.22994685173034668,
+        "home_share": 0.014512154635752712,
+        "iteration": 27,
+        "lay_fraction": [
+          0.08783783783783784,
+          0.12162162162162163,
+          0.7905405405405406
+        ],
+        "matches_total": 3456,
+        "mean_match_ticks": 82.375,
+        "param_delta_l2": 0.22416579723358154,
+        "reasons": {
+          "economic_collapse": 7,
+          "queen_death": 121
+        },
+        "samples": 592,
+        "value_loss": 0.34175093472003937,
+        "win_rate_vs_snapshots": 0.78125
+      },
+      {
+        "approx_kl": 0.019081214632024057,
+        "army_fraction": [
+          0.014519056261343012,
+          0.023593466424682397,
+          0.014519056261343012,
+          0.06352087114337568,
+          0.04900181488203267,
+          0.012704174228675136,
+          0.822141560798548
+        ],
+        "clipfrac": 0.25845728628337383,
+        "decisions_per_second": 883.2561405943861,
+        "draw_fraction_mirror": 0.10714285714285714,
+        "entropy_discrete": 5.830479562282562,
+        "episodes_per_second": 205.18472957546538,
+        "explained_variance": 0.2568010687828064,
+        "home_share": 0.0062807629566335,
+        "iteration": 28,
+        "lay_fraction": [
+          0.08711433756805807,
+          0.10526315789473684,
+          0.8076225045372051
+        ],
+        "matches_total": 3584,
+        "mean_match_ticks": 77.4609375,
+        "param_delta_l2": 0.22683903574943542,
+        "reasons": {
+          "economic_collapse": 8,
+          "queen_death": 120
+        },
+        "samples": 551,
+        "value_loss": 0.31689710170030594,
+        "win_rate_vs_snapshots": 0.7638888888888888
+      },
+      {
+        "approx_kl": 0.008902543064323254,
+        "army_fraction": [
+          0.00718132854578097,
+          0.01436265709156194,
+          0.00718132854578097,
+          0.04847396768402154,
+          0.01615798922800718,
+          0.019748653500897665,
+          0.8868940754039497
+        ],
+        "clipfrac": 0.11915690312162042,
+        "decisions_per_second": 1270.030918526427,
+        "draw_fraction_mirror": 0.06451612903225806,
+        "entropy_discrete": 5.643173456192017,
+        "episodes_per_second": 291.85629725562416,
+        "explained_variance": 0.2246810793876648,
+        "home_share": 0.007167247509416692,
+        "iteration": 29,
+        "lay_fraction": [
+          0.07719928186714542,
+          0.10771992818671454,
+          0.8150807899461401
+        ],
+        "matches_total": 3712,
+        "mean_match_ticks": 76.3359375,
+        "param_delta_l2": 0.22024987637996674,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 557,
+        "value_loss": 0.3293261118233204,
+        "win_rate_vs_snapshots": 0.8787878787878788
+      },
+      {
+        "approx_kl": 0.011787341209128499,
+        "army_fraction": [
+          0.0018115942028985507,
+          0.012681159420289856,
+          0.005434782608695652,
+          0.06884057971014493,
+          0.016304347826086956,
+          0.012681159420289856,
+          0.8822463768115942
+        ],
+        "clipfrac": 0.15903320349752903,
+        "decisions_per_second": 1493.4216400049295,
+        "draw_fraction_mirror": 0.06451612903225806,
+        "entropy_discrete": 5.554710924625397,
+        "episodes_per_second": 346.30067014607056,
+        "explained_variance": 0.1952495574951172,
+        "home_share": 0.007184981362984488,
+        "iteration": 30,
+        "lay_fraction": [
+          0.06159420289855073,
+          0.10144927536231885,
+          0.8369565217391305
+        ],
+        "matches_total": 3840,
+        "mean_match_ticks": 76.6484375,
+        "param_delta_l2": 0.20813795924186707,
+        "reasons": {
+          "economic_collapse": 5,
+          "queen_death": 123
+        },
+        "samples": 552,
+        "value_loss": 0.35985321551561356,
+        "win_rate_vs_snapshots": 0.7272727272727273
+      },
+      {
+        "approx_kl": 0.011160848414874636,
+        "army_fraction": [
+          0.010273972602739725,
+          0.005136986301369863,
+          0.00684931506849315,
+          0.03595890410958904,
+          0.02226027397260274,
+          0.017123287671232876,
+          0.9023972602739726
+        ],
+        "clipfrac": 0.16818576445803046,
+        "decisions_per_second": 1215.5126893055472,
+        "draw_fraction_mirror": 0.13043478260869565,
+        "entropy_discrete": 5.578931748867035,
+        "episodes_per_second": 266.4137401217638,
+        "explained_variance": 0.21724295616149902,
+        "home_share": 0.007503336604616794,
+        "iteration": 31,
+        "lay_fraction": [
+          0.06164383561643835,
+          0.0976027397260274,
+          0.8407534246575342
+        ],
+        "matches_total": 3968,
+        "mean_match_ticks": 76.7890625,
+        "param_delta_l2": 0.2049819976091385,
+        "reasons": {
+          "economic_collapse": 6,
+          "queen_death": 122
+        },
+        "samples": 584,
+        "value_loss": 0.33555832877755165,
+        "win_rate_vs_snapshots": 0.7627118644067796
+      },
+      {
+        "approx_kl": 0.004490799299674109,
+        "army_fraction": [
+          0.005859375,
+          0.0,
+          0.0078125,
+          0.05078125,
+          0.013671875,
+          0.001953125,
+          0.919921875
+        ],
+        "clipfrac": 0.0517578125,
+        "decisions_per_second": 1340.93862036749,
+        "draw_fraction_mirror": 0.1875,
+        "entropy_discrete": 5.335895538330078,
+        "episodes_per_second": 335.2346550918725,
+        "explained_variance": 0.17990833520889282,
+        "home_share": 0.006153528410391394,
+        "iteration": 32,
+        "lay_fraction": [
+          0.0390625,
+          0.078125,
+          0.8828125
+        ],
+        "matches_total": 4096,
+        "mean_match_ticks": 69.3046875,
+        "param_delta_l2": 0.12681886553764343,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 512,
+        "value_loss": 0.3227371498942375,
+        "win_rate_vs_snapshots": 0.8125
+      },
+      {
+        "approx_kl": 0.005337883190336165,
+        "army_fraction": [
+          0.010224948875255624,
+          0.006134969325153374,
+          0.00408997955010225,
+          0.018404907975460124,
+          0.02044989775051125,
+          0.012269938650306749,
+          0.9284253578732107
+        ],
+        "clipfrac": 0.07924335263669491,
+        "decisions_per_second": 1327.2941900075707,
+        "draw_fraction_mirror": 0.11940298507462686,
+        "entropy_discrete": 5.318697929382324,
+        "episodes_per_second": 347.4307900224316,
+        "explained_variance": 0.1702384352684021,
+        "home_share": 0.006651123683421791,
+        "iteration": 33,
+        "lay_fraction": [
+          0.04703476482617587,
+          0.05930470347648262,
+          0.8936605316973415
+        ],
+        "matches_total": 4224,
+        "mean_match_ticks": 63.3359375,
+        "param_delta_l2": 0.13380567729473114,
+        "reasons": {
+          "economic_collapse": 5,
+          "queen_death": 123
+        },
+        "samples": 489,
+        "value_loss": 0.3429962918162346,
+        "win_rate_vs_snapshots": 0.7704918032786885
+      },
+      {
+        "approx_kl": 0.01692101023218129,
+        "army_fraction": [
+          0.009983361064891847,
+          0.0016638935108153079,
+          0.0,
+          0.009983361064891847,
+          0.016638935108153077,
+          0.014975041597337771,
+          0.9467554076539102
+        ],
+        "clipfrac": 0.25452620163559914,
+        "decisions_per_second": 1079.7510212721236,
+        "draw_fraction_mirror": 0.13432835820895522,
+        "entropy_discrete": 5.303710401058197,
+        "episodes_per_second": 229.96361185163366,
+        "explained_variance": 0.23787826299667358,
+        "home_share": 0.008736082013815127,
+        "iteration": 34,
+        "lay_fraction": [
+          0.048252911813643926,
+          0.06988352745424292,
+          0.8818635607321131
+        ],
+        "matches_total": 4352,
+        "mean_match_ticks": 79.6796875,
+        "param_delta_l2": 0.21632803976535797,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 601,
+        "value_loss": 0.3152078501880169,
+        "win_rate_vs_snapshots": 0.8032786885245902
+      },
+      {
+        "approx_kl": 0.011593169518164359,
+        "army_fraction": [
+          0.010238907849829351,
+          0.0034129692832764505,
+          0.0,
+          0.025597269624573378,
+          0.025597269624573378,
+          0.008532423208191127,
+          0.9266211604095563
+        ],
+        "clipfrac": 0.14360087923705578,
+        "decisions_per_second": 1223.318709177648,
+        "draw_fraction_mirror": 0.08333333333333333,
+        "entropy_discrete": 5.283429384231567,
+        "episodes_per_second": 267.20954739716547,
+        "explained_variance": 0.22991091012954712,
+        "home_share": 0.007456011182311197,
+        "iteration": 35,
+        "lay_fraction": [
+          0.03924914675767918,
+          0.06143344709897611,
+          0.8993174061433447
+        ],
+        "matches_total": 4480,
+        "mean_match_ticks": 78.953125,
+        "param_delta_l2": 0.20228956639766693,
+        "reasons": {
+          "economic_collapse": 6,
+          "queen_death": 122
+        },
+        "samples": 586,
+        "value_loss": 0.31371548771858215,
+        "win_rate_vs_snapshots": 0.8235294117647058
+      },
+      {
+        "approx_kl": 0.011443723400589079,
+        "army_fraction": [
+          0.0066555740432612314,
+          0.004991680532445923,
+          0.0033277870216306157,
+          0.009983361064891847,
+          0.016638935108153077,
+          0.0066555740432612314,
+          0.9517470881863561
+        ],
+        "clipfrac": 0.17271166294813156,
+        "decisions_per_second": 929.6971090133487,
+        "draw_fraction_mirror": 0.13846153846153847,
+        "entropy_discrete": 5.138786494731903,
+        "episodes_per_second": 198.00537429901604,
+        "explained_variance": 0.24764132499694824,
+        "home_share": 0.0065071222944592605,
+        "iteration": 36,
+        "lay_fraction": [
+          0.033277870216306155,
+          0.0632279534109817,
+          0.9034941763727121
+        ],
+        "matches_total": 4608,
+        "mean_match_ticks": 80.921875,
+        "param_delta_l2": 0.20459683239459991,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 601,
+        "value_loss": 0.31917301565408707,
+        "win_rate_vs_snapshots": 0.7301587301587301
+      },
+      {
+        "approx_kl": 0.009362862758280244,
+        "army_fraction": [
+          0.00473186119873817,
+          0.00473186119873817,
+          0.0,
+          0.012618296529968454,
+          0.014195583596214511,
+          0.007886435331230283,
+          0.9558359621451105
+        ],
+        "clipfrac": 0.1347536128014326,
+        "decisions_per_second": 1377.0077924750099,
+        "draw_fraction_mirror": 0.13114754098360656,
+        "entropy_discrete": 5.172679364681244,
+        "episodes_per_second": 278.00788239243104,
+        "explained_variance": 0.1506085991859436,
+        "home_share": 0.006222528044469699,
+        "iteration": 37,
+        "lay_fraction": [
+          0.014195583596214511,
+          0.03943217665615142,
+          0.9463722397476341
+        ],
+        "matches_total": 4736,
+        "mean_match_ticks": 86.6875,
+        "param_delta_l2": 0.18748952448368073,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 634,
+        "value_loss": 0.345970943570137,
+        "win_rate_vs_snapshots": 0.835820895522388
+      },
+      {
+        "approx_kl": 0.017621328071982134,
+        "army_fraction": [
+          0.006745362563237774,
+          0.0016863406408094434,
+          0.00505902192242833,
+          0.01011804384485666,
+          0.011804384485666104,
+          0.003372681281618887,
+          0.9612141652613828
+        ],
+        "clipfrac": 0.24370358139276505,
+        "decisions_per_second": 989.3898367802344,
+        "draw_fraction_mirror": 0.13043478260869565,
+        "entropy_discrete": 4.969336211681366,
+        "episodes_per_second": 213.5613812948904,
+        "explained_variance": 0.23281574249267578,
+        "home_share": 0.004279705333619987,
+        "iteration": 38,
+        "lay_fraction": [
+          0.013490725126475547,
+          0.048903878583473864,
+          0.9376053962900506
+        ],
+        "matches_total": 4864,
+        "mean_match_ticks": 75.453125,
+        "param_delta_l2": 0.20451653003692627,
+        "reasons": {
+          "economic_collapse": 5,
+          "queen_death": 123
+        },
+        "samples": 593,
+        "value_loss": 0.3249882087111473,
+        "win_rate_vs_snapshots": 0.7457627118644068
+      },
+      {
+        "approx_kl": 0.011256117766606621,
+        "army_fraction": [
+          0.009776536312849162,
+          0.0013966480446927375,
+          0.0013966480446927375,
+          0.008379888268156424,
+          0.0223463687150838,
+          0.009776536312849162,
+          0.946927374301676
+        ],
+        "clipfrac": 0.14364085951820016,
+        "decisions_per_second": 1451.7984660406848,
+        "draw_fraction_mirror": 0.13580246913580246,
+        "entropy_discrete": 4.985365867614746,
+        "episodes_per_second": 259.5393905771057,
+        "explained_variance": 0.215678870677948,
+        "home_share": 0.012135035524111172,
+        "iteration": 39,
+        "lay_fraction": [
+          0.006983240223463687,
+          0.030726256983240222,
+          0.9622905027932961
+        ],
+        "matches_total": 4992,
+        "mean_match_ticks": 89.28125,
+        "param_delta_l2": 0.19343635439872742,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 716,
+        "value_loss": 0.3233627416193485,
+        "win_rate_vs_snapshots": 0.8297872340425532
+      },
+      {
+        "approx_kl": 0.00938301414862508,
+        "army_fraction": [
+          0.012030075187969926,
+          0.007518796992481203,
+          0.0,
+          0.015037593984962405,
+          0.012030075187969926,
+          0.0015037593984962407,
+          0.9518796992481203
+        ],
+        "clipfrac": 0.1365464166738093,
+        "decisions_per_second": 879.3286107887133,
+        "draw_fraction_mirror": 0.09230769230769231,
+        "entropy_discrete": 4.860131680965424,
+        "episodes_per_second": 169.2542288435418,
+        "explained_variance": 0.27339357137680054,
+        "home_share": 0.008628713004759554,
+        "iteration": 40,
+        "lay_fraction": [
+          0.009022556390977444,
+          0.04360902255639098,
+          0.9473684210526315
+        ],
+        "matches_total": 5120,
+        "mean_match_ticks": 87.515625,
+        "param_delta_l2": 0.24768279492855072,
+        "reasons": {
+          "economic_collapse": 7,
+          "queen_death": 121
+        },
+        "samples": 665,
+        "value_loss": 0.3118177130818367,
+        "win_rate_vs_snapshots": 0.7936507936507936
+      },
+      {
+        "approx_kl": 0.012383923938614316,
+        "army_fraction": [
+          0.010174418604651164,
+          0.005813953488372093,
+          0.0014534883720930232,
+          0.020348837209302327,
+          0.027616279069767442,
+          0.023255813953488372,
+          0.9113372093023255
+        ],
+        "clipfrac": 0.17962091974914074,
+        "decisions_per_second": 1034.5427509014046,
+        "draw_fraction_mirror": 0.11267605633802817,
+        "entropy_discrete": 4.837769865989685,
+        "episodes_per_second": 192.47306993514505,
+        "explained_variance": 0.25877320766448975,
+        "home_share": 0.005381755000434705,
+        "iteration": 41,
+        "lay_fraction": [
+          0.00436046511627907,
+          0.029069767441860465,
+          0.9665697674418605
+        ],
+        "matches_total": 5248,
+        "mean_match_ticks": 84.734375,
+        "param_delta_l2": 0.22781121730804443,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 688,
+        "value_loss": 0.317877683788538,
+        "win_rate_vs_snapshots": 0.7894736842105263
+      },
+      {
+        "approx_kl": 0.0076655314333038405,
+        "army_fraction": [
+          0.02734375,
+          0.0078125,
+          0.010416666666666666,
+          0.02734375,
+          0.033854166666666664,
+          0.013020833333333334,
+          0.8802083333333334
+        ],
+        "clipfrac": 0.117431640625,
+        "decisions_per_second": 1404.6582711512444,
+        "draw_fraction_mirror": 0.058823529411764705,
+        "entropy_discrete": 4.895665526390076,
+        "episodes_per_second": 234.10971185854072,
+        "explained_variance": 0.32941800355911255,
+        "home_share": 0.008623811067877215,
+        "iteration": 42,
+        "lay_fraction": [
+          0.005208333333333333,
+          0.0234375,
+          0.9713541666666666
+        ],
+        "matches_total": 5376,
+        "mean_match_ticks": 101.5078125,
+        "param_delta_l2": 0.22702790796756744,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 768,
+        "value_loss": 0.29364151507616043,
+        "win_rate_vs_snapshots": 0.7833333333333333
+      },
+      {
+        "approx_kl": 0.009783495053852675,
+        "army_fraction": [
+          0.025210084033613446,
+          0.008403361344537815,
+          0.00980392156862745,
+          0.015406162464985995,
+          0.023809523809523808,
+          0.0028011204481792717,
+          0.9145658263305322
+        ],
+        "clipfrac": 0.14092473685741425,
+        "decisions_per_second": 941.7424160382449,
+        "draw_fraction_mirror": 0.1791044776119403,
+        "entropy_discrete": 4.740626573562622,
+        "episodes_per_second": 168.82777206287864,
+        "explained_variance": 0.29481041431427,
+        "home_share": 0.007854143412152377,
+        "iteration": 43,
+        "lay_fraction": [
+          0.004201680672268907,
+          0.01680672268907563,
+          0.9789915966386554
+        ],
+        "matches_total": 5504,
+        "mean_match_ticks": 96.3671875,
+        "param_delta_l2": 0.25863122940063477,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 714,
+        "value_loss": 0.2858923561871052,
+        "win_rate_vs_snapshots": 0.8360655737704918
+      },
+      {
+        "approx_kl": 0.011962727745412849,
+        "army_fraction": [
+          0.014492753623188406,
+          0.014492753623188406,
+          0.006587615283267457,
+          0.021080368906455864,
+          0.039525691699604744,
+          0.005270092226613966,
+          0.8985507246376812
+        ],
+        "clipfrac": 0.18084000423550606,
+        "decisions_per_second": 1297.44609957712,
+        "draw_fraction_mirror": 0.06060606060606061,
+        "entropy_discrete": 4.689414918422699,
+        "episodes_per_second": 218.8051393226237,
+        "explained_variance": 0.29062700271606445,
+        "home_share": 0.006618414784645242,
+        "iteration": 44,
+        "lay_fraction": [
+          0.011857707509881422,
+          0.014492753623188406,
+          0.9736495388669302
+        ],
+        "matches_total": 5632,
+        "mean_match_ticks": 98.5625,
+        "param_delta_l2": 0.23059961199760437,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 759,
+        "value_loss": 0.30766497552394867,
+        "win_rate_vs_snapshots": 0.7258064516129032
+      },
+      {
+        "approx_kl": 0.01055478861235315,
+        "army_fraction": [
+          0.019345238095238096,
+          0.005952380952380952,
+          0.005952380952380952,
+          0.02976190476190476,
+          0.025297619047619048,
+          0.002976190476190476,
+          0.9107142857142857
+        ],
+        "clipfrac": 0.14008789509534836,
+        "decisions_per_second": 1122.846978512767,
+        "draw_fraction_mirror": 0.11666666666666667,
+        "entropy_discrete": 4.669690787792206,
+        "episodes_per_second": 213.87561495481276,
+        "explained_variance": 0.2696376442909241,
+        "home_share": 0.008364123859660596,
+        "iteration": 45,
+        "lay_fraction": [
+          0.00744047619047619,
+          0.011904761904761904,
+          0.9806547619047619
+        ],
+        "matches_total": 5760,
+        "mean_match_ticks": 93.2421875,
+        "param_delta_l2": 0.22585639357566833,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 672,
+        "value_loss": 0.3075575791299343,
+        "win_rate_vs_snapshots": 0.8382352941176471
+      },
+      {
+        "approx_kl": 0.010125626969966106,
+        "army_fraction": [
+          0.03602305475504323,
+          0.011527377521613832,
+          0.001440922190201729,
+          0.03602305475504323,
+          0.03314121037463977,
+          0.011527377521613832,
+          0.8703170028818443
+        ],
+        "clipfrac": 0.13869065698236227,
+        "decisions_per_second": 1464.1554080713095,
+        "draw_fraction_mirror": 0.1111111111111111,
+        "entropy_discrete": 4.621641397476196,
+        "episodes_per_second": 270.0459542264087,
+        "explained_variance": 0.30732953548431396,
+        "home_share": 0.006622613386735511,
+        "iteration": 46,
+        "lay_fraction": [
+          0.001440922190201729,
+          0.018731988472622477,
+          0.9798270893371758
+        ],
+        "matches_total": 5888,
+        "mean_match_ticks": 94.2734375,
+        "param_delta_l2": 0.20858809351921082,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 694,
+        "value_loss": 0.30604560673236847,
+        "win_rate_vs_snapshots": 0.7230769230769231
+      },
+      {
+        "approx_kl": 0.008929750154493377,
+        "army_fraction": [
+          0.025925925925925925,
+          0.008641975308641974,
+          0.006172839506172839,
+          0.04567901234567901,
+          0.02962962962962963,
+          0.016049382716049384,
+          0.8679012345679012
+        ],
+        "clipfrac": 0.13350232038646936,
+        "decisions_per_second": 1522.9056287350427,
+        "draw_fraction_mirror": 0.09375,
+        "entropy_discrete": 4.64453911781311,
+        "episodes_per_second": 240.65669194825367,
+        "explained_variance": 0.2871735692024231,
+        "home_share": 0.004818723761782179,
+        "iteration": 47,
+        "lay_fraction": [
+          0.003703703703703704,
+          0.012345679012345678,
+          0.9839506172839506
+        ],
+        "matches_total": 6016,
+        "mean_match_ticks": 111.5390625,
+        "param_delta_l2": 0.19835913181304932,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 810,
+        "value_loss": 0.29108013957738876,
+        "win_rate_vs_snapshots": 0.78125
+      },
+      {
+        "approx_kl": 0.007386528377537616,
+        "army_fraction": [
+          0.0440251572327044,
+          0.00880503144654088,
+          0.0037735849056603774,
+          0.03647798742138365,
+          0.028930817610062894,
+          0.010062893081761006,
+          0.8679245283018868
+        ],
+        "clipfrac": 0.11060778144747019,
+        "decisions_per_second": 1623.280165295305,
+        "draw_fraction_mirror": 0.09859154929577464,
+        "entropy_discrete": 4.578810513019562,
+        "episodes_per_second": 261.3583159217598,
+        "explained_variance": 0.25582510232925415,
+        "home_share": 0.009758077324853537,
+        "iteration": 48,
+        "lay_fraction": [
+          0.006289308176100629,
+          0.011320754716981131,
+          0.9823899371069182
+        ],
+        "matches_total": 6144,
+        "mean_match_ticks": 101.796875,
+        "param_delta_l2": 0.2154059112071991,
+        "reasons": {
+          "economic_collapse": 5,
+          "queen_death": 123
+        },
+        "samples": 795,
+        "value_loss": 0.3101712502539158,
+        "win_rate_vs_snapshots": 0.7543859649122807
+      },
+      {
+        "approx_kl": 0.013871740462491289,
+        "army_fraction": [
+          0.05665024630541872,
+          0.009852216748768473,
+          0.003694581280788177,
+          0.03694581280788178,
+          0.024630541871921183,
+          0.0049261083743842365,
+          0.8633004926108374
+        ],
+        "clipfrac": 0.19271810166537762,
+        "decisions_per_second": 998.1429869332701,
+        "draw_fraction_mirror": 0.030303030303030304,
+        "entropy_discrete": 4.446470677852631,
+        "episodes_per_second": 157.34273685647608,
+        "explained_variance": 0.25868093967437744,
+        "home_share": 0.0056090247718569505,
+        "iteration": 49,
+        "lay_fraction": [
+          0.0049261083743842365,
+          0.0049261083743842365,
+          0.9901477832512315
+        ],
+        "matches_total": 6272,
+        "mean_match_ticks": 106.3359375,
+        "param_delta_l2": 0.22727954387664795,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 812,
+        "value_loss": 0.31109220534563065,
+        "win_rate_vs_snapshots": 0.8225806451612904
+      },
+      {
+        "approx_kl": 0.012881079746875912,
+        "army_fraction": [
+          0.0698856416772554,
+          0.0038119440914866584,
+          0.005082592121982211,
+          0.03939008894536213,
+          0.025412960609911054,
+          0.007623888182973317,
+          0.8487928843710292
+        ],
+        "clipfrac": 0.18496892787516117,
+        "decisions_per_second": 1331.9096961836042,
+        "draw_fraction_mirror": 0.09375,
+        "entropy_discrete": 4.406772673130035,
+        "episodes_per_second": 216.6257193284642,
+        "explained_variance": 0.2541726231575012,
+        "home_share": 0.005493674437425358,
+        "iteration": 50,
+        "lay_fraction": [
+          0.0038119440914866584,
+          0.008894536213468869,
+          0.9872935196950444
+        ],
+        "matches_total": 6400,
+        "mean_match_ticks": 101.3515625,
+        "param_delta_l2": 0.21075339615345,
+        "reasons": {
+          "economic_collapse": 8,
+          "queen_death": 120
+        },
+        "samples": 787,
+        "value_loss": 0.31339094787836075,
+        "win_rate_vs_snapshots": 0.765625
+      },
+      {
+        "approx_kl": 0.00870500024757348,
+        "army_fraction": [
+          0.10049019607843138,
+          0.004901960784313725,
+          0.0012254901960784314,
+          0.041666666666666664,
+          0.020833333333333332,
+          0.00857843137254902,
+          0.8223039215686274
+        ],
+        "clipfrac": 0.12926603481173515,
+        "decisions_per_second": 1246.6307740890632,
+        "draw_fraction_mirror": 0.046153846153846156,
+        "entropy_discrete": 4.401258170604706,
+        "episodes_per_second": 195.54992534730403,
+        "explained_variance": 0.2762874364852905,
+        "home_share": 0.003484012434606864,
+        "iteration": 51,
+        "lay_fraction": [
+          0.0024509803921568627,
+          0.004901960784313725,
+          0.9926470588235294
+        ],
+        "matches_total": 6528,
+        "mean_match_ticks": 105.25,
+        "param_delta_l2": 0.20788806676864624,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 816,
+        "value_loss": 0.299579955637455,
+        "win_rate_vs_snapshots": 0.8253968253968254
+      },
+      {
+        "approx_kl": 0.009619364398531616,
+        "army_fraction": [
+          0.1163101604278075,
+          0.004010695187165776,
+          0.00267379679144385,
+          0.022727272727272728,
+          0.020053475935828877,
+          0.004010695187165776,
+          0.8302139037433155
+        ],
+        "clipfrac": 0.14277260936796665,
+        "decisions_per_second": 991.912597118508,
+        "draw_fraction_mirror": 0.16923076923076924,
+        "entropy_discrete": 4.282835125923157,
+        "episodes_per_second": 169.739054052365,
+        "explained_variance": 0.2808578610420227,
+        "home_share": 0.0026636377100206486,
+        "iteration": 52,
+        "lay_fraction": [
+          0.0,
+          0.001336898395721925,
+          0.9986631016042781
+        ],
+        "matches_total": 6656,
+        "mean_match_ticks": 98.9375,
+        "param_delta_l2": 0.2108980268239975,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 748,
+        "value_loss": 0.29572340473532677,
+        "win_rate_vs_snapshots": 0.7777777777777778
+      },
+      {
+        "approx_kl": 0.012992441741516814,
+        "army_fraction": [
+          0.15633423180592992,
+          0.0026954177897574125,
+          0.008086253369272238,
+          0.04716981132075472,
+          0.03099730458221024,
+          0.006738544474393531,
+          0.7479784366576819
+        ],
+        "clipfrac": 0.20287236385047436,
+        "decisions_per_second": 1508.2980787279505,
+        "draw_fraction_mirror": 0.15384615384615385,
+        "entropy_discrete": 4.284016728401184,
+        "episodes_per_second": 260.19158231425564,
+        "explained_variance": 0.22452449798583984,
+        "home_share": 0.0019405897591398351,
+        "iteration": 53,
+        "lay_fraction": [
+          0.0013477088948787063,
+          0.004043126684636119,
+          0.9946091644204852
+        ],
+        "matches_total": 6784,
+        "mean_match_ticks": 97.8671875,
+        "param_delta_l2": 0.22108706831932068,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 742,
+        "value_loss": 0.31618649885058403,
+        "win_rate_vs_snapshots": 0.7619047619047619
+      },
+      {
+        "approx_kl": 0.008693504409166053,
+        "army_fraction": [
+          0.18948655256723718,
+          0.004889975550122249,
+          0.006112469437652812,
+          0.06601466992665037,
+          0.03178484107579462,
+          0.006112469437652812,
+          0.69559902200489
+        ],
+        "clipfrac": 0.12649356762995012,
+        "decisions_per_second": 964.647212711906,
+        "draw_fraction_mirror": 0.05172413793103448,
+        "entropy_discrete": 4.422401487827301,
+        "episodes_per_second": 150.9472411089535,
+        "explained_variance": 0.22786903381347656,
+        "home_share": 0.004319254553876006,
+        "iteration": 54,
+        "lay_fraction": [
+          0.0012224938875305623,
+          0.003667481662591687,
+          0.9951100244498777
+        ],
+        "matches_total": 6912,
+        "mean_match_ticks": 113.8046875,
+        "param_delta_l2": 0.21774370968341827,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 818,
+        "value_loss": 0.3176439106464386,
+        "win_rate_vs_snapshots": 0.7714285714285715
+      },
+      {
+        "approx_kl": 0.011523450535605662,
+        "army_fraction": [
+          0.18581907090464547,
+          0.004889975550122249,
+          0.0024449877750611247,
+          0.06356968215158924,
+          0.02567237163814181,
+          0.004889975550122249,
+          0.7127139364303179
+        ],
+        "clipfrac": 0.17991568706929684,
+        "decisions_per_second": 1215.043907201382,
+        "draw_fraction_mirror": 0.07575757575757576,
+        "entropy_discrete": 4.304680645465851,
+        "episodes_per_second": 190.1291199532725,
+        "explained_variance": 0.24495714902877808,
+        "home_share": 0.0034527547664390313,
+        "iteration": 55,
+        "lay_fraction": [
+          0.0012224938875305623,
+          0.003667481662591687,
+          0.9951100244498777
+        ],
+        "matches_total": 7040,
+        "mean_match_ticks": 106.3671875,
+        "param_delta_l2": 0.2191183716058731,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 818,
+        "value_loss": 0.31834638863801956,
+        "win_rate_vs_snapshots": 0.6451612903225806
+      },
+      {
+        "approx_kl": 0.00807348179660039,
+        "army_fraction": [
+          0.20770128354725786,
+          0.003500583430571762,
+          0.003500583430571762,
+          0.049008168028004666,
+          0.023337222870478413,
+          0.005834305717619603,
+          0.7071178529754959
+        ],
+        "clipfrac": 0.11032750364392996,
+        "decisions_per_second": 898.1703316627606,
+        "draw_fraction_mirror": 0.07575757575757576,
+        "entropy_discrete": 4.313010036945343,
+        "episodes_per_second": 134.1491277162583,
+        "explained_variance": 0.27471214532852173,
+        "home_share": 0.0036289586322930936,
+        "iteration": 56,
+        "lay_fraction": [
+          0.003500583430571762,
+          0.005834305717619603,
+          0.9906651108518086
+        ],
+        "matches_total": 7168,
+        "mean_match_ticks": 115.984375,
+        "param_delta_l2": 0.20637193322181702,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 857,
+        "value_loss": 0.3077623061835766,
+        "win_rate_vs_snapshots": 0.6935483870967742
+      },
+      {
+        "approx_kl": 0.008521302537701558,
+        "army_fraction": [
+          0.2540045766590389,
+          0.009153318077803204,
+          0.004576659038901602,
+          0.03775743707093822,
+          0.021739130434782608,
+          0.009153318077803204,
+          0.6636155606407322
+        ],
+        "clipfrac": 0.1254046568647027,
+        "decisions_per_second": 1093.6509308988714,
+        "draw_fraction_mirror": 0.11290322580645161,
+        "entropy_discrete": 4.283091843128204,
+        "episodes_per_second": 160.16855738564706,
+        "explained_variance": 0.24663496017456055,
+        "home_share": 0.005005029017456913,
+        "iteration": 57,
+        "lay_fraction": [
+          0.002288329519450801,
+          0.005720823798627002,
+          0.9919908466819222
+        ],
+        "matches_total": 7296,
+        "mean_match_ticks": 117.5078125,
+        "param_delta_l2": 0.24586190283298492,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 874,
+        "value_loss": 0.30003248155117035,
+        "win_rate_vs_snapshots": 0.696969696969697
+      },
+      {
+        "approx_kl": 0.010310247598681599,
+        "army_fraction": [
+          0.2513842746400886,
+          0.005537098560354375,
+          0.0,
+          0.047619047619047616,
+          0.03211517165005537,
+          0.004429678848283499,
+          0.6589147286821705
+        ],
+        "clipfrac": 0.1500378344208002,
+        "decisions_per_second": 1186.6951368361126,
+        "draw_fraction_mirror": 0.045454545454545456,
+        "entropy_discrete": 4.279108166694641,
+        "episodes_per_second": 168.21370710412228,
+        "explained_variance": 0.22778165340423584,
+        "home_share": 0.007181203250763098,
+        "iteration": 58,
+        "lay_fraction": [
+          0.0011074197120708748,
+          0.004429678848283499,
+          0.9944629014396457
+        ],
+        "matches_total": 7424,
+        "mean_match_ticks": 118.265625,
+        "param_delta_l2": 0.24997161328792572,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 903,
+        "value_loss": 0.32955777272582054,
+        "win_rate_vs_snapshots": 0.7580645161290323
+      },
+      {
+        "approx_kl": 0.007561234422610141,
+        "army_fraction": [
+          0.2640382317801673,
+          0.011947431302270013,
+          0.0,
+          0.04540023894862605,
+          0.038231780167264036,
+          0.0047789725209080045,
+          0.6356033452807647
+        ],
+        "clipfrac": 0.11569411214441061,
+        "decisions_per_second": 1003.0123925352427,
+        "draw_fraction_mirror": 0.06896551724137931,
+        "entropy_discrete": 4.278512179851532,
+        "episodes_per_second": 153.38779718579576,
+        "explained_variance": 0.27356791496276855,
+        "home_share": 0.004998305008887879,
+        "iteration": 59,
+        "lay_fraction": [
+          0.0011947431302270011,
+          0.0011947431302270011,
+          0.997610513739546
+        ],
+        "matches_total": 7552,
+        "mean_match_ticks": 113.3984375,
+        "param_delta_l2": 0.2255130112171173,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 837,
+        "value_loss": 0.3035910204052925,
+        "win_rate_vs_snapshots": 0.7285714285714285
+      },
+      {
+        "approx_kl": 0.011081667060352629,
+        "army_fraction": [
+          0.26948775055679286,
+          0.004454342984409799,
+          0.0033407572383073497,
+          0.028953229398663696,
+          0.036748329621380846,
+          0.01002227171492205,
+          0.6469933184855234
+        ],
+        "clipfrac": 0.16627241112291813,
+        "decisions_per_second": 1047.6807928957562,
+        "draw_fraction_mirror": 0.03333333333333333,
+        "entropy_discrete": 4.418104827404022,
+        "episodes_per_second": 149.33534687155546,
+        "explained_variance": 0.3032321333885193,
+        "home_share": 0.004647051856715406,
+        "iteration": 60,
+        "lay_fraction": [
+          0.0011135857461024498,
+          0.005567928730512249,
+          0.9933184855233853
+        ],
+        "matches_total": 7680,
+        "mean_match_ticks": 127.3203125,
+        "param_delta_l2": 0.22679656744003296,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 898,
+        "value_loss": 0.2879563271999359,
+        "win_rate_vs_snapshots": 0.7794117647058824
+      },
+      {
+        "approx_kl": 0.009316222727647983,
+        "army_fraction": [
+          0.3050345508390918,
+          0.005923000987166831,
+          0.0009871668311944718,
+          0.023692003948667325,
+          0.04244817374136229,
+          0.003948667324777887,
+          0.6179664363277394
+        ],
+        "clipfrac": 0.11445760866627097,
+        "decisions_per_second": 1260.6978865089332,
+        "draw_fraction_mirror": 0.07352941176470588,
+        "entropy_discrete": 4.3778738379478455,
+        "episodes_per_second": 159.29844962797972,
+        "explained_variance": 0.3254457712173462,
+        "home_share": 0.0035743166710990137,
+        "iteration": 61,
+        "lay_fraction": [
+          0.0,
+          0.0019743336623889436,
+          0.998025666337611
+        ],
+        "matches_total": 7808,
+        "mean_match_ticks": 137.1484375,
+        "param_delta_l2": 0.25041911005973816,
+        "reasons": {
+          "economic_collapse": 3,
+          "queen_death": 125
+        },
+        "samples": 1013,
+        "value_loss": 0.2804730758070946,
+        "win_rate_vs_snapshots": 0.75
+      },
+      {
+        "approx_kl": 0.009422488932614215,
+        "army_fraction": [
+          0.3726899383983573,
+          0.004106776180698152,
+          0.001026694045174538,
+          0.019507186858316223,
+          0.03593429158110883,
+          0.00513347022587269,
+          0.5616016427104723
+        ],
+        "clipfrac": 0.14985161274671555,
+        "decisions_per_second": 1040.7557382610994,
+        "draw_fraction_mirror": 0.07042253521126761,
+        "entropy_discrete": 4.397830009460449,
+        "episodes_per_second": 136.77282802609932,
+        "explained_variance": 0.27829694747924805,
+        "home_share": 0.005272133062430861,
+        "iteration": 62,
+        "lay_fraction": [
+          0.002053388090349076,
+          0.006160164271047228,
+          0.9917864476386037
+        ],
+        "matches_total": 7936,
+        "mean_match_ticks": 131.96875,
+        "param_delta_l2": 0.25025174021720886,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 974,
+        "value_loss": 0.29861360043287277,
+        "win_rate_vs_snapshots": 0.8421052631578947
+      },
+      {
+        "approx_kl": 0.013829223200445995,
+        "army_fraction": [
+          0.37573715248525696,
+          0.0016849199663016006,
+          0.0,
+          0.02106149957877001,
+          0.038753159224936815,
+          0.0016849199663016006,
+          0.561078348778433
+        ],
+        "clipfrac": 0.20018033310770988,
+        "decisions_per_second": 964.9442344341921,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.471376816431682,
+        "episodes_per_second": 104.0546436458101,
+        "explained_variance": 0.28624898195266724,
+        "home_share": 0.004516053435886301,
+        "iteration": 63,
+        "lay_fraction": [
+          0.0008424599831508003,
+          0.003369839932603201,
+          0.995787700084246
+        ],
+        "matches_total": 8064,
+        "mean_match_ticks": 163.96875,
+        "param_delta_l2": 0.34636569023132324,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 1187,
+        "value_loss": 0.31610245754321414,
+        "win_rate_vs_snapshots": 0.6140350877192983
+      },
+      {
+        "approx_kl": 0.009897879247243205,
+        "army_fraction": [
+          0.3498542274052478,
+          0.003887269193391642,
+          0.001943634596695821,
+          0.02040816326530612,
+          0.034013605442176874,
+          0.003887269193391642,
+          0.5860058309037901
+        ],
+        "clipfrac": 0.1417317713300387,
+        "decisions_per_second": 1463.1137506246944,
+        "draw_fraction_mirror": 0.04477611940298507,
+        "entropy_discrete": 4.345971981684367,
+        "episodes_per_second": 182.00054429539446,
+        "explained_variance": 0.2896655797958374,
+        "home_share": 0.003687344865683904,
+        "iteration": 64,
+        "lay_fraction": [
+          0.0009718172983479105,
+          0.004859086491739553,
+          0.9941690962099126
+        ],
+        "matches_total": 8192,
+        "mean_match_ticks": 139.0703125,
+        "param_delta_l2": 0.29348111152648926,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 1029,
+        "value_loss": 0.3062551021575928,
+        "win_rate_vs_snapshots": 0.7377049180327869
+      },
+      {
+        "approx_kl": 0.012540503972559236,
+        "army_fraction": [
+          0.34522439585730724,
+          0.0034522439585730723,
+          0.0,
+          0.0023014959723820483,
+          0.03222094361334868,
+          0.005753739930955121,
+          0.6110471806674338
+        ],
+        "clipfrac": 0.1861418429762125,
+        "decisions_per_second": 1057.8656143041908,
+        "draw_fraction_mirror": 0.038461538461538464,
+        "entropy_discrete": 4.386686265468597,
+        "episodes_per_second": 155.81910084112363,
+        "explained_variance": 0.32606732845306396,
+        "home_share": 0.003131277720080881,
+        "iteration": 65,
+        "lay_fraction": [
+          0.0,
+          0.004602991944764097,
+          0.9953970080552359
+        ],
+        "matches_total": 8320,
+        "mean_match_ticks": 127.2421875,
+        "param_delta_l2": 0.21434980630874634,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 869,
+        "value_loss": 0.2794906497001648,
+        "win_rate_vs_snapshots": 0.6973684210526315
+      },
+      {
+        "approx_kl": 0.010571409773547202,
+        "army_fraction": [
+          0.42235410484668645,
+          0.009891196834817012,
+          0.0,
+          0.010880316518298714,
+          0.021760633036597428,
+          0.003956478733926805,
+          0.5311572700296736
+        ],
+        "clipfrac": 0.17183145880699158,
+        "decisions_per_second": 1056.4808674556568,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.301518678665161,
+        "episodes_per_second": 133.7582107164432,
+        "explained_variance": 0.19161850214004517,
+        "home_share": 0.003188365833465209,
+        "iteration": 66,
+        "lay_fraction": [
+          0.0019782393669634025,
+          0.002967359050445104,
+          0.9950544015825915
+        ],
+        "matches_total": 8448,
+        "mean_match_ticks": 142.7421875,
+        "param_delta_l2": 0.24768370389938354,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 1011,
+        "value_loss": 0.33753643929958344,
+        "win_rate_vs_snapshots": 0.7285714285714285
+      },
+      {
+        "approx_kl": 0.010284389165462926,
+        "army_fraction": [
+          0.42766151046405826,
+          0.0018198362147406734,
+          0.0018198362147406734,
+          0.003639672429481347,
+          0.030937215650591446,
+          0.0009099181073703367,
+          0.5332120109190173
+        ],
+        "clipfrac": 0.14662977416689196,
+        "decisions_per_second": 1303.0998361821637,
+        "draw_fraction_mirror": 0.015384615384615385,
+        "entropy_discrete": 4.209747592608134,
+        "episodes_per_second": 151.77140949164416,
+        "explained_variance": 0.2401856780052185,
+        "home_share": 0.0031287520584580204,
+        "iteration": 67,
+        "lay_fraction": [
+          0.003639672429481347,
+          0.004549590536851683,
+          0.991810737033667
+        ],
+        "matches_total": 8576,
+        "mean_match_ticks": 151.3203125,
+        "param_delta_l2": 0.32358047366142273,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 1099,
+        "value_loss": 0.3056778435905774,
+        "win_rate_vs_snapshots": 0.7936507936507936
+      },
+      {
+        "approx_kl": 0.006817414199758787,
+        "army_fraction": [
+          0.45427728613569324,
+          0.0019665683382497543,
+          0.0029498525073746312,
+          0.011799410029498525,
+          0.02261553588987217,
+          0.004916420845624385,
+          0.5014749262536873
+        ],
+        "clipfrac": 0.10037757363170385,
+        "decisions_per_second": 1161.335012264852,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.223005890846252,
+        "episodes_per_second": 146.16605857414066,
+        "explained_variance": 0.2883647084236145,
+        "home_share": 0.002354345546627453,
+        "iteration": 68,
+        "lay_fraction": [
+          0.0009832841691248771,
+          0.003933136676499509,
+          0.9950835791543756
+        ],
+        "matches_total": 8704,
+        "mean_match_ticks": 146.3828125,
+        "param_delta_l2": 0.2341909408569336,
+        "reasons": {
+          "economic_collapse": 4,
+          "queen_death": 124
+        },
+        "samples": 1017,
+        "value_loss": 0.28752124682068825,
+        "win_rate_vs_snapshots": 0.8591549295774648
+      },
+      {
+        "approx_kl": 0.008522153388184961,
+        "army_fraction": [
+          0.47108307045215564,
+          0.002103049421661409,
+          0.0010515247108307045,
+          0.008412197686645636,
+          0.01892744479495268,
+          0.006309148264984227,
+          0.4921135646687697
+        ],
+        "clipfrac": 0.1234712041914463,
+        "decisions_per_second": 1085.2970438601792,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.141636550426483,
+        "episodes_per_second": 146.07573250694315,
+        "explained_variance": 0.2651270031929016,
+        "home_share": 0.002417808867032065,
+        "iteration": 69,
+        "lay_fraction": [
+          0.0010515247108307045,
+          0.007360672975814932,
+          0.9915878023133544
+        ],
+        "matches_total": 8832,
+        "mean_match_ticks": 138.5234375,
+        "param_delta_l2": 0.2608940899372101,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 951,
+        "value_loss": 0.30151260271668434,
+        "win_rate_vs_snapshots": 0.8428571428571429
+      },
+      {
+        "approx_kl": 0.011565535547561012,
+        "army_fraction": [
+          0.47922998986828774,
+          0.002026342451874367,
+          0.0010131712259371835,
+          0.00303951367781155,
+          0.0425531914893617,
+          0.0060790273556231,
+          0.46605876393110435
+        ],
+        "clipfrac": 0.16750359162688255,
+        "decisions_per_second": 1207.2980986590094,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.107879936695099,
+        "episodes_per_second": 156.56956092031731,
+        "explained_variance": 0.23319602012634277,
+        "home_share": 0.0023512807722641995,
+        "iteration": 70,
+        "lay_fraction": [
+          0.0,
+          0.00303951367781155,
+          0.9969604863221885
+        ],
+        "matches_total": 8960,
+        "mean_match_ticks": 148.25,
+        "param_delta_l2": 0.22356650233268738,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 987,
+        "value_loss": 0.3157768175005913,
+        "win_rate_vs_snapshots": 0.8169014084507042
+      },
+      {
+        "approx_kl": 0.009371198112300286,
+        "army_fraction": [
+          0.4844995571302037,
+          0.0008857395925597874,
+          0.0,
+          0.011514614703277236,
+          0.030115146147032774,
+          0.0044286979627989375,
+          0.4685562444641275
+        ],
+        "clipfrac": 0.1379309284966439,
+        "decisions_per_second": 1560.0934453139666,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.131589968999227,
+        "episodes_per_second": 176.87507617377125,
+        "explained_variance": 0.31369805335998535,
+        "home_share": 0.001633850646612879,
+        "iteration": 71,
+        "lay_fraction": [
+          0.0,
+          0.001771479185119575,
+          0.9982285208148804
+        ],
+        "matches_total": 9088,
+        "mean_match_ticks": 148.9921875,
+        "param_delta_l2": 0.26460185647010803,
+        "reasons": {
+          "queen_death": 128
+        },
+        "samples": 1129,
+        "value_loss": 0.29678329080343246,
+        "win_rate_vs_snapshots": 0.7058823529411765
+      },
+      {
+        "approx_kl": 0.009928048471920192,
+        "army_fraction": [
+          0.5093046033300686,
+          0.002938295788442703,
+          0.0,
+          0.0068560235063663075,
+          0.025465230166503428,
+          0.0039177277179236044,
+          0.4515181194906954
+        ],
+        "clipfrac": 0.14330000057816505,
+        "decisions_per_second": 1148.4782101286896,
+        "draw_fraction_mirror": 0.016129032258064516,
+        "entropy_discrete": 4.103931367397308,
+        "episodes_per_second": 143.98159735207864,
+        "explained_variance": 0.292497456073761,
+        "home_share": 0.0018589404305569914,
+        "iteration": 72,
+        "lay_fraction": [
+          0.0019588638589618022,
+          0.0019588638589618022,
+          0.9960822722820764
+        ],
+        "matches_total": 9216,
+        "mean_match_ticks": 144.203125,
+        "param_delta_l2": 0.21150678396224976,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 1021,
+        "value_loss": 0.3041370026767254,
+        "win_rate_vs_snapshots": 0.6818181818181818
+      },
+      {
+        "approx_kl": 0.0115137015915631,
+        "army_fraction": [
+          0.511443661971831,
+          0.006161971830985915,
+          0.002640845070422535,
+          0.008802816901408451,
+          0.03345070422535211,
+          0.0008802816901408451,
+          0.43661971830985913
+        ],
+        "clipfrac": 0.14615885665019354,
+        "decisions_per_second": 1272.9379553679064,
+        "draw_fraction_mirror": 0.028985507246376812,
+        "entropy_discrete": 4.070811311403911,
+        "episodes_per_second": 143.4296287738486,
+        "explained_variance": 0.2863413691520691,
+        "home_share": 0.002235648191429803,
+        "iteration": 73,
+        "lay_fraction": [
+          0.0008802816901408451,
+          0.0035211267605633804,
+          0.9955985915492958
+        ],
+        "matches_total": 9344,
+        "mean_match_ticks": 153.1875,
+        "param_delta_l2": 0.30551058053970337,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 1136,
+        "value_loss": 0.2965937356154124,
+        "win_rate_vs_snapshots": 0.6779661016949152
+      },
+      {
+        "approx_kl": 0.01108431703566263,
+        "army_fraction": [
+          0.5057471264367817,
+          0.005747126436781609,
+          0.0,
+          0.01053639846743295,
+          0.04885057471264368,
+          0.005747126436781609,
+          0.42337164750957856
+        ],
+        "clipfrac": 0.1564778657630086,
+        "decisions_per_second": 1163.5901928965518,
+        "draw_fraction_mirror": 0.015625,
+        "entropy_discrete": 4.084887444972992,
+        "episodes_per_second": 142.66239912907915,
+        "explained_variance": 0.3042764663696289,
+        "home_share": 0.0012768030419824802,
+        "iteration": 74,
+        "lay_fraction": [
+          0.0,
+          0.0028735632183908046,
+          0.9971264367816092
+        ],
+        "matches_total": 9472,
+        "mean_match_ticks": 146.2265625,
+        "param_delta_l2": 0.2575417459011078,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 1044,
+        "value_loss": 0.3110797132054965,
+        "win_rate_vs_snapshots": 0.75
+      },
+      {
+        "approx_kl": 0.007152078634438415,
+        "army_fraction": [
+          0.4665551839464883,
+          0.004180602006688963,
+          0.0008361204013377926,
+          0.011705685618729096,
+          0.07692307692307693,
+          0.00919732441471572,
+          0.4306020066889632
+        ],
+        "clipfrac": 0.09995382131698231,
+        "decisions_per_second": 1239.6190969755394,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.2467135190963745,
+        "episodes_per_second": 132.66826455925505,
+        "explained_variance": 0.25203239917755127,
+        "home_share": 0.0025258912174632615,
+        "iteration": 75,
+        "lay_fraction": [
+          0.002508361204013378,
+          0.002508361204013378,
+          0.9949832775919732
+        ],
+        "matches_total": 9600,
+        "mean_match_ticks": 162.046875,
+        "param_delta_l2": 0.28130412101745605,
+        "reasons": {
+          "queen_death": 128
+        },
+        "samples": 1196,
+        "value_loss": 0.3112376307447751,
+        "win_rate_vs_snapshots": 0.7368421052631579
+      },
+      {
+        "approx_kl": 0.009882855326092491,
+        "army_fraction": [
+          0.47601476014760147,
+          0.0018450184501845018,
+          0.0009225092250922509,
+          0.01937269372693727,
+          0.07564575645756458,
+          0.006457564575645757,
+          0.41974169741697415
+        ],
+        "clipfrac": 0.13408203423023224,
+        "decisions_per_second": 1462.376453474364,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.210380872090657,
+        "episodes_per_second": 172.6791384176371,
+        "explained_variance": 0.2562680244445801,
+        "home_share": 0.0014571099018383178,
+        "iteration": 76,
+        "lay_fraction": [
+          0.0009225092250922509,
+          0.0027675276752767526,
+          0.996309963099631
+        ],
+        "matches_total": 9728,
+        "mean_match_ticks": 155.2421875,
+        "param_delta_l2": 0.29969704151153564,
+        "reasons": {
+          "economic_collapse": 1,
+          "queen_death": 127
+        },
+        "samples": 1084,
+        "value_loss": 0.31023147453864414,
+        "win_rate_vs_snapshots": 0.8064516129032258
+      },
+      {
+        "approx_kl": 0.008501670468831435,
+        "army_fraction": [
+          0.4565587734241908,
+          0.004258943781942078,
+          0.004258943781942078,
+          0.017035775127768313,
+          0.10817717206132879,
+          0.004258943781942078,
+          0.40545144804088584
+        ],
+        "clipfrac": 0.12695746682584286,
+        "decisions_per_second": 1106.0436808116426,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.304885506629944,
+        "episodes_per_second": 120.59079313789628,
+        "explained_variance": 0.23907232284545898,
+        "home_share": 0.0008910540929726745,
+        "iteration": 77,
+        "lay_fraction": [
+          0.0008517887563884157,
+          0.005110732538330494,
+          0.9940374787052811
+        ],
+        "matches_total": 9856,
+        "mean_match_ticks": 171.5390625,
+        "param_delta_l2": 0.27529361844062805,
+        "reasons": {
+          "economic_collapse": 5,
+          "queen_death": 123
+        },
+        "samples": 1174,
+        "value_loss": 0.31469903886318207,
+        "win_rate_vs_snapshots": 0.71875
+      },
+      {
+        "approx_kl": 0.007454003226788093,
+        "army_fraction": [
+          0.4680648236415634,
+          0.0076263107721639654,
+          0.0019065776930409914,
+          0.014299332697807437,
+          0.08579599618684461,
+          0.0009532888465204957,
+          0.4213536701620591
+        ],
+        "clipfrac": 0.10526692618926366,
+        "decisions_per_second": 1323.459075402446,
+        "draw_fraction_mirror": 0.0,
+        "entropy_discrete": 4.209177494049072,
+        "episodes_per_second": 161.48976325215736,
+        "explained_variance": 0.2871490716934204,
+        "home_share": 0.0009666568552174109,
+        "iteration": 78,
+        "lay_fraction": [
+          0.0,
+          0.008579599618684462,
+          0.9914204003813155
+        ],
+        "matches_total": 9984,
+        "mean_match_ticks": 152.9375,
+        "param_delta_l2": 0.3055439889431,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 1049,
+        "value_loss": 0.30695368349552155,
+        "win_rate_vs_snapshots": 0.7611940298507462
+      },
+      {
+        "approx_kl": 0.007994130360505855,
+        "army_fraction": [
+          0.45538178472861085,
+          0.007359705611775529,
+          0.0009199632014719411,
+          0.005519779208831647,
+          0.11315547378104876,
+          0.005519779208831647,
+          0.41214351425942963
+        ],
+        "clipfrac": 0.11780754243955016,
+        "decisions_per_second": 1070.7085273320988,
+        "draw_fraction_mirror": 0.016666666666666666,
+        "entropy_discrete": 4.251286665598552,
+        "episodes_per_second": 126.08159291491135,
+        "explained_variance": 0.24804747104644775,
+        "home_share": 0.003028263091647692,
+        "iteration": 79,
+        "lay_fraction": [
+          0.0009199632014719411,
+          0.006439742410303588,
+          0.9926402943882244
+        ],
+        "matches_total": 10112,
+        "mean_match_ticks": 158.8671875,
+        "param_delta_l2": 0.3217041492462158,
+        "reasons": {
+          "economic_collapse": 2,
+          "queen_death": 126
+        },
+        "samples": 1087,
+        "value_loss": 0.29985444247722626,
+        "win_rate_vs_snapshots": 0.7794117647058824
+      },
+      {
+        "approx_kl": 0.010640384309226647,
+        "army_fraction": [
+          0.43010752688172044,
+          0.007820136852394917,
+          0.002932551319648094,
+          0.005865102639296188,
+          0.11632453567937438,
+          0.004887585532746823,
+          0.43206256109481916
+        ],
+        "clipfrac": 0.15886053629219532,
+        "decisions_per_second": 1075.8635224526474,
+        "draw_fraction_mirror": 0.016129032258064516,
+        "entropy_discrete": 4.20614755153656,
+        "episodes_per_second": 134.61439968126967,
+        "explained_variance": 0.2531486749649048,
+        "home_share": 0.0011445310539367642,
+        "iteration": 80,
+        "lay_fraction": [
+          0.0019550342130987292,
+          0.004887585532746823,
+          0.9931573802541545
+        ],
+        "matches_total": 10240,
+        "mean_match_ticks": 151.546875,
+        "param_delta_l2": 0.2033463567495346,
+        "reasons": {
+          "economic_collapse": 6,
+          "queen_death": 122
+        },
+        "samples": 1023,
+        "value_loss": 0.31026390939950943,
+        "win_rate_vs_snapshots": 0.696969696969697
+      }
+    ]
+  },
+  "final_iteration": 80,
+  "gates": {
+    "L1_pass": true,
+    "L1_score_vs_init_full_sample": 0.9,
+    "L3_pass": true,
+    "L3_tv_army_first_vs_last": 0.5819955848257883,
+    "L3_tv_lay_first_vs_last": 0.6480289265459624,
+    "T1_no_errors_run_completed": true,
+    "T2_max_identity_ratio_dev": 5.7220458984375e-06,
+    "T2_weights_changed_and_losses_finite": true,
+    "T3_resume_bit_exact": "unit test tests/test_rl_train.py::test_a_real_tiny_run_changes_weights_from_rewards_and_resume_is_exact",
+    "T4_diverse_early_actions": true,
+    "iterations": 80,
+    "matches": 10240,
+    "run_go": true,
+    "technical_pass": true
+  },
+  "policy_shift_initial_to_final": {
+    "army": {
+      "mean_final": [
+        0.6288,
+        0.0044,
+        0.0017,
+        0.0106,
+        0.1819,
+        0.0047,
+        0.1679
+      ],
+      "mean_initial": [
+        0.1432,
+        0.1427,
+        0.1429,
+        0.1436,
+        0.1425,
+        0.1428,
+        0.1423
+      ],
+      "mean_kl_initial_to_final": 1.8007352352142334,
+      "total_variation_of_mean_distribution": 0.5505036779213697
+    },
+    "lay": {
+      "mean_final": [
+        0.0008,
+        0.0035,
+        0.9956
+      ],
+      "mean_initial": [
+        0.3339,
+        0.3351,
+        0.331
+      ],
+      "mean_kl_initial_to_final": 3.1891071796417236,
+      "total_variation_of_mean_distribution": 0.6646046673995443
+    },
+    "probe_states": 248,
+    "target": {
+      "mean_final": [
+        0.001,
+        0.2984,
+        0.5611,
+        0.0451,
+        0.032,
+        0.0624
+      ],
+      "mean_initial": [
+        0.1649,
+        0.1665,
+        0.1675,
+        0.1663,
+        0.1672,
+        0.1677
+      ],
+      "mean_kl_initial_to_final": 1.2692039012908936,
+      "total_variation_of_mean_distribution": 0.5255788240465336
+    }
+  }
+}
