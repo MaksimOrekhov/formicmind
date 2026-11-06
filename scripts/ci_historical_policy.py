@@ -14,8 +14,22 @@ _INDEPENDENT_PREFIXES = (
     "tests/test_ml_",
     "viewer/",
     "docs/ml_",
+    # Ecosystem v1 (FOR-44): a separate package. It is "independent" only because tests/test_eco_boundary.py proves with an AST
+    # check that formicmind.eco imports nothing from L0 except canonical/rng and that no L0 module (nor L0 test) imports it.
+    # A change that also touches any other path is sensitive (unknown paths fail closed), so mixed L0 + eco PRs run the history.
+    "src/formicmind/eco/",
+    "tests/test_eco_",
+    "tests/test_ecosystem_",
+    "docs/ecosystem_",
+    "scripts/ecosystem_",
 )
 _INDEPENDENT_EXACT = {"docs/ci_strategy.md"}
+
+
+def _is_traversal(path: str) -> bool:
+    """A path with a ``..`` or ``.`` segment, an absolute path or a drive could hide a sensitive file behind an allowed prefix."""
+    parts = path.split("/")
+    return ".." in parts or "." in parts or path.startswith("/") or ":" in path or "//" in path
 
 
 def classify_paths(paths: Iterable[str]) -> dict[str, object]:
@@ -28,7 +42,7 @@ def classify_paths(paths: Iterable[str]) -> dict[str, object]:
         }
     sensitive = [
         path for path in normalized
-        if path not in _INDEPENDENT_EXACT and not path.startswith(_INDEPENDENT_PREFIXES)
+        if _is_traversal(path) or (path not in _INDEPENDENT_EXACT and not path.startswith(_INDEPENDENT_PREFIXES))
     ]
     return {"historical_required": bool(sensitive), "sensitive_paths": sensitive}
 

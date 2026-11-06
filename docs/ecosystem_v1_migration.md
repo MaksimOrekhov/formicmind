@@ -86,6 +86,8 @@ E4   (вне этого плана) масштаб, длительные мир�
 * Риск: белый список для `eco` безопасен только пока работает граница импортов — поэтому оба теста идут вместе.
 
 ### PR-1 (E1-a) — основание и карта
+> **Статус: реализовано в FOR-44** (вместе с PR-0, по указанию задачи): [ecosystem_v1_map_generator.md](ecosystem_v1_map_generator.md). Отличия реализации от этого плана и измеренные числа — там (§5, §7).
+
 * E1a.1 `eco/versions.py`, `ConfigE1`, `EconomyParams` (целые), `config_hash`. Тест: golden-хэши, неизменность при перестановке ключей.
 * E1a.2 Схемы состояния (`MapE1`, `WorldStateE1`, `ColonyStateE1`, `CohortE1`, `ColonyMemoryE1`) + строгая загрузка + `state_hash`/`checkpoint_hash`. Тест: round-trip, отвержение чужих схем (в т.ч. L0).
 * E1a.3 Реестр RNG-потоков (`map`, `world`, `policy:<id>:<colony>`) через L0 `rng.py`.

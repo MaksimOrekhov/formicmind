@@ -1,0 +1,158 @@
+{
+  "seed0": 100000,
+  "sweep": [
+    {
+      "colonies": 6,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 56,
+      "max_attempts": 11,
+      "mean_attempts_x100": 248,
+      "near_access_cv_permille": {
+        "max": 92,
+        "median": 44
+      },
+      "scenario": "abundance",
+      "shared_supply_cv_permille": {
+        "max": 197,
+        "median": 138
+      }
+    },
+    {
+      "colonies": 6,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 56,
+      "max_attempts": 11,
+      "mean_attempts_x100": 249,
+      "near_access_cv_permille": {
+        "max": 92,
+        "median": 44
+      },
+      "scenario": "moderate",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 142
+      }
+    },
+    {
+      "colonies": 6,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 55,
+      "max_attempts": 11,
+      "mean_attempts_x100": 254,
+      "near_access_cv_permille": {
+        "max": 93,
+        "median": 44
+      },
+      "scenario": "severe",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 145
+      }
+    },
+    {
+      "colonies": 7,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 71,
+      "max_attempts": 10,
+      "mean_attempts_x100": 206,
+      "near_access_cv_permille": {
+        "max": 94,
+        "median": 40
+      },
+      "scenario": "abundance",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 140
+      }
+    },
+    {
+      "colonies": 7,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 69,
+      "max_attempts": 10,
+      "mean_attempts_x100": 217,
+      "near_access_cv_permille": {
+        "max": 94,
+        "median": 40
+      },
+      "scenario": "moderate",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 141
+      }
+    },
+    {
+      "colonies": 7,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 69,
+      "max_attempts": 10,
+      "mean_attempts_x100": 218,
+      "near_access_cv_permille": {
+        "max": 94,
+        "median": 40
+      },
+      "scenario": "severe",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 143
+      }
+    },
+    {
+      "colonies": 8,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 72,
+      "max_attempts": 9,
+      "mean_attempts_x100": 176,
+      "near_access_cv_permille": {
+        "max": 74,
+        "median": 38
+      },
+      "scenario": "abundance",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 145
+      }
+    },
+    {
+      "colonies": 8,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 69,
+      "max_attempts": 9,
+      "mean_attempts_x100": 184,
+      "near_access_cv_permille": {
+        "max": 74,
+        "median": 38
+      },
+      "scenario": "moderate",
+      "shared_supply_cv_permille": {
+        "max": 200,
+        "median": 148
+      }
+    },
+    {
+      "colonies": 8,
+      "failed": 0,
+      "maps": 200,
+      "maps_with_chokepoint": 66,
+      "max_attempts": 9,
+      "mean_attempts_x100": 202,
+      "near_access_cv_permille": {
+        "max": 74,
+        "median": 38
+      },
+      "scenario": "severe",
+      "shared_supply_cv_permille": {
+        "max": 198,
+        "median": 146
+      }
+    }
+  ]
+}

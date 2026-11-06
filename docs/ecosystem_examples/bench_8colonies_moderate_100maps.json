@@ -1,0 +1,31 @@
+{
+  "attempts": {
+    "max": 9,
+    "mean_x100": 184
+  },
+  "benchmark": "map generation latency (no simulation, not worlds per second)",
+  "colonies": 8,
+  "fairness_report_only_us": {
+    "max": 793,
+    "mean": 516,
+    "median": 499,
+    "min": 477,
+    "p95": 649
+  },
+  "generation_incl_acceptance_checks_us": {
+    "max": 51016,
+    "mean": 11611,
+    "median": 7254,
+    "min": 5823,
+    "p95": 23711
+  },
+  "maps": 100,
+  "nodes": 96,
+  "platform": {
+    "platform": "win32",
+    "python": "3.12.10"
+  },
+  "scenario": "moderate",
+  "seed0": 1000,
+  "unit": "microseconds"
+}
