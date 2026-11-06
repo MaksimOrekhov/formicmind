@@ -1,0 +1,2714 @@
+{
+  "config": {
+    "alert_interval": 10,
+    "decision_k": 30,
+    "eco_balance_version": "eco1-candidate-unvalidated",
+    "eco_rules_version": "eco1-proto-v0",
+    "economy": {
+      "age_bucket": 100,
+      "attack_dwell": 3,
+      "carry_load": 16,
+      "eggs_per_lay": 1,
+      "harvest_patience": 8,
+      "harvest_rate": 2,
+      "home_defense_den": 4,
+      "home_defense_num": 5,
+      "initial_known_radius": 5,
+      "lane_cap": 8,
+      "lay_interval_ticks": 20,
+      "lifespan_soldier": 2000,
+      "lifespan_worker": 2000,
+      "narrow_lane_cap": 4,
+      "queen_hp": 240,
+      "scout_dwell": 2,
+      "soldier_damage": 2,
+      "soldier_egg_cost": 20,
+      "soldier_hatch_delay": 30,
+      "soldier_hp": 30,
+      "soldier_upkeep_tenths": 8,
+      "start_age_spread_permille": 500,
+      "start_food": 80,
+      "start_soldiers": 2,
+      "start_workers": 10,
+      "starvation_unit_cost": 5,
+      "storage_cap": 600,
+      "worker_egg_cost": 10,
+      "worker_hatch_delay": 20,
+      "worker_hp": 20,
+      "worker_upkeep_tenths": 4
+    },
+    "horizon": 6000,
+    "map_params": {
+      "choke_radius": 8,
+      "contest_radius": 14,
+      "economic_radius": 10,
+      "edge_k": 3,
+      "junction_min_sep": 40,
+      "max_attempts": 40,
+      "max_choke_near": 2,
+      "max_degree": 5,
+      "max_edge_ticks": 6,
+      "max_narrow_share_permille": 150,
+      "max_near_cv_permille": 100,
+      "max_nest_nn_path": 40,
+      "max_radius_cv_permille": 200,
+      "min_edge_ticks": 2,
+      "min_nest_path": 14,
+      "n_border": 8,
+      "n_far": 8,
+      "n_nodes": 96,
+      "near_max_path": 6,
+      "near_min_path": 3,
+      "near_per_nest": 2,
+      "surroundings_per_nest": 6,
+      "units_per_tick": 24,
+      "world_side": 894
+    },
+    "n_colonies": 8,
+    "options": {
+      "loot_on_queen_death": false,
+      "stop_when_alone": false,
+      "workers_flee_default": false
+    },
+    "resources": {
+      "border": {
+        "capacity": 120,
+        "regen": 6,
+        "site_cap": 12
+      },
+      "far": {
+        "capacity": 160,
+        "regen": 8,
+        "site_cap": 16
+      },
+      "near": {
+        "capacity": 100,
+        "regen": 5,
+        "site_cap": 10
+      }
+    },
+    "scenario": "moderate",
+    "schema": "formicmind.eco.config/1"
+  },
+  "config_hash": "05a9b71d67fadcbb73595ad5e8d522f8b59e9fe64dc1007275bb3f161439e909",
+  "document_sha256": "603d0e8aa52f4ceb897ffd74d5078081431e7bd54dbbd69674e71d1e485396f3",
+  "initial_state": {
+    "colonies": [
+      {
+        "colony_id": 0,
+        "food": 80,
+        "known_edges": 12,
+        "known_nodes": 11,
+        "soldiers": 2,
+        "visited_nodes": 5,
+        "workers": 10
+      },
+      {
+        "colony_id": 1,
+        "food": 80,
+        "known_edges": 14,
+        "known_nodes": 10,
+        "soldiers": 2,
+        "visited_nodes": 6,
+        "workers": 10
+      },
+      {
+        "colony_id": 2,
+        "food": 80,
+        "known_edges": 10,
+        "known_nodes": 10,
+        "soldiers": 2,
+        "visited_nodes": 4,
+        "workers": 10
+      },
+      {
+        "colony_id": 3,
+        "food": 80,
+        "known_edges": 14,
+        "known_nodes": 11,
+        "soldiers": 2,
+        "visited_nodes": 6,
+        "workers": 10
+      },
+      {
+        "colony_id": 4,
+        "food": 80,
+        "known_edges": 17,
+        "known_nodes": 11,
+        "soldiers": 2,
+        "visited_nodes": 6,
+        "workers": 10
+      },
+      {
+        "colony_id": 5,
+        "food": 80,
+        "known_edges": 10,
+        "known_nodes": 8,
+        "soldiers": 2,
+        "visited_nodes": 4,
+        "workers": 10
+      },
+      {
+        "colony_id": 6,
+        "food": 80,
+        "known_edges": 8,
+        "known_nodes": 8,
+        "soldiers": 2,
+        "visited_nodes": 4,
+        "workers": 10
+      },
+      {
+        "colony_id": 7,
+        "food": 80,
+        "known_edges": 10,
+        "known_nodes": 7,
+        "soldiers": 2,
+        "visited_nodes": 4,
+        "workers": 10
+      }
+    ],
+    "patch_stock_total": 3840,
+    "state_hash": "03ac8f74e7d35df5b48a7ce3206171acd726ef5e9889317df7380ab727d82d81",
+    "tick": 0
+  },
+  "map": {
+    "config_hash": "05a9b71d67fadcbb73595ad5e8d522f8b59e9fe64dc1007275bb3f161439e909",
+    "edges": [
+      {
+        "a": 0,
+        "b": 32,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 0,
+        "b": 40,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 0,
+        "b": 60,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 1,
+        "b": 20,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 1,
+        "b": 46,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 1,
+        "b": 56,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 1,
+        "b": 77,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 2,
+        "b": 6,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 2,
+        "b": 60,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 2,
+        "b": 92,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 3,
+        "b": 7,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 3,
+        "b": 47,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 3,
+        "b": 70,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 4,
+        "b": 34,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 4,
+        "b": 59,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 5,
+        "b": 19,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 5,
+        "b": 56,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 5,
+        "b": 77,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 5,
+        "b": 82,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 6,
+        "b": 29,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 6,
+        "b": 42,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 6,
+        "b": 92,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 7,
+        "b": 47,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 7,
+        "b": 70,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 7,
+        "b": 83,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 8,
+        "b": 18,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 8,
+        "b": 41,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 8,
+        "b": 65,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 8,
+        "b": 72,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 9,
+        "b": 46,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 9,
+        "b": 75,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 9,
+        "b": 76,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 10,
+        "b": 11,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 10,
+        "b": 65,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 12,
+        "b": 35,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 12,
+        "b": 71,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 12,
+        "b": 91,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 13,
+        "b": 71,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 13,
+        "b": 91,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 13,
+        "b": 92,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 14,
+        "b": 20,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 14,
+        "b": 69,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 14,
+        "b": 85,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 15,
+        "b": 37,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 15,
+        "b": 38,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 15,
+        "b": 44,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 16,
+        "b": 41,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 16,
+        "b": 58,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 16,
+        "b": 72,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 17,
+        "b": 29,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 17,
+        "b": 32,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 17,
+        "b": 60,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 17,
+        "b": 95,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 18,
+        "b": 30,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 18,
+        "b": 65,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 19,
+        "b": 36,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 19,
+        "b": 77,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 20,
+        "b": 77,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 21,
+        "b": 26,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 21,
+        "b": 52,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 21,
+        "b": 88,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 22,
+        "b": 28,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 22,
+        "b": 57,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 22,
+        "b": 74,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 22,
+        "b": 95,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 23,
+        "b": 24,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 23,
+        "b": 44,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 23,
+        "b": 50,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 24,
+        "b": 44,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 24,
+        "b": 50,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 25,
+        "b": 80,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 25,
+        "b": 94,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 26,
+        "b": 51,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 26,
+        "b": 62,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 26,
+        "b": 88,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 27,
+        "b": 31,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 27,
+        "b": 45,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 27,
+        "b": 49,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 27,
+        "b": 61,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 27,
+        "b": 90,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 28,
+        "b": 34,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 29,
+        "b": 42,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 30,
+        "b": 71,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 31,
+        "b": 61,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 31,
+        "b": 63,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 31,
+        "b": 79,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 32,
+        "b": 39,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 32,
+        "b": 40,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 32,
+        "b": 60,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 33,
+        "b": 62,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 33,
+        "b": 66,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 33,
+        "b": 80,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 34,
+        "b": 59,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 35,
+        "b": 41,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 35,
+        "b": 58,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 36,
+        "b": 54,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 36,
+        "b": 58,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 37,
+        "b": 38,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 37,
+        "b": 48,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 38,
+        "b": 48,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 38,
+        "b": 64,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 39,
+        "b": 40,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 39,
+        "b": 57,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 39,
+        "b": 95,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 41,
+        "b": 58,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 41,
+        "b": 72,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 42,
+        "b": 85,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 42,
+        "b": 92,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 43,
+        "b": 67,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 43,
+        "b": 93,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 44,
+        "b": 64,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 45,
+        "b": 49,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 45,
+        "b": 63,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 46,
+        "b": 50,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 47,
+        "b": 70,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 47,
+        "b": 73,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 48,
+        "b": 64,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 48,
+        "b": 87,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 49,
+        "b": 54,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 49,
+        "b": 90,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 50,
+        "b": 75,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 50,
+        "b": 78,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 51,
+        "b": 62,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 51,
+        "b": 66,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 52,
+        "b": 68,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 52,
+        "b": 88,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 53,
+        "b": 61,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 53,
+        "b": 81,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 2
+      },
+      {
+        "a": 53,
+        "b": 82,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 53,
+        "b": 90,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 54,
+        "b": 58,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 54,
+        "b": 90,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 55,
+        "b": 67,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 55,
+        "b": 84,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 55,
+        "b": 89,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 56,
+        "b": 77,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 57,
+        "b": 74,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 57,
+        "b": 93,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 59,
+        "b": 95,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 61,
+        "b": 81,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 61,
+        "b": 90,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 62,
+        "b": 80,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 62,
+        "b": 88,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 63,
+        "b": 79,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 64,
+        "b": 66,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 64,
+        "b": 87,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 66,
+        "b": 87,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 67,
+        "b": 86,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 67,
+        "b": 89,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 68,
+        "b": 88,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 69,
+        "b": 85,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 69,
+        "b": 92,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 5
+      },
+      {
+        "a": 70,
+        "b": 84,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 70,
+        "b": 86,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 71,
+        "b": 91,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 73,
+        "b": 84,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 74,
+        "b": 86,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 74,
+        "b": 93,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 75,
+        "b": 76,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 75,
+        "b": 78,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      },
+      {
+        "a": 76,
+        "b": 83,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 78,
+        "b": 83,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 4
+      },
+      {
+        "a": 80,
+        "b": 94,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 6
+      },
+      {
+        "a": 81,
+        "b": 82,
+        "chokepoint": false,
+        "lane_cap": 8,
+        "length": 3
+      }
+    ],
+    "generation": {
+      "algorithm": "eco-mapgen-v1",
+      "attempts": 2
+    },
+    "map_hash": "fce2596c0957b76dedb700165c4170b155aeae039c458c45ee7ddcb71fd6600d",
+    "map_seed": "42",
+    "n_colonies": 8,
+    "nests": [
+      69,
+      32,
+      83,
+      41,
+      27,
+      15,
+      67,
+      21
+    ],
+    "nodes": [
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 0,
+        "patch": [],
+        "x": 40,
+        "y": 471
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 1,
+        "patch": [],
+        "x": 509,
+        "y": 437
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 2,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 137,
+        "y": 320
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 3,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 342,
+        "y": 735
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 4,
+        "patch": [],
+        "x": 279,
+        "y": 569
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 5,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 634,
+        "y": 364
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 6,
+        "patch": [],
+        "x": 231,
+        "y": 401
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 7,
+        "patch": [],
+        "x": 366,
+        "y": 702
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 8,
+        "patch": [],
+        "x": 357,
+        "y": 25
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 9,
+        "patch": [],
+        "x": 401,
+        "y": 547
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 10,
+        "patch": [],
+        "x": 141,
+        "y": 27
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 11,
+        "patch": [],
+        "x": 56,
+        "y": 134
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 12,
+        "patch": [],
+        "x": 393,
+        "y": 220
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 13,
+        "patch": [],
+        "x": 271,
+        "y": 308
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 14,
+        "patch": [],
+        "x": 388,
+        "y": 409
+      },
+      {
+        "kind": "nest",
+        "nest_of": 5,
+        "node_id": 15,
+        "patch": [],
+        "x": 658,
+        "y": 473
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 16,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 484,
+        "y": 20
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 17,
+        "patch": [],
+        "x": 140,
+        "y": 492
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 18,
+        "patch": [],
+        "x": 317,
+        "y": 111
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 19,
+        "patch": [],
+        "x": 528,
+        "y": 284
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 20,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 455,
+        "y": 395
+      },
+      {
+        "kind": "nest",
+        "nest_of": 7,
+        "node_id": 21,
+        "patch": [],
+        "x": 808,
+        "y": 761
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 22,
+        "patch": [],
+        "x": 174,
+        "y": 648
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 23,
+        "patch": [],
+        "x": 610,
+        "y": 554
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 24,
+        "patch": [],
+        "x": 581,
+        "y": 514
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 25,
+        "patch": [],
+        "x": 589,
+        "y": 793
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 26,
+        "patch": [],
+        "x": 760,
+        "y": 713
+      },
+      {
+        "kind": "nest",
+        "nest_of": 4,
+        "node_id": 27,
+        "patch": [],
+        "x": 721,
+        "y": 167
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 28,
+        "patch": [],
+        "x": 237,
+        "y": 644
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 29,
+        "patch": [],
+        "x": 214,
+        "y": 450
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 30,
+        "patch": [],
+        "x": 265,
+        "y": 199
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 31,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 776,
+        "y": 224
+      },
+      {
+        "kind": "nest",
+        "nest_of": 1,
+        "node_id": 32,
+        "patch": [],
+        "x": 74,
+        "y": 517
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 33,
+        "patch": [],
+        "x": 645,
+        "y": 675
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 34,
+        "patch": [],
+        "x": 262,
+        "y": 614
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 35,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 420,
+        "y": 150
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 36,
+        "patch": [],
+        "x": 528,
+        "y": 246
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 37,
+        "patch": [],
+        "x": 701,
+        "y": 435
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 38,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 717,
+        "y": 496
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 39,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 84,
+        "y": 601
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 40,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 2,
+        "y": 567
+      },
+      {
+        "kind": "nest",
+        "nest_of": 3,
+        "node_id": 41,
+        "patch": [],
+        "x": 419,
+        "y": 74
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 42,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 258,
+        "y": 439
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 43,
+        "patch": [],
+        "x": 28,
+        "y": 767
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 44,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 658,
+        "y": 535
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 45,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 753,
+        "y": 95
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 46,
+        "patch": [],
+        "x": 473,
+        "y": 513
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 47,
+        "patch": [],
+        "x": 374,
+        "y": 786
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 48,
+        "patch": [],
+        "x": 766,
+        "y": 492
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 49,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 629,
+        "y": 106
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 50,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 539,
+        "y": 572
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 51,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 770,
+        "y": 656
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 52,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 808,
+        "y": 821
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 53,
+        "patch": [],
+        "x": 667,
+        "y": 265
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 54,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 571,
+        "y": 132
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 55,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 205,
+        "y": 882
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 56,
+        "patch": [],
+        "x": 576,
+        "y": 421
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 57,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 119,
+        "y": 666
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 58,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 514,
+        "y": 131
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 59,
+        "patch": [],
+        "x": 215,
+        "y": 557
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 60,
+        "patch": [],
+        "x": 58,
+        "y": 419
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 61,
+        "patch": [],
+        "x": 709,
+        "y": 225
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 62,
+        "patch": [],
+        "x": 713,
+        "y": 700
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 63,
+        "patch": [],
+        "x": 833,
+        "y": 191
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 64,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 721,
+        "y": 544
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 65,
+        "patch": [],
+        "x": 311,
+        "y": 42
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 66,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 726,
+        "y": 611
+      },
+      {
+        "kind": "nest",
+        "nest_of": 6,
+        "node_id": 67,
+        "patch": [],
+        "x": 152,
+        "y": 820
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 68,
+        "patch": [],
+        "x": 793,
+        "y": 875
+      },
+      {
+        "kind": "nest",
+        "nest_of": 0,
+        "node_id": 69,
+        "patch": [],
+        "x": 355,
+        "y": 380
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 70,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 296,
+        "y": 751
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 71,
+        "patch": [],
+        "x": 295,
+        "y": 234
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 72,
+        "patch": [],
+        "x": 448,
+        "y": 5
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 73,
+        "patch": [],
+        "x": 309,
+        "y": 845
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 74,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 126,
+        "y": 714
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 75,
+        "patch": [],
+        "x": 480,
+        "y": 624
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 76,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 420,
+        "y": 625
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 77,
+        "patch": [],
+        "x": 539,
+        "y": 370
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 78,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 511,
+        "y": 666
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 79,
+        "patch": [],
+        "x": 867,
+        "y": 316
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 80,
+        "patch": [],
+        "x": 625,
+        "y": 726
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 81,
+        "patch": [],
+        "x": 705,
+        "y": 279
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 82,
+        "patch": [],
+        "x": 688,
+        "y": 332
+      },
+      {
+        "kind": "nest",
+        "nest_of": 2,
+        "node_id": 83,
+        "patch": [],
+        "x": 438,
+        "y": 695
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 84,
+        "patch": [
+          {
+            "capacity": 160,
+            "regen": 8,
+            "site_cap": 16,
+            "start_stock": 160,
+            "zone": "far"
+          }
+        ],
+        "x": 260,
+        "y": 824
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 85,
+        "patch": [],
+        "x": 332,
+        "y": 432
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 86,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 205,
+        "y": 746
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 87,
+        "patch": [],
+        "x": 787,
+        "y": 551
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 88,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 735,
+        "y": 751
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 89,
+        "patch": [],
+        "x": 146,
+        "y": 893
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 90,
+        "patch": [],
+        "x": 658,
+        "y": 201
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 91,
+        "patch": [
+          {
+            "capacity": 120,
+            "regen": 6,
+            "site_cap": 12,
+            "start_stock": 120,
+            "zone": "border"
+          }
+        ],
+        "x": 341,
+        "y": 267
+      },
+      {
+        "kind": "patch",
+        "nest_of": -1,
+        "node_id": 92,
+        "patch": [
+          {
+            "capacity": 100,
+            "regen": 5,
+            "site_cap": 10,
+            "start_stock": 100,
+            "zone": "near"
+          }
+        ],
+        "x": 260,
+        "y": 351
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 93,
+        "patch": [],
+        "x": 72,
+        "y": 755
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 94,
+        "patch": [],
+        "x": 557,
+        "y": 825
+      },
+      {
+        "kind": "junction",
+        "nest_of": -1,
+        "node_id": 95,
+        "patch": [],
+        "x": 155,
+        "y": 572
+      }
+    ],
+    "schema": "formicmind.eco.map/1"
+  },
+  "map_hash": "fce2596c0957b76dedb700165c4170b155aeae039c458c45ee7ddcb71fd6600d",
+  "map_seed": "42",
+  "report": {
+    "all_checks_passed": true,
+    "checks": [
+      {
+        "limit": 1,
+        "name": "connected",
+        "ok": true,
+        "relation": "==",
+        "value": 1
+      },
+      {
+        "limit": 96,
+        "name": "node_count_in_range",
+        "ok": true,
+        "relation": "==",
+        "value": 96
+      },
+      {
+        "limit": 32,
+        "name": "patch_counts_match_config",
+        "ok": true,
+        "relation": "==",
+        "value": 32
+      },
+      {
+        "limit": 1,
+        "name": "nests_distinct_and_typed",
+        "ok": true,
+        "relation": "==",
+        "value": 1
+      },
+      {
+        "limit": 2,
+        "name": "nest_degree_at_least_2",
+        "ok": true,
+        "relation": ">=",
+        "value": 3
+      },
+      {
+        "limit": 14,
+        "name": "nest_pair_min_path",
+        "ok": true,
+        "relation": ">=",
+        "value": 16
+      },
+      {
+        "limit": 40,
+        "name": "nearest_nest_max_path",
+        "ok": true,
+        "relation": "<=",
+        "value": 18
+      },
+      {
+        "limit": 3,
+        "name": "near_patch_min_path",
+        "ok": true,
+        "relation": ">=",
+        "value": 3
+      },
+      {
+        "limit": 6,
+        "name": "near_patch_max_path",
+        "ok": true,
+        "relation": "<=",
+        "value": 5
+      },
+      {
+        "limit": 3,
+        "name": "near_patch_owner_margin",
+        "ok": true,
+        "relation": ">=",
+        "value": 8
+      },
+      {
+        "limit": 2,
+        "name": "shared_patches_contested",
+        "ok": true,
+        "relation": ">=",
+        "value": 2
+      },
+      {
+        "limit": 100,
+        "name": "near_access_cv_permille",
+        "ok": true,
+        "relation": "<=",
+        "value": 66
+      },
+      {
+        "limit": 200,
+        "name": "radius_supply_cv_permille",
+        "ok": true,
+        "relation": "<=",
+        "value": 183
+      },
+      {
+        "limit": 2,
+        "name": "chokepoints_near_nest_max",
+        "ok": true,
+        "relation": "<=",
+        "value": 0
+      },
+      {
+        "limit": 150,
+        "name": "narrow_edge_share_permille",
+        "ok": true,
+        "relation": "<=",
+        "value": 0
+      },
+      {
+        "limit": 6,
+        "name": "edge_lengths_in_range",
+        "ok": true,
+        "relation": "<=",
+        "value": 6
+      },
+      {
+        "limit": 1,
+        "name": "lanes_and_chokepoints_consistent",
+        "ok": true,
+        "relation": "==",
+        "value": 1
+      }
+    ],
+    "colonies": [
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 0,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 7774,
+        "near_patch_paths": [
+          5,
+          5
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 3,
+        "patches_in_radius": 3,
+        "radius_supply_x1000": 13000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 1,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 8756,
+        "near_patch_paths": [
+          4,
+          4
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 5,
+        "patches_in_radius": 4,
+        "radius_supply_x1000": 19000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 2,
+        "contested_patches_in_radius": 2,
+        "near_access_x1000": 8756,
+        "near_patch_paths": [
+          4,
+          4
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 3,
+        "patches_in_radius": 5,
+        "radius_supply_x1000": 24000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 3,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 8756,
+        "near_patch_paths": [
+          4,
+          4
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 5,
+        "patches_in_radius": 4,
+        "radius_supply_x1000": 21000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 4,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 8756,
+        "near_patch_paths": [
+          4,
+          4
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 5,
+        "patches_in_radius": 4,
+        "radius_supply_x1000": 21000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 5,
+        "contested_patches_in_radius": 2,
+        "near_access_x1000": 10000,
+        "near_patch_paths": [
+          3,
+          3
+        ],
+        "nearest_nest_path": 18,
+        "nest_degree": 3,
+        "patches_in_radius": 5,
+        "radius_supply_x1000": 24000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 6,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 8756,
+        "near_patch_paths": [
+          4,
+          4
+        ],
+        "nearest_nest_path": 16,
+        "nest_degree": 4,
+        "patches_in_radius": 5,
+        "radius_supply_x1000": 27000
+      },
+      {
+        "chokepoints_within_radius": 0,
+        "colony_id": 7,
+        "contested_patches_in_radius": 1,
+        "near_access_x1000": 9378,
+        "near_patch_paths": [
+          3,
+          4
+        ],
+        "nearest_nest_path": 18,
+        "nest_degree": 3,
+        "patches_in_radius": 4,
+        "radius_supply_x1000": 21000
+      }
+    ],
+    "counts": {
+      "chokepoints": 0,
+      "colonies": 8,
+      "edges": 164,
+      "junctions": 56,
+      "narrow_edges": 0,
+      "nodes": 96,
+      "patches": 32,
+      "patches_by_zone": {
+        "border": 8,
+        "far": 8,
+        "near": 16
+      }
+    },
+    "fairness": {
+      "contested_patches_in_radius": {
+        "cv_permille": 346,
+        "max": 2,
+        "mean_x1000": 1250,
+        "min": 1
+      },
+      "economic_radius_ticks": 10,
+      "near_access_x1000": {
+        "cv_permille": 66,
+        "max": 10000,
+        "mean_x1000": 8866500,
+        "min": 7774
+      },
+      "radius_supply_x1000": {
+        "cv_permille": 183,
+        "max": 27000,
+        "mean_x1000": 21250000,
+        "min": 13000
+      },
+      "scenario": "moderate"
+    },
+    "ranges": {
+      "degree": {
+        "max": 5,
+        "mean_x100": 341,
+        "min": 1
+      },
+      "edge_length": {
+        "histogram": [
+          13,
+          63,
+          57,
+          17,
+          14
+        ],
+        "histogram_from": 2,
+        "max": 6,
+        "mean_x100": 373,
+        "min": 2
+      },
+      "nearest_nest_path": {
+        "cv_permille": 52,
+        "max": 18,
+        "mean_x1000": 16500,
+        "min": 16
+      },
+      "nest_pair_path": {
+        "min": 16
+      }
+    },
+    "resource_budget": {
+      "regen_per_colony_x1000": 24000,
+      "total_capacity": 3840,
+      "total_regen": 192,
+      "zones": {
+        "border": {
+          "capacity": 960,
+          "count": 8,
+          "regen": 48,
+          "site_cap": 96,
+          "start_stock": 960
+        },
+        "far": {
+          "capacity": 1280,
+          "count": 8,
+          "regen": 64,
+          "site_cap": 128,
+          "start_stock": 1280
+        },
+        "near": {
+          "capacity": 1600,
+          "count": 16,
+          "regen": 80,
+          "site_cap": 160,
+          "start_stock": 1600
+        }
+      }
+    },
+    "schema": "formicmind.eco.fairness/1"
+  },
+  "report_hash": "bc39b2f71237569af3417f656f20c989bbe8532063eaf45bb16d59c745e2a9f1",
+  "schema": "formicmind.eco.map-cli/1",
+  "versions": {
+    "action_version": "ActionE1/v1",
+    "eco_balance_version": "eco1-candidate-unvalidated",
+    "eco_rules_version": "eco1-proto-v0",
+    "generator": "eco-mapgen-v1",
+    "observation_version": "ObservationE1/v1"
+  }
+}
