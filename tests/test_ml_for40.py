@@ -161,6 +161,19 @@ def test_loader_rejects_tampering(mini, tmp_path: Path) -> None:
         for40.load_for40_dataset(_rewrite(mini, tmp_path / "d", wrong_maps), expect_full_protocol=False)
 
 
+def test_gzip_dataset_round_trip_is_byte_stable(mini, tmp_path: Path) -> None:
+    import gzip
+    import hashlib
+
+    target = tmp_path / "ds.jsonl.gz"
+    manifest = for40.collect_for40_dataset(target, plan=mini["plan"])
+    assert manifest["dataset_sha256"] == mini["manifest"]["dataset_sha256"]  # deterministic re-collection
+    assert hashlib.sha256(gzip.decompress(target.read_bytes())).hexdigest() == manifest["dataset_sha256"]
+    loaded, examples = for40.load_for40_dataset(target, expect_full_protocol=False)
+    assert loaded["dataset_file"] == "ds.jsonl.gz" and len(examples) == manifest["example_count"]
+    assert (tmp_path / "ds.manifest.json").exists()
+
+
 def test_full_protocol_check_rejects_a_partial_plan(mini) -> None:
     with pytest.raises(DatasetError, match="plan"):
         for40.load_for40_dataset(mini["dataset"], expect_full_protocol=True)

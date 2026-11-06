@@ -7,6 +7,7 @@ public ``Topology``; labels are always Balanced v2 logits on the visited state.
 
 from __future__ import annotations
 
+import gzip
 import hashlib
 import json
 import platform
@@ -532,6 +533,16 @@ def build_manifest(output: Path, jsonl: bytes, collected: dict[str, Any], plan: 
     }
 
 
+def _dataset_stem(path: Path) -> str:
+    """``x.jsonl`` and ``x.jsonl.gz`` share the manifest ``x.manifest.json`` (gz survives CRLF checkouts)."""
+    return path.name[:-len(".jsonl.gz")] if path.name.endswith(".jsonl.gz") else path.stem
+
+
+def _read_dataset_bytes(path: Path) -> bytes:
+    raw = path.read_bytes()
+    return gzip.decompress(raw) if path.name.endswith(".gz") else raw
+
+
 def collect_for40_dataset(output: str | Path, *, plan: list[For40Match] | None = None) -> dict[str, Any]:
     output = Path(output)
     plan = plan_for40() if plan is None else plan
@@ -541,8 +552,8 @@ def collect_for40_dataset(output: str | Path, *, plan: list[For40Match] | None =
         raise DatasetError("FOR-40 collection produced no retained decisions")
     jsonl = b"".join(_canonical_bytes(row) + b"\n" for row in rows)
     manifest = build_manifest(output, jsonl, collected, plan)
-    _write_atomic(output, jsonl)
-    _write_atomic(output.with_name(f"{output.stem}.manifest.json"),
+    _write_atomic(output, gzip.compress(jsonl, compresslevel=9, mtime=0) if output.name.endswith(".gz") else jsonl)
+    _write_atomic(output.with_name(f"{_dataset_stem(output)}.manifest.json"),
                   (json.dumps(manifest, indent=2, sort_keys=True, allow_nan=False) + "\n").encode())
     return manifest
 
@@ -578,9 +589,9 @@ def load_for40_dataset(path: str | Path, *, expect_full_protocol: bool = True) -
     """Verify hashes, protocol maps, contracts, fingerprints, masks, labels and split isolation."""
     path = Path(path)
     try:
-        manifest = json.loads(path.with_name(f"{path.stem}.manifest.json").read_text(encoding="utf-8"))
-        raw = path.read_bytes()
-    except (OSError, json.JSONDecodeError) as exc:
+        manifest = json.loads(path.with_name(f"{_dataset_stem(path)}.manifest.json").read_text(encoding="utf-8"))
+        raw = _read_dataset_bytes(path)
+    except (OSError, json.JSONDecodeError, EOFError, gzip.BadGzipFile) as exc:
         raise DatasetError(f"cannot read FOR-40 dataset and manifest: {exc}") from exc
     if not isinstance(manifest, dict) or manifest.get("schema") != FOR40_SCHEMA:
         raise DatasetError("unsupported FOR-40 manifest schema")
