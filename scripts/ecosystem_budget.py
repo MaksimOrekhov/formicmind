@@ -199,6 +199,21 @@ def _reach(sc: Scenario, key: tuple) -> list[int]:
     return [(k - 1) % n, k % n, (k + 1) % n]  # "far": colonies k-1, k, k+1
 
 
+def bucket_start(tick: int, bucket: int) -> int:
+    """Start of the birth bucket that contains ``tick`` (floor division, also for the negative start ages)."""
+    return (tick // bucket) * bucket
+
+
+def expiry_tick(hatch_tick: int, lifespan: int, bucket: int) -> int:
+    """Tick at which the whole birth bucket of ``hatch_tick`` dies: ``bucket_start + lifespan`` (nominal ``L`` is the
+    maximum; the unit that hatched last in the bucket lives ``bucket - 1`` ticks less)."""
+    return bucket_start(hatch_tick, bucket) + lifespan
+
+
+def lived_ticks(hatch_tick: int, lifespan: int, bucket: int) -> int:
+    return expiry_tick(hatch_tick, lifespan, bucket) - hatch_tick
+
+
 def _book_deaths(ledger: dict, n: int) -> None:
     """Book ``n`` non-age deaths against the age ledger proportionally (largest remainder, ties -> older bucket)."""
     total = sum(ledger.values())
@@ -225,7 +240,7 @@ def _seed_ages(count: int, lifespan: int, e: Econ) -> dict:
     ledger: dict[int, int] = {}
     for i in range(count):
         age = int(i * e.start_age_spread * lifespan / max(1, count)) if lifespan else 0
-        bucket = -((age + e.age_bucket - 1) // e.age_bucket) * e.age_bucket  # bucket start (<= 0)
+        bucket = bucket_start(-age, e.age_bucket)  # the older bucket: a start unit may live up to bucket-1 ticks less
         ledger[bucket] = ledger.get(bucket, 0) + 1
     return ledger
 
@@ -310,7 +325,7 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
                                            (c.ages_s, e.lifespan_soldier, "soldiers")):
                 if not lifespan:
                     continue
-                for b in [b for b in sorted(ledger) if b + lifespan <= t]:
+                for b in [b for b in sorted(ledger) if expiry_tick(b, lifespan, e.age_bucket) <= t]:
                     k = ledger.pop(b)
                     setattr(c, attr, max(0, getattr(c, attr) - k))
                     c.old_age_deaths += k

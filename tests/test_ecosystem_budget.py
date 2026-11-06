@@ -183,3 +183,30 @@ def test_main_prints_and_dumps_json(budget, capsys):
     assert budget.main(["--json"]) == 0
     data = json.loads(capsys.readouterr().out)
     assert math.isclose(data["break_even_distance"], 16.0)
+
+
+def test_age_bucket_semantics_nominal_lifespan_is_a_maximum(budget):
+    e = budget.Econ()
+    L, B = e.lifespan_worker, e.age_bucket
+    # the first unit of a bucket lives exactly L, the last one B - 1 ticks less; the whole bucket dies together
+    assert budget.lived_ticks(1200, L, B) == L
+    assert budget.lived_ticks(1299, L, B) == L - (B - 1)
+    assert budget.expiry_tick(1200, L, B) == budget.expiry_tick(1299, L, B) == 1200 + L
+    lived = [budget.lived_ticks(h, L, B) for h in range(-500, 3000)]
+    assert max(lived) == L and min(lived) == L - B + 1
+    assert sum(lived) / len(lived) == pytest.approx(L - (B - 1) / 2, abs=0.6)  # mean ~ L - 49.5
+    # negative start ages use floor division too: age 150 -> bucket -200, expiry L - 200
+    assert budget.bucket_start(-150, B) == -200 and budget.expiry_tick(-150, L, B) == L - 200
+
+
+def test_the_simulation_kills_a_bucket_exactly_at_its_expiry_tick(budget):
+    e = budget.Econ(start_age_spread=0.5)
+    sc = budget.scenario("moderate", 1.0)
+    # colony 0 loses its queen at tick 0 (no new adults): only the seeded ages decide when its start adults die
+    r = budget.simulate(sc, e, policy="fair", ticks=2100, queen_death={0: 0}, trace=True)
+    adults = {t: v[0][0] + v[0][1] for t, v in r["series"]}
+    seeds = list(budget._seed_ages(e.start_workers, e.lifespan_worker, e)) + list(budget._seed_ages(e.start_soldiers, e.lifespan_soldier, e))
+    first = min(budget.expiry_tick(b, e.lifespan_worker, e.age_bucket) for b in seeds)
+    last = max(budget.expiry_tick(b, e.lifespan_worker, e.age_bucket) for b in seeds)
+    assert adults[950] == e.start_workers + e.start_soldiers and first >= 1000
+    assert adults[last - (last % 50)] <= adults[950] and adults[2050] == 0 and last <= 2000
