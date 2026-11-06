@@ -22,7 +22,7 @@ from ..canonical import CanonicalError, canonical_dumps, canonical_loads
 from .codec import to_canonical
 from .config import SCENARIOS, SIZES, ConfigE1, ConfigError, config_from_canonical, config_hash, default_config
 from .fairness import evaluate, report_hash
-from .initial import build_world
+from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .versions import (
@@ -55,21 +55,24 @@ def build_document(config: ConfigE1, seed: int, *, report: bool, state: bool) ->
         doc["report"] = rep
         doc["report_hash"] = report_hash(rep)
     if state:
-        s = world.state
-        doc["initial_state"] = {
-            "state_hash": state_hash(s),
-            "tick": s.tick,
-            "colonies": [
-                {"colony_id": c.colony_id, "food": c.food,
-                 "workers": sum(x.count for x in s.cohorts if x.colony_id == c.colony_id and x.caste == "worker"),
-                 "soldiers": sum(x.count for x in s.cohorts if x.colony_id == c.colony_id and x.caste == "soldier"),
-                 "known_nodes": len(c.memory.nodes), "visited_nodes": sum(1 for n in c.memory.nodes if n.visited),
-                 "known_edges": len(c.memory.edges)}
-                for c in s.colonies
-            ],
-            "patch_stock_total": sum(p.stock for p in s.patches),
-        }
+        doc["initial_state"] = _initial_state_summary(world.state)
     return doc
+
+
+def _initial_state_summary(state) -> dict:
+    return {
+        "state_hash": state_hash(state),
+        "tick": state.tick,
+        "colonies": [
+            {"colony_id": c.colony_id, "food": c.food,
+             "workers": sum(x.count for x in state.cohorts if x.colony_id == c.colony_id and x.caste == "worker"),
+             "soldiers": sum(x.count for x in state.cohorts if x.colony_id == c.colony_id and x.caste == "soldier"),
+             "known_nodes": len(c.memory.nodes), "visited_nodes": sum(1 for n in c.memory.nodes if n.visited),
+             "known_edges": len(c.memory.edges)}
+            for c in state.colonies
+        ],
+        "patch_stock_total": sum(p.stock for p in state.patches),
+    }
 
 
 def dumps(doc: dict, *, pretty: bool) -> str:
@@ -124,14 +127,24 @@ def cmd_verify(args: argparse.Namespace) -> int:
     with open(args.file, "rb") as handle:
         raw = handle.read()
     doc = json.loads(raw.decode("utf-8"))
-    required = {"schema", "versions", "map_seed", "config", "config_hash", "map", "map_hash"}
+    required = {"schema", "versions", "map_seed", "config", "config_hash", "map", "map_hash", "document_sha256"}
+    optional = {"report", "report_hash", "initial_state"}
     if type(doc) is not dict or not required <= set(doc):
         raise CanonicalError("not an Ecosystem v1 map document (missing keys)")
-    claimed = doc.pop("document_sha256", None)
-    if claimed is not None and claimed != hashlib.sha256(canonical_dumps(doc)).hexdigest():
+    keys = set(doc)
+    if keys - required - optional:
+        raise CanonicalError("map document contains unknown top-level keys")
+    if ("report" in doc) != ("report_hash" in doc):
+        raise CanonicalError("report and report_hash must be present together")
+    claimed = doc["document_sha256"]
+    if type(claimed) is not str or claimed != hashlib.sha256(
+        canonical_dumps({key: value for key, value in doc.items() if key != "document_sha256"})
+    ).hexdigest():
         raise CanonicalError("document_sha256 does not match the document")
     if doc.get("schema") != CLI_SCHEMA:
         raise CanonicalError("not an Ecosystem v1 map document")
+    if doc["versions"] != _versions():
+        raise CanonicalError("versions do not match this Ecosystem v1 CLI")
     config = config_from_canonical(doc["config"])
     if config_hash(config) != doc["config_hash"]:
         raise CanonicalError("config_hash mismatch")
@@ -148,6 +161,10 @@ def cmd_verify(args: argparse.Namespace) -> int:
         rep = evaluate(config, world_map)
         if canonical_dumps(rep) != canonical_dumps(doc["report"]) or report_hash(rep) != doc["report_hash"]:
             raise CanonicalError("report differs from the recomputed fairness report")
+    if "initial_state" in doc:
+        expected_state = _initial_state_summary(initial_world_state(config, regenerated))
+        if canonical_dumps(expected_state) != canonical_dumps(doc["initial_state"]):
+            raise CanonicalError("initial_state differs from the recomputed tick-0 world state")
     sys.stdout.write(f"OK  map_hash={world_map.map_hash}  seed={seed}  colonies={config.n_colonies}  scenario={config.scenario}\n")
     return 0
 

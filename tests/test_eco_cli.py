@@ -116,6 +116,43 @@ def test_verify_detects_tampering_with_the_map_the_hashes_or_the_report(capsys, 
     assert code == 3 and "error:" in err
 
 
+@pytest.mark.parametrize(
+    ("mutation", "message"),
+    [
+        ("initial_state", "initial_state"),
+        ("versions", "versions"),
+        ("unknown_key", "unknown top-level keys"),
+        ("report_without_hash", "report and report_hash"),
+        ("hash_without_report", "report and report_hash"),
+        ("missing_document_hash", "missing keys"),
+    ],
+)
+def test_verify_rejects_forged_summaries_versions_and_document_shapes(capsys, tmp_path, mutation, message):
+    _, out, _ = run(capsys, *MAP_ARGS)
+    doc = json.loads(out)
+    if mutation == "initial_state":
+        doc["initial_state"]["colonies"][0]["food"] += 1
+    elif mutation == "versions":
+        doc["versions"]["action_version"] = "ActionE1/forged"
+    elif mutation == "unknown_key":
+        doc["unrecognized"] = "accepted only by a permissive verifier"
+    elif mutation == "report_without_hash":
+        del doc["report_hash"]
+    elif mutation == "hash_without_report":
+        del doc["report"]
+    elif mutation == "missing_document_hash":
+        del doc["document_sha256"]
+    if "document_sha256" in doc:
+        doc["document_sha256"] = hashlib.sha256(
+            canonical_dumps({key: value for key, value in doc.items() if key != "document_sha256"})
+        ).hexdigest()
+
+    path = tmp_path / f"{mutation}.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    code, _, err = run(capsys, "verify", str(path))
+    assert code == 3 and message in err
+
+
 def test_verify_rejects_garbage_files(capsys, tmp_path):
     for name, content in (("a.json", "not json"), ("b.json", "[]"), ("c.json", "{}"), ("d.json", '{"schema": "formicmind.eco.map-cli/1"}')):
         path = tmp_path / name
