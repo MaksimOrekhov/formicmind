@@ -800,7 +800,93 @@ def gate_for40(dataset_path: str | Path, output: str | Path | None = None) -> di
     return report
 
 
-__all__ = [
+def _quantiles(values: list[float]) -> dict[str, float]:
+    ordered = sorted(values)
+    if not ordered:
+        return {}
+
+    def at(fraction: float) -> float:
+        position = (len(ordered) - 1) * fraction
+        lower = int(position)
+        upper = min(lower + 1, len(ordered) - 1)
+        return ordered[lower] * (1 - (position - lower)) + ordered[upper] * (position - lower)
+
+    return {"min": ordered[0], "p10": at(0.10), "median": at(0.50), "p90": at(0.90), "max": ordered[-1]}
+
+
+def posthoc_for40(dataset_path: str | Path, output: str | Path | None = None, *,
+                  expect_full_protocol: bool = True) -> dict[str, Any]:
+    """Descriptive, NOT preregistered diagnostics of the collected data (no model is involved).
+
+    Explains where decisions were lost between games and retained decisions and how varied the labels are.
+    """
+    import torch
+
+    manifest, examples = load_for40_dataset(dataset_path, expect_full_protocol=expect_full_protocol)
+    matches = [m for m in manifest["matches"] if not m.get("removed_by_disturbed_cap")]
+    funnel_by_group: dict[str, dict[str, Any]] = {}
+    for match in matches:
+        key = f"{match['split']}/{match['source']}/{match['opponent_id'] if match['source'] in ('H_det', 'P_det') else '*'}"
+        group = funnel_by_group.setdefault(key, {"matches": 0, "source_decisions": 0, "retained_decisions": 0,
+                                                 "reasons": Counter(), "final_ticks": []})
+        group["matches"] += 1
+        group["source_decisions"] += match["source_decision_count"]
+        group["retained_decisions"] += match["retained_decision_count"]
+        group["reasons"][str(match["reason"])] += 1
+        group["final_ticks"].append(match["final_tick"])
+    for group in funnel_by_group.values():
+        group["decisions_lost_to_global_deduplication"] = group["source_decisions"] - group["retained_decisions"]
+        group["mean_source_decisions_per_match"] = group["source_decisions"] / group["matches"]
+        group["mean_final_tick"] = sum(group["final_ticks"]) / len(group["final_ticks"])
+        group["reasons"] = dict(sorted(group.pop("reasons").items()))
+        del group["final_ticks"]
+    deferred = [{
+        "map_id": m["map_id"], "opponent_id": m["opponent_id"], "source_decisions": m["source_decision_count"],
+        "retained_decisions": m["retained_decision_count"], "final_tick": m["final_tick"], "reason": m["reason"],
+    } for m in matches if m["split"] == "heldout" and m["opponent_id"] in ("rush:v2", "raider:v2")]
+    deferred.sort(key=lambda r: (r["opponent_id"], r["map_id"]))
+    diversity = {}
+    for split in SPLITS:
+        rows = [e for e in examples if e.split == split]
+        diversity[split] = {
+            "decisions": len(rows),
+            "distinct_lay_army_avoid": len({(e.teacher_action.lay_order, e.teacher_action.army_choice,
+                                             e.teacher_action.avoid_center) for e in rows}),
+            "distinct_forage_tuples": len({e.teacher_action.forage_share_q for e in rows}),
+            "lay_shares": {k: v / len(rows) for k, v in sorted(Counter(
+                ("none", "worker", "soldier")[e.teacher_action.lay_order] for e in rows).items())},
+            "army_shares": {k: v / len(rows) for k, v in sorted(Counter(
+                army_group(e.teacher_action.army_choice) for e in rows).items())},
+        }
+    obs = {split: torch.tensor([e.observation for e in examples if e.split == split], dtype=torch.float32)
+           for split in SPLITS}
+
+    def nearest(query: torch.Tensor, reference: torch.Tensor, exclude_self: bool = False) -> list[float]:
+        distances = torch.cdist(query, reference)
+        if exclude_self:
+            distances.fill_diagonal_(float("inf"))
+        return distances.min(dim=1).values.tolist()
+
+    coverage = {
+        "train_to_train_leave_one_out": _quantiles(nearest(obs["train"], obs["train"], True)),
+        "validation_to_train": _quantiles(nearest(obs["validation"], obs["train"])),
+        "heldout_to_train": _quantiles(nearest(obs["heldout"], obs["train"])),
+    }
+    report = {
+        "schema": "formicmind.ml-for40-posthoc/v1", "preregistered": False,
+        "note": "Descriptive diagnostics computed after the DATA NO-GO result; they do not change the gate decision.",
+        "dataset_sha256": manifest["dataset_sha256"],
+        "funnel_by_split_source_opponent": dict(sorted(funnel_by_group.items())),
+        "heldout_deferred_opponent_matches": deferred,
+        "label_diversity": diversity,
+        "observation_coverage_l2_nearest_neighbor": coverage,
+    }
+    if output is not None:
+        _write_atomic(Path(output), (json.dumps(report, indent=2, sort_keys=True, allow_nan=False) + "\n").encode())
+    return report
+
+
+__all__ = ["posthoc_for40", 
     "FOR40_SCHEMA", "For40Example", "For40Match", "MAP_PLAN_SHA256", "REAL_MATCH_SEEDS", "SPLITS", "TRAIN_SEEDS",
     "UNTRAINED_SEED", "army_group", "class_coverage", "collect_for40_dataset", "collect_for40_rows", "config_from_vector",
     "decision_classes", "evaluate_gate", "for40_config", "gate_for40", "load_for40_dataset", "map_plan",

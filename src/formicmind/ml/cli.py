@@ -96,6 +96,10 @@ def _parser() -> argparse.ArgumentParser:
     gate40.add_argument("--dataset", type=Path, required=True)
     gate40.add_argument("--output", type=Path, required=True, help="JSON отчёт gate")
 
+    posthoc40 = subparsers.add_parser("posthoc-for40", help="FOR-40: описательная post-hoc диагностика данных (не gate)")
+    posthoc40.add_argument("--dataset", type=Path, required=True)
+    posthoc40.add_argument("--output", type=Path, required=True)
+
     train40 = subparsers.add_parser("train-for40", help="FOR-40: 12 запусков A/B/B1/B2 × 3 seed, запись selection.json")
     train40.add_argument("--dataset", type=Path, required=True)
     train40.add_argument("--output-dir", type=Path, required=True)
@@ -261,6 +265,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(json.dumps({"report": str(args.output), "decision": result["decision"], "failed": result["failed"]},
                              indent=2, ensure_ascii=False))
             return 0 if result["decision"] == "DATA GO" else 3
+        if args.command == "posthoc-for40":
+            from .for40 import posthoc_for40
+
+            posthoc_for40(args.dataset, args.output)
+            print(json.dumps({"report": str(args.output)}, indent=2, ensure_ascii=False))
+            return 0
         if args.command == "train-for40":
             from .for40_train import train_all_for40
 

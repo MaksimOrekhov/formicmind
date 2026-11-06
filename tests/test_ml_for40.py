@@ -174,6 +174,17 @@ def test_gzip_dataset_round_trip_is_byte_stable(mini, tmp_path: Path) -> None:
     assert (tmp_path / "ds.manifest.json").exists()
 
 
+def test_posthoc_diagnostics_are_descriptive_and_flagged(mini) -> None:
+    report = for40.posthoc_for40(mini["dataset"], expect_full_protocol=False)
+    assert report["preregistered"] is False and report["dataset_sha256"] == mini["manifest"]["dataset_sha256"]
+    funnel = report["funnel_by_split_source_opponent"]
+    assert funnel and all(g["source_decisions"] >= g["retained_decisions"] for g in funnel.values())
+    assert all(g["decisions_lost_to_global_deduplication"] == g["source_decisions"] - g["retained_decisions"]
+               for g in funnel.values())
+    assert set(report["observation_coverage_l2_nearest_neighbor"]) == {
+        "train_to_train_leave_one_out", "validation_to_train", "heldout_to_train"}
+
+
 def test_full_protocol_check_rejects_a_partial_plan(mini) -> None:
     with pytest.raises(DatasetError, match="plan"):
         for40.load_for40_dataset(mini["dataset"], expect_full_protocol=True)
@@ -313,3 +324,4 @@ def test_q1_criteria_flag_a_collapsed_model(mini) -> None:
     verdict = for40_eval.evaluate_q1_criteria(summary, summary, majority, by_map, by_map, summary, summary, 0.5)
     assert verdict["checks"]["G1_no_collapse"] is False  # a constant predictor is a collapse whatever its MSE
     assert verdict["checks"]["G5_forage"] is False and verdict["checks"]["G6_logit_mse_below_constant"] is False
+
