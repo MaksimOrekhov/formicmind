@@ -12,7 +12,7 @@ from typing import Any
 from ..versions import ACTION_VERSION, DECODER_VERSION, OBSERVATION_VERSION
 from .checkpoint import save_checkpoint
 from .dataset import DatasetError, _write_atomic
-from .for40 import FOR40_PROTOCOL, FOR40_PROTOCOL_COMMIT, TRAIN_SEEDS, load_for40_dataset
+from .for40 import FOR40_PROTOCOL, FOR40_PROTOCOL_COMMIT, TRAIN_SEEDS, load_for40_dataset, require_data_go
 from .for40_metrics import compact, records_from_logits, summarize
 from .model import PolicyMLP, configure_determinism, resolve_device, synchronize, torch
 
@@ -216,6 +216,8 @@ def train_all_for40(dataset_path: str | Path, output_dir: str | Path, *, device_
                     hyper: dict[str, Any] | None = None, expect_full_protocol: bool = True) -> dict[str, Any]:
     """Run the 4 × len(seeds) preregistered trainings; ``hyper``/``seeds`` are overridden only by smoke tests."""
     manifest, examples = load_for40_dataset(dataset_path, expect_full_protocol=expect_full_protocol)
+    if expect_full_protocol:  # smoke tests (False) keep working on tiny plans; the real dataset needs DATA GO
+        require_data_go(manifest, examples)
     train = [e for e in examples if e.split == "train"]
     validation = [e for e in examples if e.split == "validation"]
     if not train or not validation:

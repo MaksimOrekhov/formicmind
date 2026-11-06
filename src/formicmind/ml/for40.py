@@ -792,6 +792,19 @@ def evaluate_gate(manifest: dict[str, Any], examples: list[For40Example], *, ful
     }
 
 
+def require_data_go(manifest: dict[str, Any], examples: list[For40Example]) -> dict[str, Any]:
+    """Machine lock of the preregistered rule "DATA NO-GO -> no training, no held-out evaluation".
+
+    Called by the public train/eval entry points before any device is allocated or file written.
+    """
+    report = evaluate_gate(manifest, examples)
+    if report["decision"] != "DATA GO":
+        raise DatasetError(
+            f"{report['decision']}: the preregistered FOR-40 data gate failed ({', '.join(report['failed'])}); "
+            "training and held-out evaluation are refused (docs/ml_for40_protocol.md)")
+    return report
+
+
 def gate_for40(dataset_path: str | Path, output: str | Path | None = None) -> dict[str, Any]:
     manifest, examples = load_for40_dataset(dataset_path)
     report = evaluate_gate(manifest, examples)
@@ -886,7 +899,7 @@ def posthoc_for40(dataset_path: str | Path, output: str | Path | None = None, *,
     return report
 
 
-__all__ = ["posthoc_for40", 
+__all__ = ["posthoc_for40", "require_data_go", 
     "FOR40_SCHEMA", "For40Example", "For40Match", "MAP_PLAN_SHA256", "REAL_MATCH_SEEDS", "SPLITS", "TRAIN_SEEDS",
     "UNTRAINED_SEED", "army_group", "class_coverage", "collect_for40_dataset", "collect_for40_rows", "config_from_vector",
     "decision_classes", "evaluate_gate", "for40_config", "gate_for40", "load_for40_dataset", "map_plan",

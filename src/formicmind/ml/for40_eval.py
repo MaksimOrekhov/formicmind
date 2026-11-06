@@ -26,6 +26,7 @@ from .for40 import (
     for40_config,
     load_for40_dataset,
     maps_of_split,
+    require_data_go,
 )
 from .for40_metrics import (
     compact,
@@ -190,6 +191,8 @@ def evaluate_for40(
 ) -> dict[str, Any]:
     """Evaluate every frozen checkpoint once on held-out data; also controls, the Q1 gate and Q2 matches."""
     dataset_manifest, examples = load_for40_dataset(dataset_path, expect_full_protocol=expect_full_protocol)
+    if expect_full_protocol:  # DATA NO-GO -> no held-out evaluation; checked before selection/device/outputs
+        require_data_go(dataset_manifest, examples)
     selection_path = Path(selection_path)
     selection = json.loads(selection_path.read_text(encoding="utf-8"))
     if selection.get("dataset_sha256") != dataset_manifest["dataset_sha256"] or not selection.get("frozen_before_heldout"):
