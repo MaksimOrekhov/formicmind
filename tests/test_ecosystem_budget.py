@@ -35,10 +35,13 @@ def test_the_calculator_does_not_import_the_engine():
     assert "import formicmind" not in text and "from formicmind" not in text and "from ." not in text
 
 
-def test_report_is_deterministic(budget, report):
-    first = json.dumps(report, sort_keys=True, default=str)
-    second = json.dumps(budget.report(), sort_keys=True, default=str)
+def test_calculator_is_deterministic(budget):
+    e = budget.Econ()
+    sc = budget.scenario("moderate", 1.0)
+    first = json.dumps(budget.simulate(sc, e, policy="greedy", ticks=1500), sort_keys=True, default=str)
+    second = json.dumps(budget.simulate(sc, e, policy="greedy", ticks=1500), sort_keys=True, default=str)
     assert first == second
+    assert json.dumps(budget.duel_grid(e), sort_keys=True) == json.dumps(budget.duel_grid(e), sort_keys=True)
 
 
 def test_forager_rate_formula_and_break_even(budget):
@@ -91,16 +94,84 @@ def test_combat_rule_matches_l0(budget):
     assert big["attacker_lost"] <= 2 and big["defender_soldiers_lost"] == 4
 
 
-def test_war_economics_depend_on_garrison_and_third_parties(budget):
+@pytest.fixture(scope="module")
+def grid(report):
+    return report["duel"]
+
+
+def test_peace_by_labour_beats_a_fair_share_and_war_pays_only_in_a_narrow_window(grid):
+    rows = grid
+    attack_best = [r for r in rows if r["best"] == "attack"]
+    assert attack_best, "war must be the best option somewhere, otherwise the economy is a peace script"
+    assert len(attack_best) < len(rows) / 2, "and not in most cases"
+    for r in rows:
+        if r["third"] == 1:
+            assert r["best"] != "attack", "a third colony at the patch makes attacking one neighbour a bad trade"
+        if r["best"] == "attack":
+            assert r["b_behavior"] in ("fair", "greedy") and r["third"] == 0
+
+
+def test_a_built_army_rarely_pays_for_itself(grid):
+    rows = grid
+    built_attack = [r for r in rows if r["best_if_army_built"] == "attack"]
+    existing_attack = [r for r in rows if r["best"] == "attack"]
+    assert len(built_attack) < len(existing_attack)
+    assert all(r["b_behavior"] == "greedy" and r["third"] == 0 and r["t_remaining"] >= 3000 for r in built_attack)
+
+
+def test_retreat_beats_a_hopeless_attack_and_guarding_costs_without_threat(grid):
+    for r in grid:
+        weak = r["values"]["attack_weak"]["vs_peace"]
+        assert weak < 0, "equal force is mutual annihilation: not attacking is strictly better"
+        assert r["values"]["guarded_fair"]["vs_peace"] < 0, "a standing garrison is a pure cost without raids"
+
+
+def test_longer_horizon_makes_a_profitable_attack_more_profitable(budget):
     e = budget.Econ()
-    kwargs = dict(supply=6, attackers=8, rival_soldiers=4, rival_foragers=8, my_foragers=8, distance=7,
-                  remaining_ticks=3000)
-    free = budget.war_roi(e, garrison=0, **kwargs)
-    held = budget.war_roi(e, garrison=4, **kwargs)
-    crowded = budget.war_roi(e, garrison=2, other_rivals=1, **kwargs)
-    assert free["profitable_over_remaining"] and not held["profitable_over_remaining"]
-    assert free["net_per_tick"] > held["net_per_tick"]
-    assert crowded["gain_per_tick"] < budget.war_roi(e, garrison=2, **kwargs)["gain_per_tick"]
+    sc = budget.scenario("moderate", 1.0)
+    short = budget.duel(sc, e, b_behavior="greedy", third=0, t_remaining=600)
+    long = budget.duel(sc, e, b_behavior="greedy", third=0, t_remaining=3000)
+    assert short["values"]["attack"]["vs_peace"] > 0
+    assert long["values"]["attack"]["vs_peace"] > short["values"]["attack"]["vs_peace"]
+    # a very short remainder cannot repay the losses
+    tiny = budget.duel(sc, e, b_behavior="fair", third=0, t_remaining=60)
+    assert tiny["best"] != "attack"
+
+
+def test_guard_pays_only_if_raids_are_frequent(budget):
+    g = budget.guard_break_even_raids(budget.Econ())
+    assert 100 < g["break_even_one_raid_per_ticks"] < 400
+    assert g["garrison_cost_per_tick"] == pytest.approx(1.6)
+
+
+def test_finite_lifespan_costs_little_and_keeps_the_population(report):
+    rows = [r for r in report["lifespan"] if r["policy"] == "fair"]
+    inf = {r["scenario"]: r for r in rows if r["lifespan"] == "inf"}
+    for r in rows:
+        if r["lifespan"] in (2000, 4000):
+            base = inf[r["scenario"]]
+            assert abs(r["WE_6000"] - base["WE_6000"]) <= 0.12 * base["WE_6000"], r
+            assert r["eggs_per_harvest"] <= 0.02 and r["alive"] == 8
+        if r["lifespan"] == 2000:
+            assert r["old_age_deaths"] > 0
+
+
+def test_orphans_die_out_naturally_in_about_one_lifespan(report):
+    rows = report["orphan"]
+    for r in rows:
+        assert r["others_alive"] == 7, "a queen death must not end the world or hurt the other colonies"
+        assert 0.5 * r["lifespan"] <= r["ticks_after_queen_death"] <= 1.1 * r["lifespan"], r
+    assert [r["extinct_tick"] for r in rows] == sorted(r["extinct_tick"] for r in rows)
+
+
+def test_age_ledger_helpers_conserve_units(budget):
+    e = budget.Econ()
+    ledger = budget._seed_ages(10, 2000, e)
+    assert sum(ledger.values()) == 10 and max(ledger) <= 0
+    budget._book_deaths(ledger, 4)
+    assert sum(ledger.values()) == 6
+    budget._book_deaths(ledger, 99)
+    assert ledger == {}
 
 
 def test_share_gain_is_zero_when_the_patch_is_not_scarce(budget):

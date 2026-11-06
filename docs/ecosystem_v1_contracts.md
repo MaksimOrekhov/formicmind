@@ -55,7 +55,7 @@ ConfigE1:
   alert_interval: 10           # внеочередные решения во время боя; 0 = выключено
   economy: EconomyParams       # таблица §3 (целые)
   map_params: MapParams        # диапазоны генератора §4
-  options: {stop_when_alone: false, loot_on_queen_death: false, orphan_decay_ticks: 10, workers_flee_default: false}
+  options: {stop_when_alone: false, loot_on_queen_death: false, workers_flee_default: false}
 ```
 
 `EconomyParams` (целые; числа — [E1] кандидаты, см. [экономику](ecosystem_v1_economy.md) §1):
@@ -73,7 +73,8 @@ ConfigE1:
 | `carry_load` (L) | 16 | `harvest_rate` (h, ед./тик) | 2 |
 | `harvest_patience` (тиков ожидания на пустой площадке) | 8 | `scout_dwell` / `attack_dwell` | 2 / 3 |
 | `initial_known_radius` (тиков от гнезда) | 5 | `alert_interval` | 10 |
-| `lane_cap` (юнитов на направление ребра, обычное / узкое) | 8 / 4 | `orphan_decay_ticks` | 10 |
+| `lane_cap` (юнитов на направление ребра, обычное / узкое) | 8 / 4 | `age_bucket` (корзина журнала возрастов, тиков) | 100 |
+| `lifespan_worker` / `lifespan_soldier` (тиков после вылупления; `0` = бессмертны, режим L0) | 2000 / 2000 | `start_age_spread` (доля `L`, в тысячных) | 500 |
 
 `config_hash = SHA-256("formicmind/eco/config/v1" ‖ 0x00 ‖ canonical(ConfigE1))`.
 
@@ -128,11 +129,22 @@ ColonyStateE1:
   next_lay_tick: int, lay_acc_q: int, soldier_acc_q: int      # аккумуляторы кладки (целые, в 1/3 и 1/4)
   upkeep_remainder10: int, starvation_debt: int
   brood: [BroodRecord]                        # {cohort_id, caste, laid_tick, hatch_tick}
+  ages: AgeLedger                             # по кастам: {bucket_start → число взрослых}; журнал возрастов (см. ниже)
   orders: ColonyOrders                        # последние принятые ActionE1 после декодирования (сохраняются)
   memory: ColonyMemoryE1                      # приватная карта и сведения
   window: WindowStatsE1                       # накопители за последнее решение (для наблюдения)
   rolling: {income_ema_q, burn_ema_q, pop_ema_q}   # целые фикс-точечные EMA для reward/наблюдений
 ```
+
+`AgeLedger` (**ревизия 2: старение, V-4**): `{caste → [{bucket_start, count}]}`, корзины шириной `age_bucket = 100` тиков по времени вылупления, отсортированы по `bucket_start`.
+Это единственный источник возраста; когорты возрастов **не** хранят. Правила:
+
+1. Вылупление добавляет `count` в корзину `⌊tick / age_bucket⌋ · age_bucket`. Стартовые взрослые получают возраст, равномерно разнесённый на `[0, start_age_spread · L)` (целочисленно, без RNG).
+2. Смерть от старости: в фазе `Hatch/Age` корзина с `bucket_start + L ≤ tick` удаляется, и столько же юнитов удаляется из когорт колонии той же касты в порядке «дом → узлы → ребро → `cohort_id`»; груз умерших падает кучей в их узел;
+   событие `old_age`.
+3. Смерть от голода или боя списывается с журнала **пропорционально** корзинам (наибольший остаток, при равенстве — старшая корзина).
+4. Инвариант: `Σ ledger[caste] = Σ cohort.count[caste]` после каждой фазы. `L = 0` (бессмертны) — журнал не нужен, режим L0.
+5. Матка не старится (ограничение v1); стоячие приказы и решения о кладке от возраста не зависят.
 
 ### 4.2 CohortE1 — единица юнитов
 
@@ -190,6 +202,9 @@ Sighting: node_slot, colony_slot, tick, workers_bucket, soldiers_bucket, aggress
 
 ## 5. Приказы и применение (`ColonyOrders`)
 
+**Сироты** (`status = orphan`, матка мертва; V-4): эпизод агента завершён, решений нет. Юниты живут по *стоячим приказам*: план добычи сохраняется (квоты пересчитываются на оставшихся рабочих), отряды получают `WITHDRAW → HOME` (охрана гнезда),
+кладки нет, сбор прекращается при полном складе. Исчезают естественно: старение, голод, бой.
+
 Действие политики декодируется в `ColonyOrders` и хранится в состоянии колонии как приказ до следующего решения. Одноразовые приказы (scout) потребляются сразу.
 Перевод приказов в миссии когорт — детерминированный диспетчер (RFC §7.3). Применение валидирует действие против маски; невалидное действие — **техническая ошибка** (откат Policy-фазы, исключение),
 не поражение колонии (как в L0 `match.py`).
@@ -203,19 +218,19 @@ Sighting: node_slot, colony_slot, tick, workers_bucket, soldiers_bucket, aggress
 | № | Фаза | Что делает |
 |---:|---|---|
 | 1 | `Policy` | если `tick % K == 0` или сработал `alert`: строит наблюдения, получает действия живых колоний, применяет приказы |
-| 2 | `Hatch` | расплод с `hatch_tick == tick` → когорты дома |
+| 2 | `Hatch/Age` | расплод с `hatch_tick == tick` → когорты дома; затем смерть от старости: корзины журнала с `bucket_start + L ≤ tick` (§4.1) |
 | 3 | `Arrival` | прибывшие когорты ставятся в узлы; сдача груза в гнезде; **сенсорная фаза памяти** (§4.3) |
 | 4 | `Combat` | одновременный бой; затем убитые когорты, спил груза в кучу |
-| 5 | `QueenTerminal` | `queen_hp == 0` → колония `orphan`, её эпизод завершён (§10) |
+| 5 | `QueenTerminal` | `queen_hp == 0` → колония `orphan`, её эпизод завершён (§9.5) |
 | 6 | `Harvest` | рабочие в состоянии WORK на площадках берут еду (§3 экономики) |
 | 7 | `Upkeep` | содержание, долг голода, потери |
 | 8 | `Lay` | кладка по аккумуляторам |
 | 9 | `Regeneration` | `F = min(C, F + R)` |
 | 10 | `Depart` | автоматический выход когорт (цикл FORAGE, WITHDRAW, SCOUT-return) |
-| 11 | `Orphan/Terminal/Log` | затухание сирот, проверка `extinct`, терминал мира, события |
+| 11 | `Terminal/Log` | проверка `extinct`, терминал мира, события |
 
 Типизированные события (омнисциентный лог, `events_hash`; политика их **не** видит; локальные проекции попадают в память по §4.3):
-`hatch, depart, arrive, harvest, deposit, upkeep, starvation, lay, regenerate, contact, combat, wound, death, queen_damage, queen_dead, orphan_decay, extinct, pile_created, storage_full, decision`.
+`hatch, old_age, depart, arrive, harvest, deposit, upkeep, starvation, lay, regenerate, contact, combat, wound, death, queen_damage, queen_dead, extinct, pile_created, storage_full, decision`.
 Порядок в списке = порядок исполнения; ключ сортировки `(phase, kind_rank, ...tail)` — как `event_sort_key` в L0.
 
 ---
@@ -243,7 +258,7 @@ Sighting: node_slot, colony_slot, tick, workers_bucket, soldiers_bucket, aggress
 8 income_ema/40 · 9 runway_norm (=min(1,runway/40)) · 10 starvation_debt/5 · 11 log1p(workers)/log1p(128) · 12 log1p(soldiers)/log1p(64) · 13 workers_home · 14 soldiers_home ·
 15 brood_workers · 16 brood_soldiers · 17 egg_level_current/3 · 18 soldier_share_current/4 · 19 next_hatch_eta/30 · 20 idle_workers_frac · 21 scouts_out · 22 foragers_frac ·
 23–25 squad_active[3] · 26 known_nodes/128 · 27 known_patches/40 · 28 known_colonies/7 · 29 frontier_count/32 · 30–35 окно решения: harvested, upkeep_paid, egg_spend,
-losses_workers, losses_soldiers, kills_observed (log1p-нормализация) · 36 hostile_contact_recent · 37 in_combat_now · 38–39 резерв (0)`.
+losses_workers, losses_soldiers, kills_observed (log1p-нормализация) · 36 hostile_contact_recent · 37 in_combat_now · 38 expiring_soon (доля взрослых, чей срок жизни истекает в ближайшие 300 тиков) · 39 mean_age_frac (средний возраст взрослых / L)`.
 
 Запрещено в `global`: число живых колоний мира, суммарные счётчики мира, любые величины чужих колоний, не наблюдавшиеся лично.
 
@@ -338,6 +353,7 @@ V_t        = queen_alive_t × (0.6·pop_t + 0.4·security_t)        ∈ [0, 1]
 ```
 
 `income_ema`, `burn_ema`, `pop_ema` — целые фикс-точечные EMA (τ = 300 тиков, обновление раз в тик) в состоянии колонии; значения воспроизводимы.
+Старение отдельного члена награды не требует: если колония не заменяет умерших, падает `pop`, а значит и `V` (экономика §7.2).
 
 ### 9.2 Награда за решение
 
@@ -369,9 +385,9 @@ r_T = r_T − 1.0              при завершении эпизода кол
 
 | Событие | Уровень | Что происходит |
 |---|---|---|
-| `queen_hp == 0` | колония | статус `orphan`; эпизод агента **завершён** (`terminated`, reason `queen_death`); юниты остаются в мире (затухание сирот, экономика §8.3); мир **не** заканчивается |
+| `queen_hp == 0` | колония | статус `orphan`; эпизод агента **завершён** (`terminated`, reason `queen_death`); юниты остаются в мире и живут по стоячим приказам до старения, голода или боя (§5, экономика §8.3); мир **не** заканчивается |
 | взрослых 0 и в расплоде нет рабочих и `food < worker_egg_cost` | колония | `collapse` (аналог L0 экономического коллапса, `docs/combat_terminal.md`); эпизод агента завершён, статус `extinct` |
-| сирота потеряла всех взрослых | колония | статус `extinct`; склад → куча в узле гнезда |
+| у сироты (или колонии) не осталось взрослых и расплода | колония | статус `extinct`; склад → куча в узле гнезда |
 | `tick == H` | мир | `truncated`; живые колонии остаются живыми; метрики считаются на горизонте |
 | все колонии не `alive` | мир | мир завершается раньше горизонта (`all_extinct`) |
 | `stop_when_alone` (опция, по умолчанию выкл.) | harness | единственная живая колония → **усечение** (не терминал), записывается в replay; см. RFC V-3 |
@@ -424,6 +440,7 @@ result      исходы колоний, исход мира, chain_head, record
 6. Сироты и экстинктные колонии не получают решений.
 7. `cohort_id` уникальны и монотонны; `next_cohort_id > max(cohort_id)`.
 8. Хэш состояния не зависит от порядка вставки словарей.
+9. Журнал возрастов согласован с когортами (§4.1 п.4); нет взрослого старше `L + age_bucket` (при `L > 0`).
 
 ---
 

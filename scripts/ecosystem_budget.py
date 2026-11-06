@@ -2,7 +2,7 @@
 
 This is NOT the Ecosystem engine and NOT a balance validation. It is a back-of-the-envelope model used to
 derive the numeric scenarios in ``docs/ecosystem_v1_economy.md`` (initial food surplus, growing consumption,
-depletion / regeneration, carrying capacity, when competition starts, when a war pays). It reads and writes
+depletion / regeneration, carrying capacity, finite lifespan, when competition starts, when a war pays). It reads and writes
 nothing except stdout, uses no RNG and no third-party packages, and does not import any ``formicmind`` module,
 so the frozen L0 engine and every historical artifact are untouched.
 
@@ -48,6 +48,10 @@ class Econ:
     decision_k: int = 30  # same cadence as L0
     horizon: int = 6000  # E1 proposal (L0: 3000)
     starvation_unit_cost: int = 5  # L0 fact: unpaid food units per adult lost
+    lifespan_worker: int = 2000  # E1 proposal: adult lifespan in ticks after hatching; 0 = immortal (L0 has no ageing)
+    lifespan_soldier: int = 2000  # E1 proposal
+    start_age_spread: float = 0.5  # start adults are aged evenly over [0, spread * lifespan): no demographic cliff
+    age_bucket: int = 100  # ledger granularity in ticks
 
 
 @dataclass(frozen=True, slots=True)
@@ -166,6 +170,11 @@ class _Colony:
     harvested: float = 0.0
     assigned: dict = field(default_factory=dict)  # patch key -> foragers
     idle: int = 0
+    queen_alive: bool = True
+    ages_w: dict = field(default_factory=dict)  # birth bucket start -> workers
+    ages_s: dict = field(default_factory=dict)  # birth bucket start -> soldiers
+    extinct_tick: int = -1
+    old_age_deaths: int = 0
 
 
 def _patch_keys(sc: Scenario) -> list[tuple]:
@@ -190,8 +199,40 @@ def _reach(sc: Scenario, key: tuple) -> list[int]:
     return [(k - 1) % n, k % n, (k + 1) % n]  # "far": colonies k-1, k, k+1
 
 
+def _book_deaths(ledger: dict, n: int) -> None:
+    """Book ``n`` non-age deaths against the age ledger proportionally (largest remainder, ties -> older bucket)."""
+    total = sum(ledger.values())
+    n = min(n, total)
+    if n <= 0:
+        return
+    keys = sorted(ledger)
+    exact = {k: n * ledger[k] / total for k in keys}
+    take = {k: min(ledger[k], math.floor(exact[k])) for k in keys}
+    left = n - sum(take.values())
+    for k in sorted(keys, key=lambda k: (-(exact[k] - math.floor(exact[k])), k)):
+        if left <= 0:
+            break
+        if take[k] < ledger[k]:
+            take[k] += 1
+            left -= 1
+    for k in keys:
+        ledger[k] -= take[k]
+        if ledger[k] <= 0:
+            del ledger[k]
+
+
+def _seed_ages(count: int, lifespan: int, e: Econ) -> dict:
+    ledger: dict[int, int] = {}
+    for i in range(count):
+        age = int(i * e.start_age_spread * lifespan / max(1, count)) if lifespan else 0
+        bucket = -((age + e.age_bucket - 1) // e.age_bucket) * e.age_bucket  # bucket start (<= 0)
+        ledger[bucket] = ledger.get(bucket, 0) + 1
+    return ledger
+
+
 def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: float = 0.0,
-             ticks: int | None = None) -> dict:
+             ticks: int | None = None, queen_death: dict | None = None, trace: bool = False,
+             soldier_floor: int = 2) -> dict:
     """Deterministic fluid run. ``policy``: ``fair`` (take only the fair share of a shared patch) or ``greedy``
     (aim at the whole site throughput). Both are calibration *fixtures*, not agents. Returns checkpoints and events."""
     ticks = e.horizon if ticks is None else ticks
@@ -201,6 +242,11 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
     reach = {k: _reach(sc, k) for k in keys}
     stock = {k: float(classes[k[0]].capacity) for k in keys}
     colonies = [_Colony(e.start_workers, e.start_soldiers, float(e.start_food), []) for _ in range(n)]
+    for c in colonies:
+        c.ages_w = _seed_ages(e.start_workers, e.lifespan_worker, e)
+        c.ages_s = _seed_ages(e.start_soldiers, e.lifespan_soldier, e)
+    queen_death = queen_death or {}
+    series: list[tuple] = []
 
     ledger_start = sum(stock.values()) + sum(c.food for c in colonies)
     regen_added = upkeep_paid = egg_spent = 0.0
@@ -245,11 +291,32 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
                 continue
             due = [b for b in c.brood if b[0] <= t]
             c.brood = [b for b in c.brood if b[0] > t]
+            bucket = (t // e.age_bucket) * e.age_bucket
             for _, caste in due:
                 if caste == "w":
                     c.workers += 1
+                    c.ages_w[bucket] = c.ages_w.get(bucket, 0) + 1
                 else:
                     c.soldiers += 1
+                    c.ages_s[bucket] = c.ages_s.get(bucket, 0) + 1
+
+        # queen death (test hook) and ageing: a bucket dies when its start + lifespan has passed
+        for i, c in enumerate(colonies):
+            if c.alive and c.queen_alive and queen_death.get(i, -1) == t:
+                c.queen_alive = False
+            if not c.alive:
+                continue
+            for ledger, lifespan, attr in ((c.ages_w, e.lifespan_worker, "workers"),
+                                           (c.ages_s, e.lifespan_soldier, "soldiers")):
+                if not lifespan:
+                    continue
+                for b in [b for b in sorted(ledger) if b + lifespan <= t]:
+                    k = ledger.pop(b)
+                    setattr(c, attr, max(0, getattr(c, attr) - k))
+                    c.old_age_deaths += k
+            if c.workers + c.soldiers == 0 and not c.brood and c.alive:
+                c.alive = False
+                c.extinct_tick = t
 
         # deliveries reaching the nest
         for c in colonies:
@@ -299,8 +366,10 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
             while c.debt >= e.starvation_unit_cost and (c.workers + c.soldiers) > 0:
                 if c.soldiers > 0:
                     c.soldiers -= 1
+                    _book_deaths(c.ages_s, 1)
                 else:
                     c.workers -= 1
+                    _book_deaths(c.ages_w, 1)
                 c.debt -= e.starvation_unit_cost
                 if c.first_starve < 0:
                     c.first_starve = t
@@ -310,10 +379,11 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
                 c.debt = 0.0
             if c.workers + c.soldiers == 0 and not c.brood:
                 c.alive = False
+                c.extinct_tick = t
 
         # lay (policy fixture): keep growing while foragers are useful, hold a reserve, soldiers by share
         for i, c in enumerate(colonies):
-            if not c.alive or t < c.next_lay:
+            if not c.alive or not c.queen_alive or t < c.next_lay:
                 continue
             c.next_lay = t + e.lay_interval
             reserve = 25 * (e.upkeep_worker * c.workers + e.upkeep_soldier * c.soldiers) / 2
@@ -322,6 +392,8 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
             soldier_turn = c.lay_acc >= 1.0
             if soldier_turn:
                 c.lay_acc -= 1.0
+            elif c.soldiers + sum(1 for _, caste in c.brood if caste == "s") < soldier_floor:
+                soldier_turn = True  # fixture keeps a minimal home guard, replacing soldiers lost to age
             cost = e.egg_soldier if soldier_turn else e.egg_worker
             if soldier_turn or useful_workers:
                 if c.food - cost >= reserve:
@@ -344,6 +416,8 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
         if events["first_idle_workers"] < 0 and colonies[0].idle >= 2 and t >= e.decision_k:
             events["first_idle_workers"] = t
 
+        if trace and t % 50 == 0:
+            series.append((t, [(c.workers, c.soldiers, c.alive) for c in colonies]))
         if (t + 1) % 500 == 0 or t == 0:
             alive = [c for c in colonies if c.alive]
             checkpoints.append({
@@ -373,6 +447,11 @@ def simulate(sc: Scenario, e: Econ, *, policy: str = "fair", soldier_share: floa
         "final_WE_mean": round(sum(c.workers + 2 * c.soldiers for c in colonies if c.alive)
                                / max(1, sum(1 for c in colonies if c.alive)), 1),
         "starved_colonies": sum(1 for c in colonies if c.first_starve >= 0),
+        "egg_spent": round(egg_spent, 1),
+        "harvested": round(sum(c.harvested for c in colonies), 1),
+        "old_age_deaths": sum(c.old_age_deaths for c in colonies),
+        "extinct_ticks": [c.extinct_tick for c in colonies],
+        "series": series,
     }
 
 
@@ -438,39 +517,176 @@ def share_gain(supply: float, my_demand: float, rival_demands: list[float], remo
     return after - before
 
 
-def war_roi(e: Econ, *, supply: float, attackers: int, rival_soldiers: int, rival_foragers: int,
-            my_foragers: int, distance: int, remaining_ticks: int, other_rivals: int = 0,
-            garrison: int = 2) -> dict:
-    """Break-even of one attack on a shared patch against one rival.
+# ----------------------------------------------------------------------------------------------------------------------
+# Competition scenarios on one shared border patch (steady state rates + one-off costs)
+# ----------------------------------------------------------------------------------------------------------------------
 
-    One-off cost: replacing the attacker's dead soldiers (egg cost + upkeep during the hatch delay).
-    Recurring cost: ``garrison`` soldiers that must stay at the patch to keep the rival (who rebuilds) away; their
-    upkeep is paid anyway, but they stop being available elsewhere, so it is charged as an opportunity cost.
-    Benefit: the extra food rate from the shared patch while the rival's foragers are gone.
-    Not modelled (all of them make war *less* attractive): rival retaliation, third parties exploiting the weakened
-    pair, an unguarded home nest while the army is away."""
-    phi = forager_rate(distance, e)
-    my_d = my_foragers * phi
-    rival_d = rival_foragers * phi
-    others = [rival_d] + [rival_d] * other_rivals  # symmetric third parties
-    gain = share_gain(supply, my_d, others, 0)
-    hold = garrison * e.upkeep_soldier
-    net = gain - hold
-    fight = engagement(attackers, rival_soldiers, rival_foragers)
-    lost = fight["attacker_lost"]
-    replace_cost = lost * (e.egg_soldier + e.upkeep_soldier * e.hatch_soldier)
-    won = fight["defender_soldier_survivors"] == 0 and fight["attacker_survivors"] > 0
-    payback = math.inf if net <= 1e-9 else replace_cost / net + fight["ticks"]
+STRATEGIES = ("peace_fair", "match_greedy", "guarded_fair", "attack", "attack_weak")
+POP_CAP = 60.0  # the reward saturates here (contracts section 9): extra population beyond it is worth nothing
+ARMY_TAIL = 600  # a built army that is no longer needed is still fed for this many ticks (design assumption)
+
+
+def _patch_for(sc: Scenario) -> PatchClass:
+    return next(c for c in sc.classes if c.name == "border")
+
+
+def duel(sc: Scenario, e: Econ, *, b_behavior: str, third: int, t_remaining: int, ratio: float = 2.0,
+         garrison: int = 2, rival_soldiers: int = 4, army: str = "existing", cap: float = POP_CAP) -> dict:
+    """Value of colony A's options on a border patch it shares with B (+ ``third`` more colonies behaving like B).
+
+    The colony is fed by its own home patches plus whatever it takes at the border patch. Sustainable workers
+    ``W = (D_home + D_border - 0.8 * dedicated_soldiers) / 0.4`` (every worker, forager or not, costs 0.4); foragers
+    are limited by the workers available. Value = integral of ``min(cap, W(t) + 0.5 * soldiers)`` in worker-ticks,
+    where extra workers appear only as fast as the queen lays (``1 / lay_interval`` per tick, after the hatch delay),
+    minus one-off costs converted to worker-ticks (``food / 0.4``).
+
+    Strategies: ``peace_fair`` (fair share), ``match_greedy`` (aim at the whole site throughput), ``guarded_fair``
+    (fair share + standing garrison), ``attack`` (beat B's soldiers with ``ratio`` x force, then hold with
+    ``garrison``), ``attack_weak`` (equal force: mutual annihilation, B's workers stay). Not attacking = retreat.
+    ``army``: ``existing`` (the soldiers are already there; cost = losses + garrison) or ``built`` (they have to be
+    raised first: egg + hatch upkeep, and survivors beyond the garrison are fed for ``ARMY_TAIL`` more ticks)."""
+    cls = _patch_for(sc)
+    home = next(c for c in sc.classes if c.name == "home")
+    d_home = home.count_per_colony * home.regen
+    supply = float(cls.regen)
+    site = float(cls.site_cap)
+    phi = forager_rate(cls.distance, e)
+    phi_home = forager_rate(home.distance, e)
+    n_home = math.ceil(d_home / phi_home - 1e-9)
+    sharers = 2 + third
+
+    def foragers(demand: float) -> int:
+        return max(1, math.ceil(demand / phi - 1e-9))
+
+    fair_n = foragers(supply / sharers)
+    greedy_n = foragers(site)
+    rival_n = fair_n if b_behavior == "fair" else greedy_n
+    rival_d = rival_n * phi
+
+    def share(a_n: int, rivals: int) -> float:
+        a_d = a_n * phi
+        total = a_d + rivals * rival_d
+        return a_d if total <= supply + 1e-9 else supply * a_d / total
+
+    def workers(n_b: int, rivals: int, g: int) -> tuple[float, float]:
+        """Sustainable workers and border delivery, with the foragers limited by the workers that exist."""
+        n = n_b
+        for _ in range(6):
+            delivered = share(n, rivals)
+            w = (d_home + delivered - e.upkeep_soldier * g) / e.upkeep_worker
+            limit = max(0, math.floor(w - n_home))
+            if n <= limit:
+                break
+            n = limit
+        return w, share(n, rivals) if n else 0.0
+
+    after_n = foragers(supply / (1 + third)) if third else foragers(supply)
+    plans: dict[str, dict] = {}
+    plans["peace_fair"] = dict(n=fair_n, rivals=1 + third, g=0, one_off=0.0, start=0, tail=0.0)
+    plans["match_greedy"] = dict(n=greedy_n, rivals=1 + third, g=0, one_off=0.0, start=0, tail=0.0)
+    plans["guarded_fair"] = dict(n=fair_n, rivals=1 + third, g=garrison, one_off=0.0, start=0, tail=0.0)
+    for name, attackers in (("attack", max(1, round(ratio * rival_soldiers))), ("attack_weak", rival_soldiers)):
+        fight = engagement(attackers, rival_soldiers, rival_n)
+        won = fight["defender_soldier_survivors"] == 0 and fight["attacker_survivors"] > 0
+        losses = fight["attacker_lost"] * (e.egg_soldier + e.upkeep_soldier * e.hatch_soldier)
+        build = attackers * (e.egg_soldier + e.upkeep_soldier * e.hatch_soldier) if army == "built" else 0.0
+        surplus = max(0, fight["attacker_survivors"] - garrison) if won else fight["attacker_survivors"]
+        tail = surplus * e.upkeep_soldier * min(t_remaining, ARMY_TAIL) if army == "built" else 0.0
+        start = fight["ticks"] + cls.distance
+        if won:
+            plans[name] = dict(n=after_n, rivals=third, g=garrison, one_off=losses + build + tail, start=start, tail=tail)
+        else:
+            plans[name] = dict(n=fair_n, rivals=1 + third, g=0, one_off=losses + build + tail, start=start, tail=tail)
+
+    w_peace, _ = workers(fair_n, 1 + third, 0)
+    out = {}
+    for name, plan in plans.items():
+        w_target, delivered = workers(plan["n"], plan["rivals"], plan["g"])
+        extra = w_target - w_peace
+        egg_food = max(0.0, extra) * (e.egg_worker + e.upkeep_worker * e.hatch_worker)
+        total = 0.0
+        for t in range(t_remaining):
+            if t < plan["start"]:
+                w = w_peace
+            elif extra >= 0:
+                w = w_peace + min(extra, max(0.0, (t - plan["start"] - e.hatch_worker) / e.lay_interval))
+            else:
+                w = w_target
+            total += min(cap, w + 0.5 * plan["g"])
+        value = total - (plan["one_off"] + egg_food) / e.upkeep_worker
+        out[name] = {"workers_target": round(w_target, 1), "border_delivered": round(delivered, 2),
+                     "one_off_food": round(plan["one_off"] + egg_food, 1), "value": round(value, 1)}
+    baseline = out["peace_fair"]["value"]
+    for name in out:
+        out[name]["vs_peace"] = round(out[name]["value"] - baseline, 1)
+    best = max(STRATEGIES, key=lambda k: (out[k]["value"], -STRATEGIES.index(k)))
+    gain_w = out["attack"]["workers_target"] - out["peace_fair"]["workers_target"]
+    payback = None
+    if gain_w > 0:
+        payback = round(plans["attack"]["start"] + (out["attack"]["one_off_food"] / e.upkeep_worker) / gain_w
+                        + e.hatch_worker, 1)
     return {
-        "gain_per_tick": round(gain, 3),
-        "hold_cost_per_tick": round(hold, 2),
-        "net_per_tick": round(net, 3),
-        "attackers_lost": lost,
-        "won": won,
-        "replacement_cost": round(replace_cost, 1),
-        "payback_ticks": None if math.isinf(payback) else round(payback, 1),
-        "profitable_over_remaining": bool(won and net > 0 and payback < remaining_ticks),
+        "scenario": sc.name, "b_behavior": b_behavior, "third": third, "t_remaining": t_remaining, "army": army,
+        "values": out, "best": best, "attack_break_even_ticks": payback,
     }
+
+
+def guard_break_even_raids(e: Econ, *, garrison: int = 2, foragers: int = 5, downtime: int = 200,
+                           net_rate: float = 1.0) -> dict:
+    """How often must an unguarded expansion be raided before a standing garrison pays for itself?"""
+    loss_per_raid = foragers * (e.egg_worker + e.upkeep_worker * e.hatch_worker) + net_rate * downtime
+    cost_per_tick = garrison * e.upkeep_soldier
+    return {"loss_per_raid": round(loss_per_raid, 1), "garrison_cost_per_tick": round(cost_per_tick, 2),
+            "break_even_one_raid_per_ticks": round(loss_per_raid / cost_per_tick, 1)}
+
+
+def duel_grid(e: Econ) -> list[dict]:
+    rows = []
+    for sc in SCENARIOS:
+        for b in ("fair", "greedy"):
+            for third in (0, 1):
+                for t_rem in (600, 3000):
+                    r = duel(sc, e, b_behavior=b, third=third, t_remaining=t_rem, army="existing")
+                    r["best_if_army_built"] = duel(sc, e, b_behavior=b, third=third, t_remaining=t_rem,
+                                                   army="built")["best"]
+                    rows.append(r)
+    return rows
+
+
+def lifespan_sensitivity(e: Econ) -> list[dict]:
+    """Effect of finite adult lifespan on the peaceful (fair) and unchecked-growth (greedy) fixtures."""
+    rows = []
+    for life in (0, 1000, 2000, 4000):
+        ee = replace(e, lifespan_worker=life, lifespan_soldier=life)
+        for sc in SCENARIOS:
+            for policy in ("fair", "greedy"):
+                r = simulate(sc, ee, policy=policy, ticks=6000)
+                cp = {c["tick"]: c for c in r["checkpoints"]}
+                rows.append({
+                    "lifespan": life or "inf", "scenario": sc.name, "policy": policy,
+                    "WE_1000": cp[1000]["WE_mean"], "WE_3000": cp[3000]["WE_mean"], "WE_6000": cp[6000]["WE_mean"],
+                    "eggs_per_harvest": round(r["egg_spent"] / max(1.0, r["harvested"]), 3),
+                    "old_age_deaths": r["old_age_deaths"], "first_famine": r["events"]["first_famine"],
+                    "alive": r["final_alive"],
+                })
+    return rows
+
+
+def orphan_runs(e: Econ) -> list[dict]:
+    """Colony 0 loses its queen at tick 1500 (moderate, fair); the others are untouched. Standing orders continue."""
+    sc = scenario("moderate", 1.0)
+    rows = []
+    for life in (1000, 2000, 4000):
+        ee = replace(e, lifespan_worker=life, lifespan_soldier=life)
+        r = simulate(sc, ee, policy="fair", ticks=6000, queen_death={0: 1500}, trace=True)
+        ser = {t: v[0] for t, v in r["series"]}
+        rows.append({
+            "lifespan": life, "extinct_tick": r["extinct_ticks"][0],
+            "ticks_after_queen_death": r["extinct_ticks"][0] - 1500 if r["extinct_ticks"][0] >= 0 else None,
+            "adults_at": {t: ser[t][0] + ser[t][1] for t in (1500, 2000, 2500, 3000, 4000)},
+            "others_alive": sum(1 for x in r["extinct_ticks"][1:] if x < 0),
+        })
+    return rows
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -490,26 +706,19 @@ def report() -> dict:
         "static": [static_budget(sc, e) for sc in SCENARIOS],
         "dynamic": [],
         "engagements": [],
-        "war_roi": [],
     }
     for sc in SCENARIOS:
         out["dynamic"].append(simulate(sc, e, policy="fair", soldier_share=0.0))
         out["dynamic"].append(simulate(sc, e, policy="greedy", soldier_share=0.0))
         out["dynamic"].append(simulate(sc, e, policy="greedy", soldier_share=0.3))
+    out["lifespan"] = lifespan_sensitivity(e)
+    out["orphan"] = orphan_runs(e)
+    out["duel"] = duel_grid(e)
+    out["guard_break_even"] = guard_break_even_raids(e)
     for att, ds, dw, home in ((4, 4, 12, False), (6, 4, 12, False), (8, 4, 12, False), (8, 4, 12, True),
                               (8, 8, 12, False), (12, 8, 12, False), (12, 8, 12, True), (16, 8, 12, False)):
         r = engagement(att, ds, dw, defender_home=home)
         out["engagements"].append({"attackers": att, "def_soldiers": ds, "def_workers": dw, "home": home, **r})
-    scen = {s.name: s for s in SCENARIOS}
-    for name in ("abundance", "moderate", "severe"):
-        border = next(c for c in scen[name].classes if c.name == "border")
-        for others in (0, 1):
-            for garrison in (0, 2, 4):
-                out["war_roi"].append({
-                    "scenario": name, "supply_R": border.regen, "third_parties": others, "garrison": garrison,
-                    **war_roi(e, supply=border.regen, attackers=8, rival_soldiers=4, rival_foragers=8,
-                              my_foragers=8, distance=border.distance, remaining_ticks=3000,
-                              other_rivals=others, garrison=garrison)})
     return out
 
 
@@ -545,14 +754,24 @@ def main(argv: list[str] | None = None) -> int:
               f"starved_colonies={d['starved_colonies']}")
         print(_fmt_table(d["checkpoints"], ["tick", "alive", "workers_mean", "soldiers_mean", "WE_mean",
                                             "food_mean", "shared_stock_frac", "idle_mean"]))
+    print("\n== lifespan sensitivity")
+    print(_fmt_table(data["lifespan"], ["lifespan", "scenario", "policy", "WE_1000", "WE_3000", "WE_6000",
+                                        "eggs_per_harvest", "old_age_deaths", "first_famine", "alive"]))
+    print("\n== orphan (queen of colony 0 dies at tick 1500)")
+    print(_fmt_table(data["orphan"], ["lifespan", "extinct_tick", "ticks_after_queen_death", "adults_at", "others_alive"]))
+    print("\n== competition scenarios on a border patch (A vs B; value in worker-ticks relative to peace)")
+    flat = []
+    for d in data["duel"]:
+        flat.append({"scenario": d["scenario"], "B": d["b_behavior"], "third": d["third"], "T_rem": d["t_remaining"],
+                     **{f"{k}": v["vs_peace"] for k, v in d["values"].items() if k != "peace_fair"},
+                     "best": d["best"], "best_if_army_built": d["best_if_army_built"],
+                     "attack_payback": d["attack_break_even_ticks"]})
+    print(_fmt_table(flat, list(flat[0])))
+    print("guard break-even:", data["guard_break_even"])
     print("\n== engagements (L0 combat rule at one node)")
     print(_fmt_table(data["engagements"], ["attackers", "def_soldiers", "def_workers", "home", "ticks", "attacker_lost",
                                            "defender_soldiers_lost", "defender_workers_lost",
                                            "attacker_survivors"]))
-    print("\n== war ROI at a border patch")
-    print(_fmt_table(data["war_roi"], ["scenario", "supply_R", "third_parties", "garrison", "gain_per_tick",
-                                       "hold_cost_per_tick", "net_per_tick", "attackers_lost", "replacement_cost",
-                                       "payback_ticks", "profitable_over_remaining"]))
     return 0
 
 
