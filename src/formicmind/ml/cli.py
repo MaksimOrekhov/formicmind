@@ -86,6 +86,32 @@ def _parser() -> argparse.ArgumentParser:
     pilot.add_argument("--dataset", type=Path, required=True, help="замороженный FOR-37 датасет (только для сравнения)")
     pilot.add_argument("--output", type=Path, required=True, help="JSON отчёт")
     pilot.add_argument("--rows-output", type=Path, default=None, help="необязательный JSONL строк пилота")
+
+    collect40 = subparsers.add_parser(
+        "collect-for40", help="FOR-40: собрать заранее зафиксированный v3 датасет (24/8/8 независимых карт)",
+    )
+    collect40.add_argument("--output", type=Path, required=True, help="путь к JSONL датасету v3")
+
+    gate40 = subparsers.add_parser("gate-for40", help="FOR-40: data gate до обучения (DATA GO / DATA NO-GO)")
+    gate40.add_argument("--dataset", type=Path, required=True)
+    gate40.add_argument("--output", type=Path, required=True, help="JSON отчёт gate")
+
+    posthoc40 = subparsers.add_parser("posthoc-for40", help="FOR-40: описательная post-hoc диагностика данных (не gate)")
+    posthoc40.add_argument("--dataset", type=Path, required=True)
+    posthoc40.add_argument("--output", type=Path, required=True)
+
+    train40 = subparsers.add_parser("train-for40", help="FOR-40: 12 запусков A/B/B1/B2 × 3 seed, запись selection.json")
+    train40.add_argument("--dataset", type=Path, required=True)
+    train40.add_argument("--output-dir", type=Path, required=True)
+    train40.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cuda")
+    train40.add_argument("--no-cpu-reproduction", action="store_true")
+
+    eval40 = subparsers.add_parser("eval-for40", help="FOR-40: однократная оценка на held-out, Q1 gate и реальные матчи")
+    eval40.add_argument("--dataset", type=Path, required=True)
+    eval40.add_argument("--selection", type=Path, required=True)
+    eval40.add_argument("--output-dir", type=Path, required=True)
+    eval40.add_argument("--device", choices=("auto", "cpu", "cuda"), default="cpu")
+    eval40.add_argument("--skip-matches", action="store_true")
     return parser
 
 
@@ -221,6 +247,44 @@ def main(argv: Sequence[str] | None = None) -> int:
 
             result = run_diversity_pilot(args.dataset, rows_output=args.rows_output, output=args.output)
             print(json.dumps({"report": str(args.output), "budget": result["budget"], "totals": result["totals"]},
+                             indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "collect-for40":
+            from .for40 import collect_for40_dataset
+
+            result = collect_for40_dataset(args.output)
+            print(json.dumps({
+                "dataset": str(args.output), "examples": result["example_count"], "matches": result["match_count"],
+                "sha256": result["dataset_sha256"], "funnel": result["funnel"], "leakage": result["leakage"],
+            }, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "gate-for40":
+            from .for40 import gate_for40
+
+            result = gate_for40(args.dataset, args.output)
+            print(json.dumps({"report": str(args.output), "decision": result["decision"], "failed": result["failed"]},
+                             indent=2, ensure_ascii=False))
+            return 0 if result["decision"] == "DATA GO" else 3
+        if args.command == "posthoc-for40":
+            from .for40 import posthoc_for40
+
+            posthoc_for40(args.dataset, args.output)
+            print(json.dumps({"report": str(args.output)}, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "train-for40":
+            from .for40_train import train_all_for40
+
+            result = train_all_for40(args.dataset, args.output_dir, device_name=args.device,
+                                     cpu_reproduction=not args.no_cpu_reproduction)
+            print(json.dumps({"selection": str(args.output_dir / "selection.json"), "selected": result["selected"],
+                              "candidate_condition": result["candidate_condition"]}, indent=2, ensure_ascii=False))
+            return 0
+        if args.command == "eval-for40":
+            from .for40_eval import evaluate_for40
+
+            result = evaluate_for40(args.dataset, args.selection, args.output_dir, device_name=args.device,
+                                    real_matches=not args.skip_matches)
+            print(json.dumps({"report": str(args.output_dir / "evaluation.json"), "q1_gate": result["q1_gate"]},
                              indent=2, ensure_ascii=False))
             return 0
     except (ValueError, RuntimeError, OSError) as exc:

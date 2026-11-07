@@ -1,0 +1,1173 @@
+{
+  "class_coverage": {
+    "heldout": {
+      "army_defend": {
+        "decisions": 199,
+        "maps": 8,
+        "trajectories": 76,
+        "unique_decisions": 199
+      },
+      "army_garrison": {
+        "decisions": 1061,
+        "maps": 8,
+        "trajectories": 82,
+        "unique_decisions": 1061
+      },
+      "army_raid": {
+        "decisions": 73,
+        "maps": 8,
+        "trajectories": 56,
+        "unique_decisions": 73
+      },
+      "avoid_false_conditional": {
+        "decisions": 73,
+        "maps": 8,
+        "trajectories": 56,
+        "unique_decisions": 73
+      },
+      "avoid_true_conditional": {
+        "decisions": 199,
+        "maps": 8,
+        "trajectories": 76,
+        "unique_decisions": 199
+      },
+      "forage_support_2": {
+        "decisions": 215,
+        "maps": 8,
+        "trajectories": 74,
+        "unique_decisions": 215
+      },
+      "forage_support_3": {
+        "decisions": 1118,
+        "maps": 8,
+        "trajectories": 84,
+        "unique_decisions": 1118
+      },
+      "lay_none": {
+        "decisions": 993,
+        "maps": 8,
+        "trajectories": 72,
+        "unique_decisions": 993
+      },
+      "lay_soldier": {
+        "decisions": 247,
+        "maps": 8,
+        "trajectories": 88,
+        "unique_decisions": 247
+      },
+      "lay_worker": {
+        "decisions": 93,
+        "maps": 8,
+        "trajectories": 52,
+        "unique_decisions": 93
+      }
+    },
+    "train": {
+      "army_defend": {
+        "decisions": 901,
+        "maps": 24,
+        "trajectories": 261,
+        "unique_decisions": 901
+      },
+      "army_garrison": {
+        "decisions": 5292,
+        "maps": 24,
+        "trajectories": 333,
+        "unique_decisions": 5292
+      },
+      "army_raid": {
+        "decisions": 290,
+        "maps": 24,
+        "trajectories": 219,
+        "unique_decisions": 290
+      },
+      "avoid_false_conditional": {
+        "decisions": 290,
+        "maps": 24,
+        "trajectories": 219,
+        "unique_decisions": 290
+      },
+      "avoid_true_conditional": {
+        "decisions": 901,
+        "maps": 24,
+        "trajectories": 261,
+        "unique_decisions": 901
+      },
+      "forage_support_2": {
+        "decisions": 1062,
+        "maps": 24,
+        "trajectories": 292,
+        "unique_decisions": 1062
+      },
+      "forage_support_3": {
+        "decisions": 5421,
+        "maps": 24,
+        "trajectories": 318,
+        "unique_decisions": 5421
+      },
+      "lay_none": {
+        "decisions": 4720,
+        "maps": 24,
+        "trajectories": 279,
+        "unique_decisions": 4720
+      },
+      "lay_soldier": {
+        "decisions": 1319,
+        "maps": 24,
+        "trajectories": 353,
+        "unique_decisions": 1319
+      },
+      "lay_worker": {
+        "decisions": 444,
+        "maps": 24,
+        "trajectories": 242,
+        "unique_decisions": 444
+      }
+    },
+    "validation": {
+      "army_defend": {
+        "decisions": 226,
+        "maps": 7,
+        "trajectories": 59,
+        "unique_decisions": 226
+      },
+      "army_garrison": {
+        "decisions": 2220,
+        "maps": 8,
+        "trajectories": 102,
+        "unique_decisions": 2220
+      },
+      "army_raid": {
+        "decisions": 138,
+        "maps": 8,
+        "trajectories": 81,
+        "unique_decisions": 138
+      },
+      "avoid_false_conditional": {
+        "decisions": 138,
+        "maps": 8,
+        "trajectories": 81,
+        "unique_decisions": 138
+      },
+      "avoid_true_conditional": {
+        "decisions": 226,
+        "maps": 7,
+        "trajectories": 59,
+        "unique_decisions": 226
+      },
+      "forage_support_2": {
+        "decisions": 487,
+        "maps": 8,
+        "trajectories": 85,
+        "unique_decisions": 487
+      },
+      "forage_support_3": {
+        "decisions": 2097,
+        "maps": 8,
+        "trajectories": 99,
+        "unique_decisions": 2097
+      },
+      "lay_none": {
+        "decisions": 1861,
+        "maps": 8,
+        "trajectories": 90,
+        "unique_decisions": 1861
+      },
+      "lay_soldier": {
+        "decisions": 552,
+        "maps": 8,
+        "trajectories": 99,
+        "unique_decisions": 552
+      },
+      "lay_worker": {
+        "decisions": 171,
+        "maps": 8,
+        "trajectories": 73,
+        "unique_decisions": 171
+      }
+    }
+  },
+  "class_coverage_by_source": {
+    "heldout/H_det": {
+      "army_defend": {
+        "decisions": 52,
+        "maps": 7,
+        "trajectories": 17,
+        "unique_decisions": 52
+      },
+      "army_garrison": {
+        "decisions": 836,
+        "maps": 8,
+        "trajectories": 29,
+        "unique_decisions": 836
+      },
+      "army_raid": {
+        "decisions": 31,
+        "maps": 8,
+        "trajectories": 19,
+        "unique_decisions": 31
+      },
+      "avoid_false_conditional": {
+        "decisions": 31,
+        "maps": 8,
+        "trajectories": 19,
+        "unique_decisions": 31
+      },
+      "avoid_true_conditional": {
+        "decisions": 52,
+        "maps": 7,
+        "trajectories": 17,
+        "unique_decisions": 52
+      },
+      "forage_support_2": {
+        "decisions": 140,
+        "maps": 8,
+        "trajectories": 32,
+        "unique_decisions": 140
+      },
+      "forage_support_3": {
+        "decisions": 779,
+        "maps": 8,
+        "trajectories": 26,
+        "unique_decisions": 779
+      },
+      "lay_none": {
+        "decisions": 741,
+        "maps": 8,
+        "trajectories": 21,
+        "unique_decisions": 741
+      },
+      "lay_soldier": {
+        "decisions": 140,
+        "maps": 8,
+        "trajectories": 32,
+        "unique_decisions": 140
+      },
+      "lay_worker": {
+        "decisions": 38,
+        "maps": 8,
+        "trajectories": 18,
+        "unique_decisions": 38
+      }
+    },
+    "heldout/H_random": {
+      "army_defend": {
+        "decisions": 147,
+        "maps": 8,
+        "trajectories": 59,
+        "unique_decisions": 147
+      },
+      "army_garrison": {
+        "decisions": 225,
+        "maps": 8,
+        "trajectories": 53,
+        "unique_decisions": 225
+      },
+      "army_raid": {
+        "decisions": 42,
+        "maps": 8,
+        "trajectories": 37,
+        "unique_decisions": 42
+      },
+      "avoid_false_conditional": {
+        "decisions": 42,
+        "maps": 8,
+        "trajectories": 37,
+        "unique_decisions": 42
+      },
+      "avoid_true_conditional": {
+        "decisions": 147,
+        "maps": 8,
+        "trajectories": 59,
+        "unique_decisions": 147
+      },
+      "forage_support_2": {
+        "decisions": 75,
+        "maps": 8,
+        "trajectories": 42,
+        "unique_decisions": 75
+      },
+      "forage_support_3": {
+        "decisions": 339,
+        "maps": 8,
+        "trajectories": 58,
+        "unique_decisions": 339
+      },
+      "lay_none": {
+        "decisions": 252,
+        "maps": 8,
+        "trajectories": 51,
+        "unique_decisions": 252
+      },
+      "lay_soldier": {
+        "decisions": 107,
+        "maps": 8,
+        "trajectories": 56,
+        "unique_decisions": 107
+      },
+      "lay_worker": {
+        "decisions": 55,
+        "maps": 8,
+        "trajectories": 34,
+        "unique_decisions": 55
+      }
+    },
+    "train/P_det": {
+      "army_defend": {
+        "decisions": 59,
+        "maps": 9,
+        "trajectories": 13,
+        "unique_decisions": 59
+      },
+      "army_garrison": {
+        "decisions": 2395,
+        "maps": 24,
+        "trajectories": 48,
+        "unique_decisions": 2395
+      },
+      "army_raid": {
+        "decisions": 51,
+        "maps": 23,
+        "trajectories": 29,
+        "unique_decisions": 51
+      },
+      "avoid_false_conditional": {
+        "decisions": 51,
+        "maps": 23,
+        "trajectories": 29,
+        "unique_decisions": 51
+      },
+      "avoid_true_conditional": {
+        "decisions": 59,
+        "maps": 9,
+        "trajectories": 13,
+        "unique_decisions": 59
+      },
+      "forage_support_2": {
+        "decisions": 275,
+        "maps": 24,
+        "trajectories": 46,
+        "unique_decisions": 275
+      },
+      "forage_support_3": {
+        "decisions": 2230,
+        "maps": 24,
+        "trajectories": 48,
+        "unique_decisions": 2230
+      },
+      "lay_none": {
+        "decisions": 2126,
+        "maps": 24,
+        "trajectories": 31,
+        "unique_decisions": 2126
+      },
+      "lay_soldier": {
+        "decisions": 307,
+        "maps": 24,
+        "trajectories": 48,
+        "unique_decisions": 307
+      },
+      "lay_worker": {
+        "decisions": 72,
+        "maps": 23,
+        "trajectories": 30,
+        "unique_decisions": 72
+      }
+    },
+    "train/P_random": {
+      "army_defend": {
+        "decisions": 541,
+        "maps": 24,
+        "trajectories": 149,
+        "unique_decisions": 541
+      },
+      "army_garrison": {
+        "decisions": 1356,
+        "maps": 24,
+        "trajectories": 169,
+        "unique_decisions": 1356
+      },
+      "army_raid": {
+        "decisions": 140,
+        "maps": 24,
+        "trajectories": 119,
+        "unique_decisions": 140
+      },
+      "avoid_false_conditional": {
+        "decisions": 140,
+        "maps": 24,
+        "trajectories": 119,
+        "unique_decisions": 140
+      },
+      "avoid_true_conditional": {
+        "decisions": 541,
+        "maps": 24,
+        "trajectories": 149,
+        "unique_decisions": 541
+      },
+      "forage_support_2": {
+        "decisions": 316,
+        "maps": 24,
+        "trajectories": 135,
+        "unique_decisions": 316
+      },
+      "forage_support_3": {
+        "decisions": 1721,
+        "maps": 24,
+        "trajectories": 146,
+        "unique_decisions": 1721
+      },
+      "lay_none": {
+        "decisions": 1374,
+        "maps": 24,
+        "trajectories": 135,
+        "unique_decisions": 1374
+      },
+      "lay_soldier": {
+        "decisions": 451,
+        "maps": 24,
+        "trajectories": 182,
+        "unique_decisions": 451
+      },
+      "lay_worker": {
+        "decisions": 212,
+        "maps": 24,
+        "trajectories": 133,
+        "unique_decisions": 212
+      }
+    },
+    "train/S_eps": {
+      "army_defend": {
+        "decisions": 297,
+        "maps": 22,
+        "trajectories": 97,
+        "unique_decisions": 297
+      },
+      "army_garrison": {
+        "decisions": 1336,
+        "maps": 24,
+        "trajectories": 106,
+        "unique_decisions": 1336
+      },
+      "army_raid": {
+        "decisions": 99,
+        "maps": 23,
+        "trajectories": 71,
+        "unique_decisions": 99
+      },
+      "avoid_false_conditional": {
+        "decisions": 99,
+        "maps": 23,
+        "trajectories": 71,
+        "unique_decisions": 99
+      },
+      "avoid_true_conditional": {
+        "decisions": 297,
+        "maps": 22,
+        "trajectories": 97,
+        "unique_decisions": 297
+      },
+      "forage_support_2": {
+        "decisions": 468,
+        "maps": 24,
+        "trajectories": 110,
+        "unique_decisions": 468
+      },
+      "forage_support_3": {
+        "decisions": 1264,
+        "maps": 24,
+        "trajectories": 114,
+        "unique_decisions": 1264
+      },
+      "lay_none": {
+        "decisions": 1017,
+        "maps": 24,
+        "trajectories": 103,
+        "unique_decisions": 1017
+      },
+      "lay_soldier": {
+        "decisions": 557,
+        "maps": 24,
+        "trajectories": 121,
+        "unique_decisions": 557
+      },
+      "lay_worker": {
+        "decisions": 158,
+        "maps": 24,
+        "trajectories": 78,
+        "unique_decisions": 158
+      }
+    },
+    "train/S_switch": {
+      "army_defend": {
+        "decisions": 4,
+        "maps": 1,
+        "trajectories": 2,
+        "unique_decisions": 4
+      },
+      "army_garrison": {
+        "decisions": 205,
+        "maps": 9,
+        "trajectories": 10,
+        "unique_decisions": 205
+      },
+      "avoid_true_conditional": {
+        "decisions": 4,
+        "maps": 1,
+        "trajectories": 2,
+        "unique_decisions": 4
+      },
+      "forage_support_2": {
+        "decisions": 3,
+        "maps": 1,
+        "trajectories": 1,
+        "unique_decisions": 3
+      },
+      "forage_support_3": {
+        "decisions": 206,
+        "maps": 9,
+        "trajectories": 10,
+        "unique_decisions": 206
+      },
+      "lay_none": {
+        "decisions": 203,
+        "maps": 9,
+        "trajectories": 10,
+        "unique_decisions": 203
+      },
+      "lay_soldier": {
+        "decisions": 4,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 4
+      },
+      "lay_worker": {
+        "decisions": 2,
+        "maps": 1,
+        "trajectories": 1,
+        "unique_decisions": 2
+      }
+    },
+    "validation/P_det": {
+      "army_defend": {
+        "decisions": 27,
+        "maps": 4,
+        "trajectories": 6,
+        "unique_decisions": 27
+      },
+      "army_garrison": {
+        "decisions": 1259,
+        "maps": 8,
+        "trajectories": 16,
+        "unique_decisions": 1259
+      },
+      "army_raid": {
+        "decisions": 36,
+        "maps": 7,
+        "trajectories": 8,
+        "unique_decisions": 36
+      },
+      "avoid_false_conditional": {
+        "decisions": 36,
+        "maps": 7,
+        "trajectories": 8,
+        "unique_decisions": 36
+      },
+      "avoid_true_conditional": {
+        "decisions": 27,
+        "maps": 4,
+        "trajectories": 6,
+        "unique_decisions": 27
+      },
+      "forage_support_2": {
+        "decisions": 284,
+        "maps": 8,
+        "trajectories": 15,
+        "unique_decisions": 284
+      },
+      "forage_support_3": {
+        "decisions": 1038,
+        "maps": 8,
+        "trajectories": 16,
+        "unique_decisions": 1038
+      },
+      "lay_none": {
+        "decisions": 976,
+        "maps": 8,
+        "trajectories": 14,
+        "unique_decisions": 976
+      },
+      "lay_soldier": {
+        "decisions": 305,
+        "maps": 8,
+        "trajectories": 16,
+        "unique_decisions": 305
+      },
+      "lay_worker": {
+        "decisions": 41,
+        "maps": 8,
+        "trajectories": 10,
+        "unique_decisions": 41
+      }
+    },
+    "validation/P_random": {
+      "army_defend": {
+        "decisions": 143,
+        "maps": 7,
+        "trajectories": 31,
+        "unique_decisions": 143
+      },
+      "army_garrison": {
+        "decisions": 319,
+        "maps": 8,
+        "trajectories": 50,
+        "unique_decisions": 319
+      },
+      "army_raid": {
+        "decisions": 63,
+        "maps": 8,
+        "trajectories": 49,
+        "unique_decisions": 63
+      },
+      "avoid_false_conditional": {
+        "decisions": 63,
+        "maps": 8,
+        "trajectories": 49,
+        "unique_decisions": 63
+      },
+      "avoid_true_conditional": {
+        "decisions": 143,
+        "maps": 7,
+        "trajectories": 31,
+        "unique_decisions": 143
+      },
+      "forage_support_2": {
+        "decisions": 101,
+        "maps": 8,
+        "trajectories": 47,
+        "unique_decisions": 101
+      },
+      "forage_support_3": {
+        "decisions": 424,
+        "maps": 8,
+        "trajectories": 48,
+        "unique_decisions": 424
+      },
+      "lay_none": {
+        "decisions": 345,
+        "maps": 8,
+        "trajectories": 43,
+        "unique_decisions": 345
+      },
+      "lay_soldier": {
+        "decisions": 117,
+        "maps": 8,
+        "trajectories": 54,
+        "unique_decisions": 117
+      },
+      "lay_worker": {
+        "decisions": 63,
+        "maps": 8,
+        "trajectories": 39,
+        "unique_decisions": 63
+      }
+    },
+    "validation/S_eps": {
+      "army_defend": {
+        "decisions": 51,
+        "maps": 7,
+        "trajectories": 20,
+        "unique_decisions": 51
+      },
+      "army_garrison": {
+        "decisions": 520,
+        "maps": 8,
+        "trajectories": 28,
+        "unique_decisions": 520
+      },
+      "army_raid": {
+        "decisions": 34,
+        "maps": 8,
+        "trajectories": 22,
+        "unique_decisions": 34
+      },
+      "avoid_false_conditional": {
+        "decisions": 34,
+        "maps": 8,
+        "trajectories": 22,
+        "unique_decisions": 34
+      },
+      "avoid_true_conditional": {
+        "decisions": 51,
+        "maps": 7,
+        "trajectories": 20,
+        "unique_decisions": 51
+      },
+      "forage_support_2": {
+        "decisions": 89,
+        "maps": 8,
+        "trajectories": 21,
+        "unique_decisions": 89
+      },
+      "forage_support_3": {
+        "decisions": 516,
+        "maps": 8,
+        "trajectories": 28,
+        "unique_decisions": 516
+      },
+      "lay_none": {
+        "decisions": 422,
+        "maps": 8,
+        "trajectories": 26,
+        "unique_decisions": 422
+      },
+      "lay_soldier": {
+        "decisions": 121,
+        "maps": 8,
+        "trajectories": 26,
+        "unique_decisions": 121
+      },
+      "lay_worker": {
+        "decisions": 62,
+        "maps": 8,
+        "trajectories": 22,
+        "unique_decisions": 62
+      }
+    },
+    "validation/S_switch": {
+      "army_defend": {
+        "decisions": 5,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 5
+      },
+      "army_garrison": {
+        "decisions": 122,
+        "maps": 7,
+        "trajectories": 8,
+        "unique_decisions": 122
+      },
+      "army_raid": {
+        "decisions": 5,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 5
+      },
+      "avoid_false_conditional": {
+        "decisions": 5,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 5
+      },
+      "avoid_true_conditional": {
+        "decisions": 5,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 5
+      },
+      "forage_support_2": {
+        "decisions": 13,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 13
+      },
+      "forage_support_3": {
+        "decisions": 119,
+        "maps": 6,
+        "trajectories": 7,
+        "unique_decisions": 119
+      },
+      "lay_none": {
+        "decisions": 118,
+        "maps": 6,
+        "trajectories": 7,
+        "unique_decisions": 118
+      },
+      "lay_soldier": {
+        "decisions": 9,
+        "maps": 3,
+        "trajectories": 3,
+        "unique_decisions": 9
+      },
+      "lay_worker": {
+        "decisions": 5,
+        "maps": 2,
+        "trajectories": 2,
+        "unique_decisions": 5
+      }
+    }
+  },
+  "criteria": {
+    "D1": {
+      "map_counts": {
+        "heldout": 8,
+        "train": 24,
+        "validation": 8
+      },
+      "min_distance_to_references": 4,
+      "min_pairwise_distance": 3,
+      "pass": true,
+      "plan_sha256_matches": true,
+      "train_edge_length_usage": {
+        "1": 51,
+        "2": 80,
+        "3": 68,
+        "4": 65
+      }
+    },
+    "D2": {
+      "disturbed_matches_removed": 557,
+      "disturbed_share": {
+        "train": 0.2993984266543267,
+        "validation": 0.2852167182662539
+      },
+      "max_matches": 1500,
+      "max_wall_seconds": 2400,
+      "pass": true,
+      "per_split": {
+        "heldout": 96,
+        "train": 912,
+        "validation": 208
+      },
+      "planned_matches": 1216,
+      "recorded_matches": 1216,
+      "wall_seconds": 127.38695749999988
+    },
+    "D3": {
+      "clean": true,
+      "config_hashes_in_multiple_splits": 0,
+      "decisions_in_multiple_splits": 0,
+      "maps_in_multiple_splits": 0,
+      "pass": true,
+      "seed_contexts_in_multiple_splits": 0,
+      "trajectories_in_multiple_splits": 0
+    },
+    "D4": {
+      "heldout": {
+        "decisions": 1333,
+        "pass": true,
+        "required_decisions": 500,
+        "required_trajectories": 50,
+        "trajectories": 96
+      },
+      "pass": true,
+      "train": {
+        "decisions": 6483,
+        "pass": true,
+        "required_decisions": 3000,
+        "required_trajectories": 300,
+        "trajectories": 385
+      },
+      "validation": {
+        "decisions": 2584,
+        "pass": true,
+        "required_decisions": 500,
+        "required_trajectories": 60,
+        "trajectories": 120
+      }
+    },
+    "D5": {
+      "classes": {
+        "army_defend": {
+          "decisions": 901,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 200,
+          "required_maps": 8,
+          "trajectories": 261,
+          "unique_decisions": 901
+        },
+        "army_garrison": {
+          "decisions": 5292,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 500,
+          "required_maps": null,
+          "trajectories": 333,
+          "unique_decisions": 5292
+        },
+        "army_raid": {
+          "decisions": 290,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 100,
+          "required_maps": 8,
+          "trajectories": 219,
+          "unique_decisions": 290
+        },
+        "avoid_false_conditional": {
+          "decisions": 290,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 60,
+          "required_maps": 6,
+          "trajectories": 219,
+          "unique_decisions": 290
+        },
+        "avoid_true_conditional": {
+          "decisions": 901,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 100,
+          "required_maps": 6,
+          "trajectories": 261,
+          "unique_decisions": 901
+        },
+        "forage_support_2": {
+          "decisions": 1062,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 200,
+          "required_maps": 12,
+          "trajectories": 292,
+          "unique_decisions": 1062
+        },
+        "forage_support_3": {
+          "decisions": 5421,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 500,
+          "required_maps": null,
+          "trajectories": 318,
+          "unique_decisions": 5421
+        },
+        "lay_none": {
+          "decisions": 4720,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 500,
+          "required_maps": null,
+          "trajectories": 279,
+          "unique_decisions": 4720
+        },
+        "lay_soldier": {
+          "decisions": 1319,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 300,
+          "required_maps": 12,
+          "trajectories": 353,
+          "unique_decisions": 1319
+        },
+        "lay_worker": {
+          "decisions": 444,
+          "maps": 24,
+          "pass": true,
+          "required_decisions": 150,
+          "required_maps": 10,
+          "trajectories": 242,
+          "unique_decisions": 444
+        }
+      },
+      "pass": true
+    },
+    "D6": {
+      "classes": {
+        "army_defend": {
+          "decisions": 226,
+          "maps": 7,
+          "pass": true,
+          "required_decisions": 40,
+          "required_maps": 3,
+          "trajectories": 59,
+          "unique_decisions": 226
+        },
+        "army_raid": {
+          "decisions": 138,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 30,
+          "required_maps": 3,
+          "trajectories": 81,
+          "unique_decisions": 138
+        },
+        "avoid_false_conditional": {
+          "decisions": 138,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 15,
+          "required_maps": null,
+          "trajectories": 81,
+          "unique_decisions": 138
+        },
+        "avoid_true_conditional": {
+          "decisions": 226,
+          "maps": 7,
+          "pass": true,
+          "required_decisions": 20,
+          "required_maps": null,
+          "trajectories": 59,
+          "unique_decisions": 226
+        },
+        "forage_support_2": {
+          "decisions": 487,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 40,
+          "required_maps": null,
+          "trajectories": 85,
+          "unique_decisions": 487
+        },
+        "forage_support_3": {
+          "decisions": 2097,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 100,
+          "required_maps": null,
+          "trajectories": 99,
+          "unique_decisions": 2097
+        },
+        "lay_soldier": {
+          "decisions": 552,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 60,
+          "required_maps": 4,
+          "trajectories": 99,
+          "unique_decisions": 552
+        },
+        "lay_worker": {
+          "decisions": 171,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 30,
+          "required_maps": 3,
+          "trajectories": 73,
+          "unique_decisions": 171
+        }
+      },
+      "pass": true
+    },
+    "D7": {
+      "classes": {
+        "army_defend": {
+          "decisions": 199,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 40,
+          "required_maps": 3,
+          "trajectories": 76,
+          "unique_decisions": 199
+        },
+        "army_raid": {
+          "decisions": 73,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 30,
+          "required_maps": 3,
+          "trajectories": 56,
+          "unique_decisions": 73
+        },
+        "avoid_false_conditional": {
+          "decisions": 73,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 15,
+          "required_maps": null,
+          "trajectories": 56,
+          "unique_decisions": 73
+        },
+        "avoid_true_conditional": {
+          "decisions": 199,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 20,
+          "required_maps": null,
+          "trajectories": 76,
+          "unique_decisions": 199
+        },
+        "forage_support_2": {
+          "decisions": 215,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 40,
+          "required_maps": null,
+          "trajectories": 74,
+          "unique_decisions": 215
+        },
+        "forage_support_3": {
+          "decisions": 1118,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 100,
+          "required_maps": null,
+          "trajectories": 84,
+          "unique_decisions": 1118
+        },
+        "lay_soldier": {
+          "decisions": 247,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 60,
+          "required_maps": 4,
+          "trajectories": 88,
+          "unique_decisions": 247
+        },
+        "lay_worker": {
+          "decisions": 93,
+          "maps": 8,
+          "pass": true,
+          "required_decisions": 30,
+          "required_maps": 3,
+          "trajectories": 52,
+          "unique_decisions": 93
+        }
+      },
+      "decisions_per_map": {
+        "g400000007": 55,
+        "g400000012": 164,
+        "g400000026": 268,
+        "g400000043": 169,
+        "g400000045": 159,
+        "g400000046": 167,
+        "g400000051": 196,
+        "g400000072": 155
+      },
+      "decisions_per_opponent": {
+        "balanced:v2": 421,
+        "raider:v2": 28,
+        "random:v2": 414,
+        "rush:v2": 28,
+        "turtle:v2": 442
+      },
+      "pass": false
+    }
+  },
+  "dataset_sha256": "786f6adaeaa93ed599d69014ff0be242f7729624b1bd285ac7f3dee5264c103c",
+  "decision": "DATA NO-GO",
+  "explanation": "The preregistered data gate failed. No model is trained or evaluated on held-out data.",
+  "failed": [
+    "D7"
+  ],
+  "funnel": {
+    "heldout": {
+      "matches_removed_by_disturbed_cap": 0,
+      "planned_matches": 96,
+      "retained_decisions": 1333,
+      "retained_trajectories": 96,
+      "source_decisions": 1422,
+      "source_trajectories": 96,
+      "unique_decisions": 1333
+    },
+    "train": {
+      "matches_removed_by_disturbed_cap": 480,
+      "planned_matches": 912,
+      "retained_decisions": 6483,
+      "retained_trajectories": 385,
+      "source_decisions": 7615,
+      "source_trajectories": 392,
+      "unique_decisions": 6483
+    },
+    "validation": {
+      "matches_removed_by_disturbed_cap": 77,
+      "planned_matches": 208,
+      "retained_decisions": 2584,
+      "retained_trajectories": 120,
+      "source_decisions": 3047,
+      "source_trajectories": 123,
+      "unique_decisions": 2584
+    }
+  },
+  "protocol": "docs/ml_for40_protocol.md",
+  "schema": "formicmind.ml-for40-data-gate/v1"
+}
