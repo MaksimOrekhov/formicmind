@@ -199,6 +199,7 @@ def _arrivals(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: T
             accepted = min(cohort.load, economy.storage_cap - colony.food)
             colony.food += accepted
             cohort.load -= accepted
+            colony.window.delivered += accepted
             record.delivered += accepted
             record.delivered_by_colony[cohort.colony_id] = record.delivered_by_colony.get(cohort.colony_id, 0) + accepted
             if cohort.load == 0:
@@ -346,6 +347,7 @@ def _upkeep(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: Tic
         paid = min(due, colony.food)
         missing = due - paid
         colony.food -= paid
+        colony.window.upkeep_due += due
         colony.window.upkeep_paid += paid
         record.upkeep_due += due
         record.upkeep_paid += paid

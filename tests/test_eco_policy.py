@@ -44,7 +44,7 @@ def rand_latents(seed: int, scale: float = 6.0) -> tuple[float, ...]:
 
 def test_first_observation_shapes_and_special_cases_before_any_contact():
     obs, masks = first_observation(colony=2)
-    assert obs.version == OBSERVATION_VERSION == "ObservationE1/v1"
+    assert obs.version == OBSERVATION_VERSION == "ObservationE1/v2"
     assert len(obs.global_features) == GLOBAL_DIM == 40
     assert all(len(row) == NODE_DIM for row in obs.node_features) and 0 < len(obs.node_features) <= 128
     assert len(obs.node_ints) == len(obs.node_features)
@@ -93,9 +93,10 @@ def test_observation_refuses_a_colony_without_a_queen_and_foreign_cohorts():
 def test_rolling_window_is_closed_with_integer_ema_only():
     run = Run(seed=50012)
     colony = run.state.colonies[0]
-    window = replace(colony.window, harvested=60, upkeep_paid=30)
+    window = replace(colony.window, harvested=999, delivered=60, upkeep_due=30, upkeep_paid=20)
     rolling = next_rolling(colony.rolling, window, 10, 2, 30)
-    assert rolling.income_ema_q == (3 * colony.rolling.income_ema_q + 60 * 65536 // 30) // 4
+    assert rolling.income_ema_q == (3 * colony.rolling.income_ema_q + 60 * 65536 // 30) // 4     # delivered, not harvested
+    assert rolling.burn_ema_q == (3 * colony.rolling.burn_ema_q + 30 * 65536 // 30) // 4          # due, not paid
     assert next_rolling(colony.rolling, window, 10, 2, 0) == colony.rolling
 
 

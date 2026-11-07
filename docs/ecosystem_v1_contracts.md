@@ -18,9 +18,9 @@
 |---|---|---|
 | `eco_rules_version` | `eco1-proto-v0` | механика; растёт при изменении правил |
 | `eco_balance_version` | `eco1-candidate-unvalidated` | числа до калибровки E1-c (как `candidate-FOR1-v0.2.1-unvalidated` в L0) |
-| `observation_version` | `ObservationE1/v1` | **не** `ObservationV2` |
+| `observation_version` | `ObservationE1/v2` | **не** `ObservationV2` |
 | `action_version` | `ActionE1/v1` | **не** `ActionV2` |
-| `eco_state_schema` | `formicmind.eco.state/1` | |
+| `eco_state_schema` | `formicmind.eco.state/2` | |
 | `eco_checkpoint_schema` | `formicmind.eco.checkpoint/1` | |
 | `eco_replay_schema` | `eco-replay/v1` | отдельно от `replay v1` L0 |
 | домены хэшей | `formicmind/eco/{config,map,state,checkpoint,events}/v1` | префикс + `0x00`, SHA-256 hex — как в L0 `docs/foundation.md` §4 |

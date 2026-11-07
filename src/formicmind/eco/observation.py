@@ -1,4 +1,4 @@
-"""ObservationE1/v1: what one colony may know when it decides (contracts section 7).
+"""ObservationE1/v2: what one colony may know when it decides (contracts section 7).
 
 The builder reads exactly three things and nothing else: the colony's **own** ``ColonyStateE1`` (vitals, orders, brood, age ledger and its private
 ``ColonyMemoryE1``), the colony's **own** cohorts, and public constants (the config, the tick). It receives no ``WorldStateE1``, no ``MapE1`` and no
@@ -168,13 +168,33 @@ def observation_hash(obs: ObservationE1) -> str:
 
 
 def next_rolling(rolling: RollingE1, window: WindowStatsE1, workers: int, soldiers: int, delta: int) -> RollingE1:
-    """Close the window of the last ``delta`` ticks: integer EMAs (weight 1/4) of income and burn per tick and of the population."""
+    """Close the window of the last ``delta`` ticks: integer EMAs (weight 1/4) of income and burn per tick and of the population.
+
+    Contracts 9.1: **income** is the food actually delivered into the own nest (``window.delivered``; harvested food still on the workers is not
+    spendable), **burn** is the upkeep *due* (``window.upkeep_due``; it stays positive while the colony starves, unlike the upkeep paid).
+    Cadence limit: these EMAs advance once per decision window (30 ticks, 10 in an alert), not once per world tick as the contract's reward
+    signal does; the per-tick viability used as PPO reward is computed separately in the E3 reward task (FOR-49), outside the observation.
+    """
     if delta <= 0:
         return RollingE1(rolling.income_ema_q, rolling.burn_ema_q, rolling.pop_ema_q)
-    income = window.harvested * Q // delta
-    burn = window.upkeep_paid * Q // delta
+    income = window.delivered * Q // delta
+    burn = window.upkeep_due * Q // delta
     pop = (2 * workers + soldiers) * Q // 2
     return RollingE1((3 * rolling.income_ema_q + income) // 4, (3 * rolling.burn_ema_q + burn) // 4, (3 * rolling.pop_ema_q + pop) // 4)
+
+
+RUNWAY_CAP_TICKS = 40  # ``security`` saturates at this many ticks of runway (contracts 9.1)
+
+
+def net_runway_feature(food: int, rolling: RollingE1) -> float:
+    """``security`` input of contracts 9.1: ``min(1, food / (burn_ema - income_ema) / 40)``; 1.0 when the income covers the burn.
+
+    Own data only: the colony's stored food and its own two EMAs. Exact integers and one correctly rounded division.
+    """
+    net_q = rolling.burn_ema_q - rolling.income_ema_q
+    if net_q <= 0:
+        return 1.0
+    return _clip01(max(0, food) * Q / (net_q * RUNWAY_CAP_TICKS))
 
 
 # ------------------------------------------------------------------------------------------------ builder
@@ -214,7 +234,7 @@ def build_observation(colony: ColonyStateE1, cohorts: Sequence[CohortE1], tick: 
             raise ObservationError("a cohort of another colony was passed to the observation builder")
     n_nodes = len(memory.nodes)
     if n_nodes > MAX_NODES or len(memory.edges) > MAX_EDGES or len(memory.foreign) > MAX_FOREIGN:
-        raise ObservationError(f"the memory ({n_nodes} nodes, {len(memory.edges)} edges) does not fit ObservationE1/v1 (128 / 320)")
+        raise ObservationError(f"the memory ({n_nodes} nodes, {len(memory.edges)} edges) does not fit ObservationE1/v2 (128 / 320)")
     slot_of = {known.node_id: slot for slot, known in enumerate(memory.nodes)}
     home_id = memory.nodes[0].node_id
     path = _known_distances(memory, 0)
@@ -266,7 +286,7 @@ def build_observation(colony: ColonyStateE1, cohorts: Sequence[CohortE1], tick: 
     next_hatch = min((b.hatch_tick - tick for b in colony.brood), default=0)
     squad_value = {"none": 0.0, "guard": 1 / 3, "attack": 2 / 3, "withdraw": 1.0}
 
-    runway = 1.0 if burn_tenths == 0 else _clip01((colony.food * 10 // burn_tenths) / 40)
+    runway = net_runway_feature(colony.food, rolling)
     global_features = [
         _ratio(tick, horizon),
         _ratio(decision_index, max(1, horizon // k)),

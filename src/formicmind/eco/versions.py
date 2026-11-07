@@ -4,12 +4,12 @@ from __future__ import annotations
 
 ECO_RULES_VERSION = "eco1-proto-v0"
 ECO_BALANCE_VERSION = "eco1-candidate-unvalidated"
-OBSERVATION_VERSION = "ObservationE1/v1"  # builder: observation.py (FOR-48)
+OBSERVATION_VERSION = "ObservationE1/v2"  # builder: observation.py (FOR-48)
 ACTION_VERSION = "ActionE1/v1"  # masks / decoder / application: action.py, decoder.py, apply.py (FOR-48)
 
 CONFIG_SCHEMA = "formicmind.eco.config/1"
 MAP_SCHEMA = "formicmind.eco.map/1"
-STATE_SCHEMA = "formicmind.eco.state/1"
+STATE_SCHEMA = "formicmind.eco.state/2"
 CHECKPOINT_SCHEMA = "formicmind.eco.checkpoint/1"
 REPORT_SCHEMA = "formicmind.eco.fairness/1"
 CLI_SCHEMA = "formicmind.eco.map-cli/1"

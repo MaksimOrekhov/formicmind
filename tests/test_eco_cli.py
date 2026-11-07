@@ -62,7 +62,7 @@ def test_the_json_contains_no_policy_observation_metadata(capsys):
 
     walk(doc)
     assert not {"observation", "mask", "action", "logits", "policy", "critic", "reward", "target", "owner", "ownership"} & keys
-    assert doc["versions"]["observation_version"] == "ObservationE1/v1"  # a contract name only; no observation is built here
+    assert doc["versions"]["observation_version"] == "ObservationE1/v2"  # a contract name only; no observation is built here
 
 
 @pytest.mark.parametrize("colonies", [6, 7, 8])

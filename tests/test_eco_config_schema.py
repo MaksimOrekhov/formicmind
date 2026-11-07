@@ -263,7 +263,7 @@ def test_state_roundtrip_hash_and_golden(world):
     data = state_to_bytes(world.state)
     again = state_from_bytes(data, world.config, world.world_map)
     assert again == world.state and state_hash(again) == state_hash(world.state)
-    assert state_hash(world.state) == "03ac8f74e7d35df5b48a7ce3206171acd726ef5e9889317df7380ab727d82d81"
+    assert state_hash(world.state) == "7af767105e3157f8d716adfc3edb9eeb08789701bdccf7fd1be1980bf5211fc8"
     assert world.world_map.map_hash == "fce2596c0957b76dedb700165c4170b155aeae039c458c45ee7ddcb71fd6600d"
     other = initial_world_state(world.config, world.world_map)
     assert other == world.state and state_hash(other) == state_hash(world.state)

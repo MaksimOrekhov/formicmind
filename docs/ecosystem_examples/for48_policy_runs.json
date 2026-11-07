@@ -19,9 +19,9 @@
         "queen_dead": 0
       },
       "hashes": {
-        "decisions": "9a77a49b10f71a2d9022e7a3fc26d6312f3a6e9423720cab4f6019ccca11199f",
+        "decisions": "6040946851649aa4ddcb8922a4d12d74fd650e2bb4277c1aa2209cd952f8ae22",
         "events": "9c86628665d0cd065fb9f379280566f19129d4ed8baf16743db36af66c4978c3",
-        "state": "693aba3867101813c93399a57238fdde714a49fc3bbcbd973ff6f7f64f1ee419"
+        "state": "d92b151cb1972d797809fa732a1542057bc391fd4305982377d18accbc8f49bc"
       },
       "map_seed": "50004",
       "policy": {
@@ -114,9 +114,9 @@
         "queen_dead": 0
       },
       "hashes": {
-        "decisions": "ed3a9950d07933a2e529512a04dd74cd9f32a2b61387eb54612d0819c1e030eb",
+        "decisions": "515ad29565ae52e9c44a74e8caa5ed3c209e77653659be149f4adf7bcf8eb223",
         "events": "94ca42c7c40f1d898ae4e3883e55f89830786f15ba5c3bb138721d8a9376d3fe",
-        "state": "838c322d39423579af1d0e831750a3dc0d85f5cf20764f7b54aeec53dccabb60"
+        "state": "3cc78fb006b60bac240d9d5ca74adbf89d15aae4af57a10f874a9934edfe57c9"
       },
       "map_seed": "50011",
       "policy": {
@@ -187,8 +187,8 @@
       ],
       "ticks": 3000,
       "wall_seconds": [
-        1.92,
-        1.89
+        1.81,
+        2.15
       ]
     },
     {
@@ -209,9 +209,9 @@
         "queen_dead": 0
       },
       "hashes": {
-        "decisions": "fcdf4c68e57565e9d032152b805ae8113ceb030bf0536aaa02d06c04db58254a",
+        "decisions": "baa3ad4775eba7e6462330c3d60ece00f06c7bc907006280b7e352442fbf8a2b",
         "events": "2336b6bf85a4c793152dd6dad906c2f7c3e78c69105e465b309bca6cb6fbee31",
-        "state": "989bbe55fc247223ec9b7ddb4ee2f74c222616d47a87e051cdaace30494a672d"
+        "state": "48529422b4f2ba46d702595397e4da2d945720a5aafe08f7737ea3828960fe30"
       },
       "map_seed": "50012",
       "policy": {
@@ -282,8 +282,8 @@
       ],
       "ticks": 3000,
       "wall_seconds": [
-        1.77,
-        1.87
+        2.2,
+        2.09
       ]
     },
     {
@@ -304,9 +304,9 @@
         "queen_dead": 0
       },
       "hashes": {
-        "decisions": "3b4ec2b959897e61a0d5c0ae419d66e8bbbd7f0d470b2e770aef582597ea90bf",
+        "decisions": "084331ac9d950697f156e76297a0ac06a444d113c17e6a22a360f4afd3f7e654",
         "events": "ce552a354369c278d82f9bfbcea6b553014bacaa721d85490dbe61601e6684d4",
-        "state": "19c867615581a9dee3c053f5ddfd3ee7cc8a98fffedb3ce910f4e52272e98dbd"
+        "state": "5cd4e6a17475c8aaa088fd931dc8e6c9f6005750cc3d3e89e93609f19802c0e1"
       },
       "map_seed": "50031",
       "policy": {
@@ -377,8 +377,8 @@
       ],
       "ticks": 3000,
       "wall_seconds": [
-        2.98,
-        3.18
+        3.12,
+        2.74
       ]
     }
   ]

@@ -91,7 +91,7 @@
     "schema": "formicmind.eco.config/1"
   },
   "config_hash": "05a9b71d67fadcbb73595ad5e8d522f8b59e9fe64dc1007275bb3f161439e909",
-  "document_sha256": "603d0e8aa52f4ceb897ffd74d5078081431e7bd54dbbd69674e71d1e485396f3",
+  "document_sha256": "ccbf164d7899d3dd049e704f421206a375ebc9f769792b79b50c98d49aae130a",
   "initial_state": {
     "colonies": [
       {
@@ -168,7 +168,7 @@
       }
     ],
     "patch_stock_total": 3840,
-    "state_hash": "03ac8f74e7d35df5b48a7ce3206171acd726ef5e9889317df7380ab727d82d81",
+    "state_hash": "7af767105e3157f8d716adfc3edb9eeb08789701bdccf7fd1be1980bf5211fc8",
     "tick": 0
   },
   "map": {
@@ -2709,6 +2709,6 @@
     "eco_balance_version": "eco1-candidate-unvalidated",
     "eco_rules_version": "eco1-proto-v0",
     "generator": "eco-mapgen-v1",
-    "observation_version": "ObservationE1/v1"
+    "observation_version": "ObservationE1/v2"
   }
 }
