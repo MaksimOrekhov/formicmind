@@ -153,8 +153,10 @@ def order_attack(state: WorldStateE1, config: ConfigE1, world_map: MapE1, colony
         _fail("attack: the target is neither a known nest nor a fresh sighting of that colony")
     known = colony.memory.nodes[node_slot]
     target = colony.memory.foreign[colony_slot].colony_id
-    if target == colony_id or state.colonies[target].status == "extinct":
-        _fail("attack: not a living foreign colony")
+    if target == colony_id:
+        _fail("attack: not a foreign colony")
+    # Whether the target still exists is NOT checked: that would leak a state the colony has not observed. An attack on a colony that
+    # is already gone is legal if the colony does not know it; the engine simply finds nobody to fight (combat.resolve_combat).
     _need_path(colony, world_map, known.node_id, "attack")
     if not _idle_at_home(state, world_map, colony_id, "soldier"):
         _fail("squad: no idle soldiers at the nest")

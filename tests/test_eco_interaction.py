@@ -733,3 +733,44 @@ def test_the_published_raid_scenario_is_reproduced_exactly_and_the_orphan_dies_o
     assert {a["attacker"] for a in inter["attacks_dispatched"]} == {3}
     assert result.report["outcome"]["reason"] == "horizon" and result.report["food_ledger"]["difference"] == 0  # the world outlived the death
     assert result.state.outcomes[0].reason == "queen_death"
+
+
+def test_target_eligibility_cannot_depend_on_an_enemy_extinction_the_colony_has_not_observed():
+    """PR #28 review: two worlds with the same attacker memory and own cohorts, differing only in the hidden fate of the enemy."""
+    from formicmind.eco.model import ColonyOutcome
+    from formicmind.eco.roles import _raid_target
+
+    world, routes, target, (node_slot, colony_slot) = _raid_world(attackers=6, defenders=2)
+    twin = deepcopy(world)
+    hidden = twin.state
+    for caste, count in (("soldier", 2), ("worker", 8)):
+        remove_cohort_members(hidden, twin.config, twin.world_map, 1, caste, count, book_age_deaths=True)
+    enemy = hidden.colonies[1]
+    enemy.brood, enemy.food, enemy.status = [], 0, "extinct"
+    hidden.outcomes[1] = ColonyOutcome(True, "collapse", hidden.tick)
+    validate_state(hidden, twin.config, twin.world_map)
+    # what the attacker can see and own is identical; only the unobserved enemy differs
+    assert world.state.colonies[0] == hidden.colonies[0]
+    assert [c for c in world.state.cohorts if c.colony_id == 0] == [c for c in hidden.cohorts if c.colony_id == 0]
+    assert world.state.colonies[1].status == "alive" and hidden.colonies[1].status == "extinct"
+
+    # the fixture picks the same target in both worlds
+    chosen = _raid_target(world.state, 0, world.world_map)
+    assert chosen is not None and chosen == _raid_target(hidden, 0, twin.world_map) and chosen[:2] == (node_slot, colony_slot)
+    # and the order is equally legal in both
+    assert attack_target_is_legal(world.state, 0, node_slot, colony_slot) and attack_target_is_legal(hidden, 0, node_slot, colony_slot)
+    ids = order_attack(world.state, world.config, world.world_map, 0, node_slot, colony_slot)
+    twin_ids = order_attack(hidden, twin.config, twin.world_map, 0, node_slot, colony_slot)
+    assert ids == twin_ids
+
+    # the engine knows the target is gone: the squad marches there, finds nobody, fights nothing and settles as a guard
+    log = EventLog()
+    for _ in range(routes.distance(twin.world_map.nests[0], target) + 20):
+        log.extend(_step(twin, routes).events)
+    assert log.counts()["combat"] == 0 and log.counts()["death"] == 0
+    assert {c.mission.kind for c in hidden.cohorts if c.cohort_id in twin_ids} == {"guard"}
+
+    # malformed targets still fail closed
+    for bad in ((node_slot, 99), (99, colony_slot), (node_slot, -1)):
+        with pytest.raises(IllegalOrderError):
+            order_attack(world.state, world.config, world.world_map, 0, *bad)

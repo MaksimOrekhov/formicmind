@@ -85,8 +85,8 @@ def _raid_target(state: WorldStateE1, colony_id: int, world_map: MapE1) -> tuple
         if record.nest_node_slot < 0 or memory.nodes[record.nest_node_slot].queen_seen == 2:
             continue  # nest unknown, or the queen is known to be dead
         node = memory.nodes[record.nest_node_slot]
-        if node.node_id not in distance or state.colonies[record.colony_id].status == "extinct":
-            continue
+        if node.node_id not in distance:
+            continue  # only the colony's own memory decides: whether the neighbour still exists is not observed
         lower, upper = _enemy_bounds(record.last_seen_soldiers_bucket)
         options.append((upper, distance[node.node_id], colony_slot, record.nest_node_slot))
     if not options:
@@ -122,7 +122,7 @@ def turtle(state: WorldStateE1, config: ConfigE1, world_map: MapE1, colony_id: i
     if any(c.colony_id == colony_id and c.mission.kind == "guard" for c in state.cohorts):
         return
     memory = state.colonies[colony_id].memory
-    seen = [(-s.tick, s.node_slot) for s in memory.sightings if world_map.nodes[memory.nodes[s.node_slot].node_id].kind == "patch"]
+    seen = [(-s.tick, s.node_slot) for s in memory.sightings if memory.nodes[s.node_slot].kind == "patch"]
     if seen and _units(state, colony_id, "soldier") >= 4:
         try:
             order_guard(state, config, world_map, colony_id, min(seen)[1], 2, 1, sink)
