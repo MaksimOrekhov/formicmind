@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EcoApp from './EcoApp.vue'
 import Root from '../Root.vue'
-import { policySampleBytes, sampleBytes, textLines, joinLines } from './testing'
+import { learnedSampleBytes, policySampleBytes, sampleBytes, textLines, joinLines } from './testing'
 
 function respondWithSample() {
   const bytes = sampleBytes()
@@ -114,6 +114,20 @@ describe('E1 viewer application', () => {
     const cards = wrapper.findAll('.eco-colony')
     expect(cards[0].text()).toContain('heuristic:explorer')
     cards.forEach((card, id) => { if (id !== 0) expect(card.text()).not.toMatch(/random_valid|heuristic:/) })
+    wrapper.unmount()
+  })
+
+  it('opens the run of the PPO-trained network and names it as the policy of all eight colonies', async () => {
+    respondWithSample()
+    const wrapper = mount(EcoApp, { attachTo: document.body })
+    await settle(wrapper)
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, arrayBuffer: async () => learnedSampleBytes().slice().buffer })))
+    await wrapper.get('[data-testid="learned-sample"]').trigger('click')
+    await settle(wrapper)
+    const chip = wrapper.get('[data-testid="policy-chip"]').text()
+    expect(chip).toMatch(/learned:sample-[0-9a-f]{16} ×8/)
+    expect(wrapper.text()).toContain('eco_learned_ppo_seed90000.jsonl')
+    expect(wrapper.findAll('.eco-colony')).toHaveLength(8)
     wrapper.unmount()
   })
 

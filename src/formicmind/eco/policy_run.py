@@ -54,10 +54,16 @@ class DecisionLog:
 
 
 class PolicyController:
-    """One independent policy per colony behind the engine's controller interface."""
+    """One independent policy per colony behind the engine's controller interface.
 
-    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None) -> None:
+    ``batcher`` (optional, FOR-49) is an object with ``act_batch(items) -> list[answer]`` where ``items`` is a list of ``(colony, obs, masks)``:
+    the colonies that decide at the same tick are then answered by one call (one network forward pass) instead of one ``act`` each. The answers
+    are validated and applied exactly as before; the batcher sees the same private observations and nothing else.
+    """
+
+    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None) -> None:
         self.policies = list(policies)
+        self.batcher = batcher
         self.log = DecisionLog() if log is None else log
         self.last_decision = [-1] * len(self.policies)
         self.decisions = [0] * len(self.policies)
@@ -73,6 +79,7 @@ class PolicyController:
 
         # ---- phase 1: decide on the snapshot; nothing is written to the world
         plans = []
+        pending = []
         for cid in deciding:
             colony = state.colonies[cid]
             own = [c for c in state.cohorts if c.colony_id == cid]
@@ -83,7 +90,12 @@ class PolicyController:
             obs = build_observation(colony, own, tick, config, decision_index=self.decisions[cid], ticks_since_last_decision=delta,
                                     rolling=rolling)
             masks = action_masks(obs)
-            answer = self.policies[cid].act(obs, masks)
+            pending.append((cid, obs, masks, rolling))
+        if self.batcher is not None:
+            answers = self.batcher.act_batch([(cid, obs, masks) for cid, obs, masks, _ in pending])
+        else:
+            answers = [self.policies[cid].act(obs, masks) for cid, obs, masks, _ in pending]
+        for (cid, obs, masks, rolling), answer in zip(pending, answers):
             action = answer if isinstance(answer, ActionE1) else decode(answer, masks)
             validate_action(action, masks)
             plans.append((cid, obs, action, rolling))

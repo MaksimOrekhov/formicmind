@@ -36,6 +36,7 @@ from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .fixtures import FIXTURE_CHOICES, normalize_fixture
 from .policy import HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec
+from .rl.cli_args import add_rl_commands
 from .replay_file import ReplayFormatError, export_policy_replay, export_replay, read_replay, verify_replay
 from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
 from .versions import (
@@ -340,6 +341,8 @@ def _parse_policy(text: str) -> PolicySpec:
         raise ValueError(f"policy kind must be one of {POLICY_KINDS}, got {kind!r}")
     if kind == "random_valid" and variant:
         raise ValueError("random_valid has no variant")
+    if kind == "learned" and not variant:
+        raise ValueError("learned needs a variant: learned:<sample|greedy>-<weights sha256 prefix>")
     if kind == "heuristic":
         variant = variant or "peaceful"
         if variant not in HEURISTIC_VARIANTS:
@@ -364,6 +367,7 @@ def _policy_spec(args: argparse.Namespace, colonies: int) -> PolicyRunSpec:
 
 
 def cmd_policy_run(args: argparse.Namespace) -> int:
+    _load_models(args)
     config = _config_from_args(args)
     spec = _policy_spec(args, config.n_colonies)
     started = time.perf_counter()
@@ -389,7 +393,24 @@ def cmd_policy_run(args: argparse.Namespace) -> int:
     return 0
 
 
+def _load_models(args: argparse.Namespace) -> None:
+    if getattr(args, "model", None):
+        from .rl.cli import load_models        # PyTorch is imported only here, when a learned model is actually used
+        load_models(args.model)
+
+
+def cmd_train(args: argparse.Namespace) -> int:
+    from .rl.cli import cmd_train as run
+    return run(args)
+
+
+def cmd_eval(args: argparse.Namespace) -> int:
+    from .rl.cli import cmd_eval as run
+    return run(args)
+
+
 def cmd_replay_verify(args: argparse.Namespace) -> int:
+    _load_models(args)
     with open(args.file, "rb") as handle:
         data = handle.read()
     sidecar = None
@@ -515,6 +536,7 @@ def build_parser() -> argparse.ArgumentParser:
     rv.add_argument("file")
     rv.add_argument("--read-only", action="store_true", help="only the strict structural/hash check, no re-execution")
     rv.add_argument("--decisions", default=None, help="policy run: the decision records file that must equal the re-executed ones")
+    rv.add_argument("--model", action="append", default=[], help="model directory of a learned policy named in the replay (repeatable)")
     rv.set_defaults(run=cmd_replay_verify)
 
     pr = sub.add_parser("policy-run", help="run a real world whose colonies are decided by independent policies (ObservationE1 -> ActionE1)")
@@ -528,7 +550,12 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--decisions", default=None, help="also write the decision records (tick, colony, observation hash, action) as JSONL")
     pr.add_argument("--verify", action="store_true", help="re-execute the run and demand identical replay and decision bytes")
     pr.add_argument("--out", required=True, help="output replay .jsonl path (opens in the E1 viewer)")
+    pr.add_argument("--model", action="append", default=[], help="model directory for --policy learned:<sample|greedy>-<sha prefix> (repeatable)")
     pr.set_defaults(run=cmd_policy_run)
+
+    add_rl_commands(sub, _add_world_args)
+    sub.choices["train"].set_defaults(run=cmd_train)
+    sub.choices["eval"].set_defaults(run=cmd_eval)
 
     sb = sub.add_parser("bench-run", help="measure real-map simulation throughput and peak traced memory")
     _add_world_args(sb)

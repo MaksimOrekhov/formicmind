@@ -55,6 +55,8 @@ python scripts/ecosystem_policy_runs.py --out docs/ecosystem_examples/for48_poli
 
 Готовый replay для viewer: `viewer/public/samples/eco_policy_seed50012.jsonl` (кнопка «Пример: независимые политики»). Сводка четырёх миров (каждый запущен дважды, хэши совпали): `docs/ecosystem_examples/for48_policy_runs.json`.
 
+Обученная сеть (FOR-49) подключается тем же интерфейсом как политика вида `learned:<sample|greedy>-<SHA-256 весов, 16 hex>`; см. `docs/ecosystem_v1_training.md`. Ядро (`formicmind.eco`) PyTorch не импортирует: сеть живёт в подпакете `formicmind.eco.rl`, а модель регистрируется командами с `--model`.
+
 ## Политики и что они не обещают
 
 * `random_valid` — равномерные латенты → `decode`; не обязан выживать (в мире 50004 все восемь вымирают к тику 114 — мир завершается).

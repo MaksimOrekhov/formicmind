@@ -9,6 +9,7 @@ import type { EcoReplay } from './types'
 // Vitest runs from the viewer/ directory (npm run test), so paths are taken from there.
 const SAMPLE_PATH = resolve(process.cwd(), 'public/samples/eco_seed50004_raider3.jsonl')
 const POLICY_SAMPLE_PATH = resolve(process.cwd(), 'public/samples/eco_policy_seed50012.jsonl')
+const LEARNED_SAMPLE_PATH = resolve(process.cwd(), 'public/samples/eco_learned_ppo_seed90000.jsonl')
 const PYTHON_RUN_PATH = resolve(process.cwd(), '../docs/ecosystem_examples/for46_raid_seed50004.json')
 const ZERO = '0'.repeat(64)
 
@@ -32,6 +33,14 @@ let cachedPolicyReplay: EcoReplay | null = null
 export function policySampleBytes(): Uint8Array {
   if (!cachedPolicyBytes) cachedPolicyBytes = new Uint8Array(readFileSync(POLICY_SAMPLE_PATH))
   return cachedPolicyBytes
+}
+
+let cachedLearnedBytes: Uint8Array | null = null
+
+/** The FOR-49 run: 8 colonies decided by the PPO-trained network (``python -m formicmind.eco eval --replay-out``). */
+export function learnedSampleBytes(): Uint8Array {
+  if (!cachedLearnedBytes) cachedLearnedBytes = new Uint8Array(readFileSync(LEARNED_SAMPLE_PATH))
+  return cachedLearnedBytes
 }
 
 export function policySampleReplay(): EcoReplay {

@@ -19,7 +19,16 @@ from .config import ConfigE1
 from .decoder import LATENT_SIZE
 from .observation import ObservationE1
 
-POLICY_KINDS = ("random_valid", "heuristic")
+POLICY_KINDS = ("random_valid", "heuristic", "learned")
+# kinds whose policies live outside the torch-free core (FOR-49: ``learned`` is registered by ``formicmind.eco.rl.learned``)
+_FACTORIES: dict[str, object] = {}
+
+
+def register_policy_factory(kind: str, factory) -> None:
+    """``factory(item, colony, config, policy_seed) -> PolicyE1`` builds the policy of one colony for a kind the core does not implement."""
+    if kind not in POLICY_KINDS:
+        raise ValueError(f"unknown policy kind {kind!r}")
+    _FACTORIES[kind] = factory
 HEURISTIC_VARIANTS = ("peaceful", "explorer", "raider", "aggressor")
 
 
@@ -141,7 +150,7 @@ class ObservationHeuristicPolicy:
 
 @dataclass(frozen=True, slots=True)
 class PolicySpec:
-    kind: str           # "random_valid" | "heuristic"
+    kind: str           # "random_valid" | "heuristic" | "learned"
     variant: str = ""   # heuristic: peaceful | explorer | raider
 
 
@@ -174,6 +183,10 @@ def build_policies(spec: PolicyRunSpec, config: ConfigE1) -> list[PolicyE1]:
             out.append(RandomValidPolicy(new_stream(spec.policy_seed, stream_id_of(item, colony))))
         elif item.kind == "heuristic":
             out.append(ObservationHeuristicPolicy(config, item.variant or "peaceful"))
+        elif item.kind in _FACTORIES:
+            out.append(_FACTORIES[item.kind](item, colony, config, spec.policy_seed))
+        elif item.kind in POLICY_KINDS:
+            raise ValueError(f"policy kind {item.kind!r} needs formicmind.eco.rl (PyTorch) to be imported and its model registered")
         else:
             raise ValueError(f"unknown policy kind {item.kind!r}; expected one of {POLICY_KINDS}")
     return out

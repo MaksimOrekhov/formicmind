@@ -97,6 +97,7 @@ class TickRecord:
     depleted_nodes: tuple[int, ...] = ()
     harvested_by_zone: dict[str, int] = field(default_factory=dict)
     delivered_by_colony: dict[int, int] = field(default_factory=dict)
+    upkeep_due_by_colony: dict[int, int] = field(default_factory=dict)
     events: list[EventE1] = field(default_factory=list)
     combat_nodes: tuple[int, ...] = ()
     combat_losses_workers: int = 0
@@ -350,6 +351,7 @@ def _upkeep(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: Tic
         colony.window.upkeep_due += due
         colony.window.upkeep_paid += paid
         record.upkeep_due += due
+        record.upkeep_due_by_colony[colony.colony_id] = due
         record.upkeep_paid += paid
         record.upkeep_missing += missing
         if missing:
