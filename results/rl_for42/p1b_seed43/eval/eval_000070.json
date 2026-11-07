@@ -1,0 +1,1485 @@
+{
+  "iteration": 70,
+  "matches": 60,
+  "matches_detail": [
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12696657475,
+      "terminal_tick": 53,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12849282715,
+      "terminal_tick": 53,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10963598777,
+      "terminal_tick": 47,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11638977873,
+      "terminal_tick": 72,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12722536277,
+      "terminal_tick": 88,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9721173041,
+      "terminal_tick": 97,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11514042163,
+      "terminal_tick": 129,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10057929342,
+      "terminal_tick": 99,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9230891272,
+      "terminal_tick": 59,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "random:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9445955930,
+      "terminal_tick": 53,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10625062976,
+      "terminal_tick": 116,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12792532023,
+      "terminal_tick": 107,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10572938048,
+      "terminal_tick": 106,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10915175045,
+      "terminal_tick": 107,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9692923143,
+      "terminal_tick": 155,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12544555390,
+      "terminal_tick": 106,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10562512145,
+      "terminal_tick": 106,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12117320817,
+      "terminal_tick": 106,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10325902591,
+      "terminal_tick": 104,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "turtle:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9045019869,
+      "terminal_tick": 104,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11974930118,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9787848114,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 13253268854,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 13080529453,
+      "terminal_tick": 68,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10700363887,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10524057595,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12248084808,
+      "terminal_tick": 204,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9180780799,
+      "terminal_tick": 126,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12457661735,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "rush:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11972105699,
+      "terminal_tick": 57,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10037718986,
+      "terminal_tick": 119,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12081667948,
+      "terminal_tick": 145,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10852684492,
+      "terminal_tick": 87,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9225096878,
+      "terminal_tick": 207,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 13072642215,
+      "terminal_tick": 119,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11239771462,
+      "terminal_tick": 173,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11662917948,
+      "terminal_tick": 119,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12179531245,
+      "terminal_tick": 146,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12935567608,
+      "terminal_tick": 118,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "balanced:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12061137858,
+      "terminal_tick": 118,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11529475353,
+      "terminal_tick": 88,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10838273912,
+      "terminal_tick": 88,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10026214795,
+      "terminal_tick": 117,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11910412012,
+      "terminal_tick": 96,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9700438697,
+      "terminal_tick": 114,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12777180519,
+      "terminal_tick": 157,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9443154467,
+      "terminal_tick": 259,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11604370807,
+      "terminal_tick": 259,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9252281297,
+      "terminal_tick": 136,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "raider:v2",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10164056105,
+      "terminal_tick": 217,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 0,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 9194452875,
+      "terminal_tick": 58,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "classic",
+      "map_split": "indist",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12540410451,
+      "terminal_tick": 98,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11467402328,
+      "terminal_tick": 76,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "dense",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11272481024,
+      "terminal_tick": 98,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10117544969,
+      "terminal_tick": 61,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "chain",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 12698079976,
+      "terminal_tick": 157,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "economic_collapse",
+      "rep": 0,
+      "seed": 12804401544,
+      "terminal_tick": 28,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000000",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 10413668459,
+      "terminal_tick": 44,
+      "truncated": false,
+      "winner": "B"
+    },
+    {
+      "learner_seat": 0,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 13240756638,
+      "terminal_tick": 43,
+      "truncated": false,
+      "winner": "A"
+    },
+    {
+      "learner_seat": 1,
+      "map": "gen:1000001",
+      "map_split": "heldout",
+      "mode": "sample",
+      "opponent": "init",
+      "reason": "queen_death",
+      "rep": 0,
+      "seed": 11600916027,
+      "terminal_tick": 137,
+      "truncated": false,
+      "winner": "B"
+    }
+  ],
+  "matches_per_second": 207.5087023965185,
+  "results": {
+    "balanced:v2": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.021739130434782608,
+            0.021739130434782608,
+            0.0,
+            0.9565217391304348
+          ],
+          "avoid_rate": 0.13043478260869565,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 9,
+          "mean_final_food": 311.0,
+          "mean_final_soldiers": 0.8,
+          "mean_final_workers": 10.0,
+          "mean_home_share": 0.019379952962406414,
+          "mean_ticks": 135.1,
+          "n": 10,
+          "reasons": {
+            "queen_death": 10
+          },
+          "score_mean": 0.1,
+          "truncated": 0,
+          "win_rate": 0.1,
+          "wins": 1
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.02702702702702703,
+            0.02702702702702703,
+            0.0,
+            0.9459459459459459
+          ],
+          "avoid_rate": 0.13513513513513514,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 7,
+          "mean_final_food": 340.25,
+          "mean_final_soldiers": 1.0,
+          "mean_final_workers": 10.5,
+          "mean_home_share": 0.017195268053588033,
+          "mean_ticks": 135.875,
+          "n": 8,
+          "reasons": {
+            "queen_death": 8
+          },
+          "score_mean": 0.125,
+          "truncated": 0,
+          "win_rate": 0.125,
+          "wins": 1
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.1111111111111111,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 2,
+          "mean_final_food": 194.0,
+          "mean_final_soldiers": 0.0,
+          "mean_final_workers": 8.0,
+          "mean_home_share": 0.028361435365326412,
+          "mean_ticks": 132.0,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 0.0,
+          "truncated": 0,
+          "win_rate": 0.0,
+          "wins": 0
+        }
+      }
+    },
+    "init": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0625,
+            0.0,
+            0.0,
+            0.9375
+          ],
+          "avoid_rate": 0.09375,
+          "draws": 0,
+          "k_fraction": [
+            0.03125,
+            0.0625,
+            0.90625
+          ],
+          "lay_fraction": [
+            0.0,
+            0.03125,
+            0.96875
+          ],
+          "losses": 0,
+          "mean_final_food": 41.0,
+          "mean_final_soldiers": 5.5,
+          "mean_final_workers": 10.9,
+          "mean_home_share": 0.013117990386816205,
+          "mean_ticks": 80.0,
+          "n": 10,
+          "reasons": {
+            "economic_collapse": 1,
+            "queen_death": 9
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 10
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.07692307692307693,
+            0.0,
+            0.0,
+            0.9230769230769231
+          ],
+          "avoid_rate": 0.07692307692307693,
+          "draws": 0,
+          "k_fraction": [
+            0.038461538461538464,
+            0.07692307692307693,
+            0.8846153846153846
+          ],
+          "lay_fraction": [
+            0.0,
+            0.038461538461538464,
+            0.9615384615384616
+          ],
+          "losses": 0,
+          "mean_final_food": 31.875,
+          "mean_final_soldiers": 5.25,
+          "mean_final_workers": 10.625,
+          "mean_home_share": 0.016145218937619946,
+          "mean_ticks": 80.5,
+          "n": 8,
+          "reasons": {
+            "economic_collapse": 1,
+            "queen_death": 7
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 8
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.16666666666666666,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 77.5,
+          "mean_final_soldiers": 6.5,
+          "mean_final_workers": 12.0,
+          "mean_home_share": 0.0,
+          "mean_ticks": 78.0,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      }
+    },
+    "raider:v2": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.2,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.01818181818181818,
+            0.01818181818181818,
+            0.9636363636363636
+          ],
+          "losses": 9,
+          "mean_final_food": 112.8,
+          "mean_final_soldiers": 0.8,
+          "mean_final_workers": 5.7,
+          "mean_home_share": 0.04323075109067327,
+          "mean_ticks": 153.1,
+          "n": 10,
+          "reasons": {
+            "queen_death": 10
+          },
+          "score_mean": 0.1,
+          "truncated": 0,
+          "win_rate": 0.1,
+          "wins": 1
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.20408163265306123,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.02040816326530612,
+            0.02040816326530612,
+            0.9591836734693877
+          ],
+          "losses": 7,
+          "mean_final_food": 135.75,
+          "mean_final_soldiers": 1.0,
+          "mean_final_workers": 6.25,
+          "mean_home_share": 0.04852431244871489,
+          "mean_ticks": 169.375,
+          "n": 8,
+          "reasons": {
+            "queen_death": 8
+          },
+          "score_mean": 0.125,
+          "truncated": 0,
+          "win_rate": 0.125,
+          "wins": 1
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.16666666666666666,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 2,
+          "mean_final_food": 21.0,
+          "mean_final_soldiers": 0.0,
+          "mean_final_workers": 3.5,
+          "mean_home_share": 0.0,
+          "mean_ticks": 88.0,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 0.0,
+          "truncated": 0,
+          "win_rate": 0.0,
+          "wins": 0
+        }
+      }
+    },
+    "random:v2": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.1724137931034483,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.034482758620689655,
+            0.9655172413793104
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 43.2,
+          "mean_final_soldiers": 5.9,
+          "mean_final_workers": 9.8,
+          "mean_home_share": 0.014235615083280058,
+          "mean_ticks": 75.0,
+          "n": 10,
+          "reasons": {
+            "queen_death": 10
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 10
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.16,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.04,
+            0.96
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 52.75,
+          "mean_final_soldiers": 5.75,
+          "mean_final_workers": 10.25,
+          "mean_home_share": 0.016513313496604867,
+          "mean_ticks": 80.5,
+          "n": 8,
+          "reasons": {
+            "queen_death": 8
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 8
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.25,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 5.0,
+          "mean_final_soldiers": 6.5,
+          "mean_final_workers": 8.0,
+          "mean_home_share": 0.0,
+          "mean_ticks": 53.0,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      }
+    },
+    "rush:v2": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.13793103448275862,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.034482758620689655,
+            0.9655172413793104
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 1,
+          "mean_final_food": 121.1,
+          "mean_final_soldiers": 4.8,
+          "mean_final_workers": 11.9,
+          "mean_home_share": 0.04075211192755647,
+          "mean_ticks": 79.7,
+          "n": 10,
+          "reasons": {
+            "queen_death": 10
+          },
+          "score_mean": 0.9,
+          "truncated": 0,
+          "win_rate": 0.9,
+          "wins": 9
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.16,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 1,
+          "mean_final_food": 139.75,
+          "mean_final_soldiers": 4.5,
+          "mean_final_workers": 11.875,
+          "mean_home_share": 0.04409674219882505,
+          "mean_ticks": 85.375,
+          "n": 8,
+          "reasons": {
+            "queen_death": 8
+          },
+          "score_mean": 0.875,
+          "truncated": 0,
+          "win_rate": 0.875,
+          "wins": 7
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.0,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.25,
+            0.75
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 46.5,
+          "mean_final_soldiers": 6.0,
+          "mean_final_workers": 12.0,
+          "mean_home_share": 0.01984817273212787,
+          "mean_ticks": 57.0,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      }
+    },
+    "turtle:v2": {
+      "sample": {
+        "all": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.14285714285714285,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.023809523809523808,
+            0.9761904761904762
+          ],
+          "lay_fraction": [
+            0.0,
+            0.023809523809523808,
+            0.9761904761904762
+          ],
+          "losses": 0,
+          "mean_final_food": 165.7,
+          "mean_final_soldiers": 6.1,
+          "mean_final_workers": 12.3,
+          "mean_home_share": 0.046485520278150165,
+          "mean_ticks": 111.7,
+          "n": 10,
+          "reasons": {
+            "queen_death": 10
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 10
+        },
+        "heldout": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.11764705882352941,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.029411764705882353,
+            0.9705882352941176
+          ],
+          "lay_fraction": [
+            0.0,
+            0.029411764705882353,
+            0.9705882352941176
+          ],
+          "losses": 0,
+          "mean_final_food": 175.75,
+          "mean_final_soldiers": 6.0,
+          "mean_final_workers": 12.375,
+          "mean_home_share": 0.038595003119123596,
+          "mean_ticks": 111.75,
+          "n": 8,
+          "reasons": {
+            "queen_death": 8
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 8
+        },
+        "indist": {
+          "army_fraction": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "avoid_rate": 0.25,
+          "draws": 0,
+          "k_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "lay_fraction": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "losses": 0,
+          "mean_final_food": 125.5,
+          "mean_final_soldiers": 6.5,
+          "mean_final_workers": 12.0,
+          "mean_home_share": 0.08002021820401312,
+          "mean_ticks": 111.5,
+          "n": 2,
+          "reasons": {
+            "queen_death": 2
+          },
+          "score_mean": 1.0,
+          "truncated": 0,
+          "win_rate": 1.0,
+          "wins": 2
+        }
+      }
+    }
+  },
+  "schema": "formicmind.rl-eval/v1",
+  "suite": "quick",
+  "truncated_matches": 0,
+  "wall_seconds": 0.2891444999995656
+}
