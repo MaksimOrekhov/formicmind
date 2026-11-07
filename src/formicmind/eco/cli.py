@@ -1,4 +1,4 @@
-"""Command line of Ecosystem v1: ``python -m formicmind.eco {map,verify,bench,sweep,run,sim-sweep,interaction-sweep,bench-run}``.
+"""Command line of Ecosystem v1: ``python -m formicmind.eco {map,verify,bench,sweep,run,sim-sweep,interaction-sweep,bench-run,replay-export,replay-verify}``.
 
 * ``map``    generate one shared world and print stable JSON (config, map, optional fairness report and tick-0 state summary)
 * ``verify`` re-check a saved ``map`` document: strict schema, hashes, regeneration from the seed, report
@@ -9,6 +9,8 @@
 * ``sim-sweep`` multi-map, multi-scenario comparison of peaceful diagnostic fixtures
 * ``interaction-sweep`` named role assignments (control, mixed roles, four raiders) on the same maps, event statistics only
 * ``bench-run`` simulation throughput and traced peak memory
+* ``replay-export`` run the real engine and write a versioned offline replay (JSONL) for the E1 viewer; ``replay-verify`` re-checks it
+  (strict read, then a full re-execution that must reproduce the file byte for byte)
 
 The JSON holds the engine/viewer view of the world (full map). It contains no policy observation and no policy metadata.
 """
@@ -31,6 +33,7 @@ from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .fixtures import FIXTURE_CHOICES, normalize_fixture
+from .replay_file import ReplayFormatError, export_replay, read_replay, verify_replay
 from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
 from .versions import (
     ACTION_VERSION, CLI_SCHEMA, ECO_BALANCE_VERSION, ECO_RULES_VERSION, GENERATOR_ALGORITHM, OBSERVATION_VERSION,
@@ -314,6 +317,32 @@ def cmd_sim_sweep(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_replay_export(args: argparse.Namespace) -> int:
+    config = _config_from_args(args)
+    roles = _parse_roles(args.role, config.n_colonies)
+    data = export_replay(config, args.seed, args.fixture, roles, args.ticks, args.frame_every)
+    with open(args.out, "wb") as handle:
+        handle.write(data)
+    records = data.count(b"\n")
+    sys.stderr.write(f"wrote {args.out}: {len(data)} bytes, {records} records\n")
+    if args.verify:
+        verify_replay(data)
+        sys.stderr.write("verified: strict read OK and re-execution reproduces the file\n")
+    return 0
+
+
+def cmd_replay_verify(args: argparse.Namespace) -> int:
+    with open(args.file, "rb") as handle:
+        data = handle.read()
+    document = verify_replay(data) if not args.read_only else read_replay(data)
+    header, result = document.header, document.result
+    sys.stdout.write(
+        f"OK  schema={header['schema']} seed={header['seed']} colonies={header['colonies']} ticks={result['ticks_completed']} "
+        f"frames={result['frame_count']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
+        f"{'strict read only' if args.read_only else 'byte-exact re-execution'}\n")
+    return 0
+
+
 def cmd_interaction_sweep(args: argparse.Namespace) -> int:
     def progress(done: int, total: int, name: str, seed: int) -> None:
         sys.stderr.write(f"completed {done}/{total}: {name} seed {seed}\n")
@@ -408,6 +437,22 @@ def build_parser() -> argparse.ArgumentParser:
     isw.add_argument("--out", default=None)
     isw.set_defaults(run=cmd_interaction_sweep)
 
+    rx = sub.add_parser("replay-export", help="write a versioned offline replay of a real run for the E1 viewer")
+    rx.add_argument("--seed", type=int, default=50004, help="map seed (u64)")
+    _add_world_args(rx)
+    rx.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES, help="behaviour of every colony not named by --role")
+    rx.add_argument("--role", action="append", default=[], metavar="COLONY=NAME", help="e.g. --role 3=raider (repeatable)")
+    rx.add_argument("--ticks", type=int, default=None, help="world ticks (default: configured horizon)")
+    rx.add_argument("--frame-every", type=int, default=20, help="write a frame every N ticks (plus start, end and key events)")
+    rx.add_argument("--verify", action="store_true", help="re-read the written bytes and re-execute the run to confirm them")
+    rx.add_argument("--out", required=True, help="output .jsonl path")
+    rx.set_defaults(run=cmd_replay_export)
+
+    rv = sub.add_parser("replay-verify", help="strictly read a replay and re-execute the run from its header")
+    rv.add_argument("file")
+    rv.add_argument("--read-only", action="store_true", help="only the strict structural/hash check, no re-execution")
+    rv.set_defaults(run=cmd_replay_verify)
+
     sb = sub.add_parser("bench-run", help="measure real-map simulation throughput and peak traced memory")
     _add_world_args(sb)
     sb.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES)
@@ -423,7 +468,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         return args.run(args)
-    except (CanonicalError, ConfigError, MapGenerationError, ValueError, OSError, json.JSONDecodeError) as exc:
+    except (CanonicalError, ConfigError, MapGenerationError, ReplayFormatError, ValueError, OSError, json.JSONDecodeError) as exc:
         sys.stderr.write(f"error: {exc}\n")
         return 3
 
