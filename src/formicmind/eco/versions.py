@@ -20,6 +20,7 @@ HASH_DOMAIN_MAP = "formicmind/eco/map/v1"
 HASH_DOMAIN_STATE = "formicmind/eco/state/v1"
 HASH_DOMAIN_CHECKPOINT = "formicmind/eco/checkpoint/v1"
 HASH_DOMAIN_REPORT = "formicmind/eco/fairness/v1"
+HASH_DOMAIN_EVENTS = "formicmind/eco/events/v1"
 
 # RNG streams of E1: the map stream is the only consumer of randomness in E1-a; "world" is reserved and unused by the rules.
 MAP_STREAM_ID = "map"

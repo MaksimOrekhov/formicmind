@@ -109,6 +109,7 @@ class KnownEdge:
 
 @dataclass(slots=True)
 class ForeignColonyRecord:
+    colony_id: int  # + world id behind the slot (the slot is the list index); never leaves the colony's memory
     first_contact_tick: int
     last_seen_tick: int
     last_seen_workers_bucket: int

@@ -11,6 +11,7 @@ from typing import Callable
 from .codec import to_canonical
 from .config import ConfigE1, default_config
 from .engine import RouteTable, TickRecord, step_world_tick
+from .events import EventE1, EventLog, format_event
 from .fixtures import fixture_controller, normalize_fixture
 from .initial import build_world
 from .model import MapE1, RunStateE1, WorldStateE1
@@ -22,6 +23,56 @@ class SimulationResult:
     report: dict
     state: WorldStateE1
     run: RunStateE1
+    events: list[EventE1] | None = None
+
+
+def _interaction_summary(log: EventLog, state: WorldStateE1) -> dict:
+    """What the colonies did to each other, from the event log only (no claims about war that the events do not show)."""
+    first_contact: dict[tuple[int, int], int] = {}
+    attacks = []
+    queen_deaths, extinctions, collapses = [], [], []
+    combat_ticks: set[int] = set()
+    kills = {"workers": 0, "soldiers": 0}
+    killed_by_colony: dict[int, dict[str, int]] = {}
+    for item in log.events:
+        if item.kind == "contact":
+            first_contact.setdefault((min(item.colony, item.other), max(item.colony, item.other)), item.tick)
+        elif item.kind == "dispatch" and item.a == 3:
+            attacks.append({"tick": item.tick, "attacker": item.colony, "target": item.other, "soldiers": item.b})
+        elif item.kind == "combat":
+            combat_ticks.add(item.tick)
+        elif item.kind == "death":
+            caste = "soldiers" if item.a else "workers"
+            kills[caste] += item.b
+            killed_by_colony.setdefault(item.colony, {"workers": 0, "soldiers": 0})[caste] += item.b
+        elif item.kind == "queen_dead":
+            queen_deaths.append({"colony": item.colony, "tick": item.tick, "killer": item.other})
+        elif item.kind == "collapse":
+            collapses.append({"colony": item.colony, "tick": item.tick})
+        elif item.kind == "extinct":
+            extinctions.append({"colony": item.colony, "tick": item.tick})
+    counts = log.counts()
+    return {
+        "events_hash": log.head,
+        "event_count": len(log.events),
+        "events_by_kind": counts,
+        "colonies_explored_nodes": [sum(known.visited for known in colony.memory.nodes) for colony in state.colonies],
+        "first_contact_tick": min(first_contact.values()) if first_contact else None,
+        "colony_pairs_in_contact": len(first_contact),
+        "first_contact_by_pair": [[a, b, tick] for (a, b), tick in sorted(first_contact.items())],
+        "nests_found": counts["nest_found"],
+        "attacks_dispatched": attacks,
+        "combat_ticks": len(combat_ticks),
+        "first_combat_tick": min(combat_ticks) if combat_ticks else None,
+        "combat_deaths": kills,
+        "combat_deaths_by_colony": {str(k): v for k, v in sorted(killed_by_colony.items())},
+        "queen_deaths": queen_deaths,
+        "collapses": collapses,
+        "extinctions": extinctions,
+        "colony_outcomes": [{"colony": i, "status": colony.status, "reason": state.outcomes[i].reason,
+                             "terminal_tick": state.outcomes[i].terminal_tick}
+                            for i, colony in enumerate(state.colonies)],
+    }
 
 
 def _counts(state: WorldStateE1) -> list[dict]:
@@ -125,7 +176,8 @@ def map_distance_diagnostics(world_map: MapE1, config: ConfigE1, routes: RouteTa
 
 def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", *, ticks: int | None = None,
                    sample_interval: int = 100, include_map: bool = True,
-                   collect_timeline: bool = True) -> SimulationResult:
+                   collect_timeline: bool = True, roles: dict[int, str] | None = None,
+                   include_events: bool = False) -> SimulationResult:
     """Run a real generated graph with a diagnostic fixture; no food is teleported to a nest."""
     fixture = normalize_fixture(fixture)
     duration = config.horizon if ticks is None else ticks
@@ -138,13 +190,15 @@ def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", 
     initial_food = (sum(patch.stock for patch in world.state.patches)
                     + sum(colony.food for colony in world.state.colonies)
                     + sum(cohort.load for cohort in world.state.cohorts))
-    controller = fixture_controller(fixture)
+    controller = fixture_controller(fixture, roles)
+    log = EventLog()
     start = time.perf_counter()
     records = {
         "harvested": 0, "delivered": 0, "regenerated": 0, "upkeep_due": 0, "upkeep_paid": 0,
         "upkeep_missing": 0, "egg_spend": 0, "hatched_workers": 0, "hatched_soldiers": 0,
         "laid_workers": 0, "laid_soldiers": 0, "old_age_workers": 0, "old_age_soldiers": 0,
         "starvation_workers": 0, "starvation_soldiers": 0,
+        "combat_losses_workers": 0, "combat_losses_soldiers": 0,
     }
     harvested_by_zone = {zone: 0 for zone in ("near", "border", "far", "pile")}
     delivered_by_colony = [0] * config.n_colonies
@@ -181,6 +235,7 @@ def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", 
         )
         for key in records:
             records[key] += getattr(tick_record, key)
+        log.extend(tick_record.events)
         for zone, amount in tick_record.harvested_by_zone.items():
             harvested_by_zone[zone] += amount
         for colony_id, amount in tick_record.delivered_by_colony.items():
@@ -229,6 +284,7 @@ def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", 
         "map_seed": str(seed),
         "map_hash": world.world_map.map_hash,
         "fixture": fixture,
+        "roles": {str(colony): role for colony, role in sorted(controller.roles.items())},
         "ticks_requested": duration,
         "ticks_completed": world.state.tick,
         "outcome": {"finished": world.state.world_outcome.finished,
@@ -236,6 +292,7 @@ def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", 
                     "terminal_tick": world.state.world_outcome.terminal_tick},
         "map_distance_diagnostics": map_distance_diagnostics(world.world_map, config, routes),
         "first_signals": first,
+        "interaction": _interaction_summary(log, world.state),
         "totals": {
             **records,
             "harvested_by_zone": harvested_by_zone,
@@ -261,7 +318,9 @@ def run_simulation(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", 
         report["time_series"] = timeline
     if include_map:
         report["map"] = to_canonical(world.world_map)
-    return SimulationResult(report, world.state, world.run)
+    if include_events:
+        report["event_timeline"] = [format_event(item) for item in log.events]
+    return SimulationResult(report, world.state, world.run, log.events)
 
 
 def _stats(values: list[int | float | None]) -> dict:
@@ -440,4 +499,82 @@ def benchmark_simulation(config: ConfigE1, seed0: int, fixture: str = "peaceful_
                              "min": round(min(tps), 1), "max": round(max(tps), 1)},
         "peak_traced_memory_bytes": peak,
         "memory_measurement_runs": 1,
+    }
+
+
+INTERACTION_SCENARIOS: dict[str, dict[int, str]] = {
+    "control_fair": {},
+    "mixed_roles": {0: "raider", 2: "turtle", 4: "retreat", 6: "scout"},
+    "four_raiders": {0: "raider", 2: "raider", 4: "raider", 6: "raider"},
+}
+
+
+def interaction_sweep(*, colonies: int = 8, scenario: str = "moderate", seeds: int = 6, seed0: int = 50000, ticks: int = 6000,
+                      scenarios: dict[str, dict[int, str]] | None = None,
+                      progress: Callable[[int, int, str, int], None] | None = None) -> dict:
+    """Run named role assignments on the same maps and report only what the event logs show (no claim that war is inevitable)."""
+    if seeds < 1 or seed0 < 0 or seed0 + seeds >= 1 << 64:
+        raise ValueError("seeds must be positive and the seed range must fit u64")
+    scenarios = INTERACTION_SCENARIOS if scenarios is None else scenarios
+    config = default_config(colonies, scenario)
+    start = time.perf_counter()
+    rows, summary = [], {}
+    total = len(scenarios) * seeds
+    done = 0
+    for name, roles in scenarios.items():
+        runs = []
+        for seed in range(seed0, seed0 + seeds):
+            result = run_simulation(config, seed, "peaceful_fair", ticks=ticks, include_map=False, collect_timeline=False,
+                                    roles=roles)
+            report, inter = result.report, result.report["interaction"]
+            final = report["final"]
+            run = {
+                "scenario": name, "seed": seed,
+                "survivors": sum(c["status"] == "alive" for c in final["colonies"]),
+                "orphans": sum(c["status"] == "orphan" for c in final["colonies"]),
+                "extinct": sum(c["status"] == "extinct" for c in final["colonies"]),
+                "adults": final["adults"], "maintenance_we": final["maintenance_we"],
+                "delivered_food": report["totals"]["delivered"], "egg_spend": report["totals"]["egg_spend"],
+                "laid_soldiers": report["totals"]["laid_soldiers"],
+                "starvation_deaths": report["totals"]["starvation_workers"] + report["totals"]["starvation_soldiers"],
+                "colony_pairs_in_contact": inter["colony_pairs_in_contact"], "first_contact_tick": inter["first_contact_tick"],
+                "nests_found": inter["nests_found"], "attacks": len(inter["attacks_dispatched"]),
+                "combat_ticks": inter["combat_ticks"], "combat_deaths": inter["combat_deaths"],
+                "queen_deaths": inter["queen_deaths"], "collapses": inter["collapses"], "extinctions": inter["extinctions"],
+                "events_hash": inter["events_hash"], "state_hash": report["hashes"]["state"],
+            }
+            runs.append(run)
+            rows.append(run)
+            done += 1
+            if progress is not None:
+                progress(done, total, name, seed)
+        def count(predicate) -> int:
+            return sum(1 for run in runs if predicate(run))
+        summary[name] = {
+            "roles": {str(k): v for k, v in sorted(roles.items())},
+            "worlds": len(runs),
+            "worlds_with_contact": count(lambda r: r["colony_pairs_in_contact"] > 0),
+            "worlds_with_nest_found": count(lambda r: r["nests_found"] > 0),
+            "worlds_with_attack": count(lambda r: r["attacks"] > 0),
+            "worlds_with_combat": count(lambda r: r["combat_ticks"] > 0),
+            "worlds_with_queen_death": count(lambda r: bool(r["queen_deaths"])),
+            "total_attacks": sum(r["attacks"] for r in runs),
+            "total_combat_deaths_workers": sum(r["combat_deaths"]["workers"] for r in runs),
+            "total_combat_deaths_soldiers": sum(r["combat_deaths"]["soldiers"] for r in runs),
+            "total_queen_deaths": sum(len(r["queen_deaths"]) for r in runs),
+            "total_extinctions": sum(len(r["extinctions"]) for r in runs),
+            "mean_survivors": round(statistics.mean(r["survivors"] for r in runs), 2),
+            "mean_adults": round(statistics.mean(r["adults"] for r in runs), 1),
+            "mean_delivered_food": round(statistics.mean(r["delivered_food"] for r in runs)),
+            "mean_egg_spend": round(statistics.mean(r["egg_spend"] for r in runs)),
+            "mean_laid_soldiers": round(statistics.mean(r["laid_soldiers"] for r in runs), 1),
+            "mean_starvation_deaths": round(statistics.mean(r["starvation_deaths"] for r in runs)),
+        }
+    elapsed = time.perf_counter() - start
+    return {
+        "schema": "formicmind.eco.interaction-sweep/1",
+        "colonies": colonies, "scenario": scenario, "seeds": seeds, "seed0": seed0, "ticks": ticks,
+        "summary": summary, "runs": rows,
+        "performance": {"wall_seconds": round(elapsed, 3),
+                        "simulated_ticks_per_second": round(total * ticks / elapsed, 1) if elapsed else 0.0},
     }

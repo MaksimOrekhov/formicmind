@@ -7,7 +7,7 @@ from formicmind.eco.config import default_config
 from formicmind.eco.engine import RouteTable, split_cohort, step_world_tick
 from formicmind.eco.fixtures import fixture_controller
 from formicmind.eco.initial import build_world
-from formicmind.eco.model import BroodRecord, Location, Mission
+from formicmind.eco.model import BroodRecord, ColonyOutcome, Location, Mission
 from formicmind.eco.serialization import checkpoint_hash, state_hash
 from formicmind.eco.validate import InvariantError, validate_state
 
@@ -274,6 +274,8 @@ def _emptied_colony(brood=(), food=0, queen_hp=None):
     if queen_hp is not None:
         colony.queen_hp = queen_hp
         colony.status = "alive" if queen_hp > 0 else "orphan"
+        if queen_hp == 0:
+            state.outcomes[0] = ColonyOutcome(True, "queen_death", 0)
     state.next_cohort_id = max(state.next_cohort_id, 1000)
     return world, colony
 
@@ -316,4 +318,4 @@ def test_orphan_extinction_stays_distinct_from_economic_collapse():
     world, colony = _emptied_colony(food=0, queen_hp=0)
     _run_step(world, RouteTable(world.world_map))
     assert colony.status == "extinct"
-    assert world.state.outcomes[0].reason == "no_adults_or_brood"
+    assert world.state.outcomes[0].reason == "queen_death"  # the outcome of a colony is written once
