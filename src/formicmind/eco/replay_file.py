@@ -29,6 +29,8 @@ from .events import EVENT_KINDS, EventE1, EventLog
 from .fixtures import fixture_controller, normalize_fixture
 from .initial import build_world
 from .model import MapE1, WorldStateE1
+from .policy import PolicyRunSpec, build_policies, spec_from_canonical, spec_to_canonical
+from .policy_run import PolicyController
 from .serialization import checkpoint_hash, compute_map_hash, map_from_canonical, state_hash
 from .versions import ECO_BALANCE_VERSION, ECO_RULES_VERSION
 
@@ -131,25 +133,46 @@ def export_replay(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", r
                   ticks: int | None = None, frame_every: int = 20) -> bytes:
     """Run the real engine and return the replay file bytes. Deterministic: no clock, no environment."""
     fixture = normalize_fixture(fixture)
+    controller = fixture_controller(fixture, roles)
+    return _export(config, seed, controller, fixture, {str(k): v for k, v in sorted(controller.roles.items())}, ticks, frame_every, None, None)
+
+
+def export_policy_replay(config: ConfigE1, seed: int, spec: PolicyRunSpec, ticks: int | None = None,
+                         frame_every: int = 20) -> tuple[bytes, bytes]:
+    """Run the real engine with one independent ``PolicyE1`` per colony; returns ``(replay bytes, decision records as JSONL)``.
+
+    The replay has the ordinary ``formicmind.eco.replay/1`` records (so the viewer shows the movements and events) plus the specification of the
+    policies in the header and the count and chain hash of the decision records in the result; the decision records themselves are the sidecar.
+    """
+    controller = PolicyController(build_policies(spec, config))
+    roles = {str(i): (p.kind if not p.variant else f"{p.kind}:{p.variant}") for i, p in enumerate(spec.policies)}
+    replay = _export(config, seed, controller, "policy", roles, ticks, frame_every, spec_to_canonical(spec), controller.log)
+    return replay, controller.log.to_bytes()
+
+
+def _export(config: ConfigE1, seed: int, controller, fixture: str, roles: dict[str, str], ticks: int | None, frame_every: int,
+            policy: dict | None, decisions) -> bytes:
     duration = config.horizon if ticks is None else ticks
     if type(duration) is not int or not 0 <= duration <= config.horizon:
         raise ValueError("ticks must be an integer between zero and the configured horizon")
     if type(frame_every) is not int or frame_every < 1:
         raise ValueError("frame_every must be a positive integer")
-    controller = fixture_controller(fixture, roles)
     world = build_world(config, seed)
     routes = RouteTable(world.world_map)
     chain, log = _Chain(), EventLog()
-    chain.add({
+    header = {
         "type": "header", "schema": REPLAY_SCHEMA, "rules_version": ECO_RULES_VERSION, "balance_version": ECO_BALANCE_VERSION,
-        "seed": str(seed), "fixture": fixture, "roles": {str(k): v for k, v in sorted(controller.roles.items())},
+        "seed": str(seed), "fixture": fixture, "roles": roles,
         "ticks_requested": duration, "frame_every": frame_every, "decision_k": config.decision_k,
         "alert_interval": config.alert_interval, "colonies": config.n_colonies,
         "config": to_canonical(config), "config_hash": config_hash(config),
         "map": to_canonical(world.world_map), "map_hash": world.world_map.map_hash,
         "cohort_fields": list(COHORT_FIELDS), "visited_fields": list(VISITED_FIELDS), "foreign_fields": list(FOREIGN_FIELDS),
         "sighting_fields": list(SIGHTING_FIELDS), "kind_codes": KIND_CODES, "phase_codes": PHASE_CODES,
-    })
+    }
+    if policy is not None:
+        header["policy"] = policy
+    chain.add(header)
     frames = 0
     chain.add(_frame_record(world.state, "start"))
     frames += 1
@@ -174,7 +197,7 @@ def export_replay(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", r
         if finished:
             break
     outcome = world.state.world_outcome
-    chain.add({
+    result = {
         "type": "result", "ticks_completed": world.state.tick,
         "world_outcome": {"finished": outcome.finished, "reason": outcome.reason, "terminal_tick": outcome.terminal_tick},
         "colony_outcomes": [{"colony": i, "status": world.state.colonies[i].status, "reason": o.reason,
@@ -182,7 +205,10 @@ def export_replay(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", r
         "event_count": len(log.events), "events_hash": log.head, "frame_count": frames,
         "final_state_hash": state_hash(world.state), "final_checkpoint_hash": checkpoint_hash(world.state, world.run),
         "record_count": chain.seq + 1,
-    })
+    }
+    if decisions is not None:
+        result["decision_count"], result["decisions_hash"] = decisions.count, decisions.head
+    chain.add(result)
     return b"\n".join(chain.lines) + b"\n"
 
 
@@ -198,6 +224,7 @@ class ReplayDocument:
     frames: list[dict]
     result: dict
     chain_head: str
+    policy: PolicyRunSpec | None = None
 
 
 def _need(condition: bool, message: str) -> None:
@@ -224,6 +251,9 @@ COLONY_KEYS = {"id", "status", "food", "queen_hp", "workers", "soldiers", "brood
 MEMORY_KEYS = {"colony", "visited", "discovered", "foreign", "sightings"}
 
 
+POLICY_RESULT_KEYS = RESULT_KEYS | {"decision_count", "decisions_hash"}
+
+
 def read_replay(data: bytes) -> ReplayDocument:
     """Parse and validate a replay file: canonical lines, chain, hashes, record shapes. Raises ``ReplayFormatError`` otherwise."""
     _need(isinstance(data, (bytes, bytearray)) and data.endswith(b"\n") and len(data) > 1, "a replay is non-empty JSONL ending with a newline")
@@ -243,10 +273,20 @@ def read_replay(data: bytes) -> ReplayDocument:
         records.append(record)
     _need(len(records) >= 3, "a replay needs a header, a frame and a result")
     header, result = records[0], records[-1]
-    _need(header.get("type") == "header" and set(header) == HEADER_KEYS, "the first record must be a complete header")
+    policy = None
+    _need(header.get("type") == "header" and set(header) in (HEADER_KEYS, HEADER_KEYS | {"policy"}), "the first record must be a complete header")
+    if "policy" in header:
+        try:
+            policy = spec_from_canonical(header["policy"])
+        except CanonicalError as exc:
+            raise ReplayFormatError(f"header.policy: {exc}") from exc
+        _need(header["fixture"] == "policy", "a policy replay has the fixture name 'policy'")
     if header["schema"] != REPLAY_SCHEMA:
         _fail(f"unsupported replay schema {header['schema']!r}; this reader understands {REPLAY_SCHEMA!r}")
-    _need(result.get("type") == "result" and set(result) == RESULT_KEYS, "the last record must be a complete result")
+    _need(result.get("type") == "result" and set(result) == (POLICY_RESULT_KEYS if policy else RESULT_KEYS), "the last record must be a complete result")
+    if policy is not None:
+        _need(_is_int(result["decision_count"]) and result["decision_count"] >= 0 and type(result["decisions_hash"]) is str,
+              "bad decision count or hash")
     try:
         config = config_from_canonical(header["config"])
         _need(config_hash(config) == header["config_hash"], "config_hash does not match the configuration in the file")
@@ -287,7 +327,9 @@ def read_replay(data: bytes) -> ReplayDocument:
     _need(result["frame_count"] == len(frames) and result["record_count"] == len(records), "record counts do not match")
     _need(result["final_state_hash"] == frames[-1]["state_hash"], "final_state_hash differs from the final frame")
     _need(all(e.tick < result["ticks_completed"] for e in events), "an event lies beyond the last completed tick")
-    return ReplayDocument(header, config, world_map, events, frames, result, prev)
+    if policy is not None:
+        _need(len(policy.policies) == config.n_colonies, "one policy per colony is required")
+    return ReplayDocument(header, config, world_map, events, frames, result, prev, policy)
 
 
 def _validate_frame(frame: dict, config: ConfigE1, world_map: MapE1, patch_nodes: int, last_tick: int) -> None:
@@ -328,10 +370,17 @@ def _validate_frame(frame: dict, config: ConfigE1, world_map: MapE1, patch_nodes
             _need(row[0] in visited_ids and 0 <= row[1] < config.n_colonies and row[5] in (0, 1), "bad sighting")
 
 
-def verify_replay(data: bytes) -> ReplayDocument:
+def verify_replay(data: bytes, sidecar: bytes | None = None) -> ReplayDocument:
     """Read the file, then re-run the engine from its header and demand the identical bytes (the normative check)."""
     document = read_replay(data)
     header = document.header
+    if document.policy is not None:
+        regenerated, decisions = export_policy_replay(document.config, int(header["seed"]), document.policy, header["ticks_requested"],
+                                                      header["frame_every"])
+        _need(regenerated == bytes(data), "re-executing the simulation from the header does not reproduce this file")
+        if sidecar is not None:
+            _need(decisions == sidecar, "the decision records are not those this run produces")
+        return document
     regenerated = export_replay(document.config, int(header["seed"]), header["fixture"],
                                 {int(k): v for k, v in header["roles"].items()}, header["ticks_requested"], header["frame_every"])
     _need(regenerated == bytes(data), "re-executing the simulation from the header does not reproduce this file")

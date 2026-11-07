@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EcoApp from './EcoApp.vue'
 import Root from '../Root.vue'
-import { sampleBytes, textLines, joinLines } from './testing'
+import { policySampleBytes, sampleBytes, textLines, joinLines } from './testing'
 
 function respondWithSample() {
   const bytes = sampleBytes()
@@ -91,6 +91,30 @@ describe('E1 viewer application', () => {
     expect(wrapper.findAll('.eco-node')).toHaveLength(96)
     wrapper.unmount()
     window.history.replaceState({}, '', '/')
+  })
+
+  it('opens the run of independent policies, names who decided and still hides rivals in the colony view', async () => {
+    respondWithSample()
+    const wrapper = mount(EcoApp, { attachTo: document.body })
+    await settle(wrapper)
+    expect(wrapper.find('[data-testid="policy-chip"]').exists()).toBe(false) // the bundled default is a fixture run
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, arrayBuffer: async () => policySampleBytes().slice().buffer })))
+    await wrapper.get('[data-testid="policy-sample"]').trigger('click')
+    await settle(wrapper)
+    const chip = wrapper.get('[data-testid="policy-chip"]').text()
+    expect(chip).toContain('независимые политики')
+    expect(chip).toContain('heuristic:aggressor ×3')
+    expect(chip).toContain('random_valid ×1')
+    expect(wrapper.text()).toContain('eco_policy_seed50012.jsonl')
+    expect(wrapper.findAll('.eco-colony')).toHaveLength(8)
+    expect(wrapper.findAll('.eco-colony')[6].text()).toContain('random_valid')
+    // colony view of colony 0: other colonies' policies are fixture metadata of the viewer and are not shown for colonies it has not met
+    await wrapper.findAll('.eco-mode button')[1].trigger('click')
+    await wrapper.get('.eco-select select').setValue(0)
+    const cards = wrapper.findAll('.eco-colony')
+    expect(cards[0].text()).toContain('heuristic:explorer')
+    cards.forEach((card, id) => { if (id !== 0) expect(card.text()).not.toMatch(/random_valid|heuristic:/) })
+    wrapper.unmount()
   })
 
   it('keeps the current replay visible when a broken file is chosen', async () => {

@@ -8,6 +8,7 @@ import type { EcoReplay } from './types'
 /** Test helpers: the real exported run (seed 50004, colony 3 raider) and a re-chaining editor for building validly chained but altered files. */
 // Vitest runs from the viewer/ directory (npm run test), so paths are taken from there.
 const SAMPLE_PATH = resolve(process.cwd(), 'public/samples/eco_seed50004_raider3.jsonl')
+const POLICY_SAMPLE_PATH = resolve(process.cwd(), 'public/samples/eco_policy_seed50012.jsonl')
 const PYTHON_RUN_PATH = resolve(process.cwd(), '../docs/ecosystem_examples/for46_raid_seed50004.json')
 const ZERO = '0'.repeat(64)
 
@@ -22,6 +23,20 @@ export function sampleBytes(): Uint8Array {
 export function sampleReplay(): EcoReplay {
   if (!cachedReplay) cachedReplay = parseEcoReplayBytes(sampleBytes(), 'eco_seed50004_raider3.jsonl')
   return cachedReplay
+}
+
+let cachedPolicyBytes: Uint8Array | null = null
+let cachedPolicyReplay: EcoReplay | null = null
+
+/** The FOR-48 run: 8 colonies, each decided by its own policy through ObservationE1 -> ActionE1 (``python -m formicmind.eco policy-run``). */
+export function policySampleBytes(): Uint8Array {
+  if (!cachedPolicyBytes) cachedPolicyBytes = new Uint8Array(readFileSync(POLICY_SAMPLE_PATH))
+  return cachedPolicyBytes
+}
+
+export function policySampleReplay(): EcoReplay {
+  if (!cachedPolicyReplay) cachedPolicyReplay = parseEcoReplayBytes(policySampleBytes(), 'eco_policy_seed50012.jsonl')
+  return cachedPolicyReplay
 }
 
 /** The Python ``run`` report of the same scenario (events_hash, per-kind counts, queen deaths ...). */

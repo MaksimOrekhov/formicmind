@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EcoReplayError, EcoReplayVersionError, parseEcoReplayBytes } from './parseEcoReplay'
-import { joinLines, pythonRun, rechain, sampleBytes, sampleReplay, textLines } from './testing'
+import { joinLines, policySampleBytes, policySampleReplay, pythonRun, rechain, sampleBytes, sampleReplay, textLines } from './testing'
 import { utf8 } from '../data/replayCrypto'
 
 describe('E1 replay parser on the real seed-50004 run', () => {
@@ -144,5 +144,46 @@ describe('E1 replay import is fail-closed', () => {
     let done = false
     const outOfRange = rechain(lines, (record) => { if (!done && record.type === 'event' && record.kind === 'discover') { done = true; return { ...record, colony: 12 } } return record })
     expect(message(outOfRange).message).toMatch(/вне диапазона/)
+  })
+})
+
+
+describe('E1 replay of independent policies (FOR-48)', () => {
+  const replay = policySampleReplay()
+
+  it('reads the policy specification and binds the decision records', () => {
+    expect(replay.fixture).toBe('policy')
+    expect(replay.colonyCount).toBe(8)
+    expect(replay.policy).not.toBeNull()
+    expect(replay.policy!.seed).toBe('5')
+    expect(replay.policy!.policies.map((p) => p.kind + (p.variant ? `:${p.variant}` : ''))).toEqual([
+      'heuristic:explorer', 'heuristic:aggressor', 'heuristic:explorer', 'heuristic:aggressor', 'heuristic:peaceful', 'heuristic:aggressor', 'random_valid', 'heuristic:raider'])
+    expect(replay.policy!.decisionCount).toBeGreaterThan(100)
+    expect(replay.policy!.decisionsHash).toMatch(/^[0-9a-f]{64}$/)
+    expect(replay.roles['6']).toBe('random_valid')
+    expect(replay.verified).toEqual({ chain: true, configHash: true, mapHash: true, eventsHash: true })
+  })
+
+  it('shows real consequences of the actions: scouting orders, contacts, nests found, and a fight started through ActionE1', () => {
+    const kinds = new Set(replay.events.map((e) => e.kind))
+    for (const kind of ['discover', 'contact', 'nest_found', 'dispatch', 'combat']) expect(kinds.has(kind as any)).toBe(true)
+    expect(replay.events.some((e) => e.kind === 'dispatch' && e.a === 3)).toBe(true) // an attack order exists
+    expect(replay.events.some((e) => e.kind === 'dispatch' && e.a === 1)).toBe(true) // scouting orders exist
+  })
+
+  it('runs of the fixtures have no policy block', () => {
+    expect(sampleReplay().policy).toBeNull()
+  })
+
+  it('rejects a policy replay whose policy header or decision binding is altered, even with a valid chain', () => {
+    const lines = textLines(policySampleBytes())
+    const forgedKind = rechain(lines, (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, policies: record.policy.policies.map((p: any, i: number) => (i === 0 ? { ...p, kind: 'oracle' } : p)) } } : record))
+    expect(() => parseEcoReplayBytes(forgedKind)).toThrow(EcoReplayError)
+    const forgedSchema = rechain(lines, (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, schema: 'formicmind.eco.policy-run/2' } } : record))
+    expect(() => parseEcoReplayBytes(forgedSchema)).toThrow(EcoReplayError)
+    const noHash = rechain(lines, (record) => { if (record.type !== 'result') return record; const { decisions_hash: _drop, ...rest } = record; return rest })
+    expect(() => parseEcoReplayBytes(noHash)).toThrow(EcoReplayError)
+    const badFixture = rechain(lines, (record) => (record.type === 'header' ? { ...record, fixture: 'peaceful_fair' } : record))
+    expect(() => parseEcoReplayBytes(badFixture)).toThrow(EcoReplayError)
   })
 })

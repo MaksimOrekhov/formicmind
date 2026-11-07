@@ -104,6 +104,14 @@ export interface EcoFrame {
   memory: MemoryFrame[]
 }
 
+/** The independent policies that decided a FOR-48 run (one per colony) and the binding to the sidecar decision records. */
+export interface EcoPolicyInfo {
+  seed: string
+  policies: { colony: number; kind: string; variant: string }[]
+  decisionCount: number
+  decisionsHash: string
+}
+
 export interface EcoReplay {
   fileName: string
   seed: string
@@ -133,4 +141,6 @@ export interface EcoReplay {
   colonyOutcomes: { colony: number; status: ColonyStatus; reason: string; terminalTick: number }[]
   /** What the browser re-checked itself (everything else is covered by the Python verifier). */
   verified: { chain: boolean; configHash: boolean; mapHash: boolean; eventsHash: boolean }
+  /** ``null`` for a run of the diagnostic fixtures. */
+  policy: EcoPolicyInfo | null
 }

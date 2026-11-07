@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 import EcoWorkspace from './EcoWorkspace.vue'
 import { parseEcoReplayBytes, type EcoParseProgress } from './parseEcoReplay'
 import type { EcoReplay } from './types'
 import './eco.css'
 
 const SAMPLE_URL = 'samples/eco_seed50004_raider3.jsonl'
+const POLICY_SAMPLE_URL = 'samples/eco_policy_seed50012.jsonl'
 
 const replay = shallowRef<EcoReplay | null>(null)
 const generation = ref(0)
@@ -36,18 +37,29 @@ async function readFile(event: Event) {
   await accept(new Uint8Array(await file.arrayBuffer()), file.name)
 }
 
-async function loadSample() {
+async function loadSample(url: string = SAMPLE_URL) {
   isLoading.value = true
   errorMessage.value = ''
   try {
-    const response = await fetch(`${import.meta.env.BASE_URL}${SAMPLE_URL}`)
+    const response = await fetch(`${import.meta.env.BASE_URL}${url}`)
     if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    await accept(new Uint8Array(await response.arrayBuffer()), SAMPLE_URL.split('/').pop()!)
+    await accept(new Uint8Array(await response.arrayBuffer()), url.split('/').pop()!)
   } catch (error) {
     isLoading.value = false
-    errorMessage.value = `Пример не загружен (${error instanceof Error ? error.message : 'ошибка'}). Откройте файл вручную: python -m formicmind.eco replay-export …`
+    errorMessage.value = `Пример не загружен (${error instanceof Error ? error.message : 'ошибка'}). Откройте файл вручную: python -m formicmind.eco replay-export … или policy-run …`
   }
 }
+
+const policySummary = computed(() => {
+  const policy = replay.value?.policy
+  if (!policy) return ''
+  const counts = new Map<string, number>()
+  for (const item of policy.policies) {
+    const name = item.variant ? `${item.kind}:${item.variant}` : item.kind
+    counts.set(name, (counts.get(name) ?? 0) + 1)
+  }
+  return `независимые политики: ${[...counts.entries()].map(([name, n]) => `${name} ×${n}`).join(', ')} · решений ${policy.decisionCount}`
+})
 
 onMounted(() => { if (typeof fetch === 'function') void loadSample() })
 </script>
@@ -62,9 +74,11 @@ onMounted(() => { if (typeof fetch === 'function') void loadSample() })
         <span class="top-chip">{{ replay.fileName }}</span>
         <span class="top-chip ok" :title="`events_hash ${replay.eventsHash}`">цепочка ✓ · config ✓ · карта ✓ · события ✓</span>
         <span class="top-chip" :title="`chain_head ${replay.chainHead}`">hash состояния: из Python (python -m formicmind.eco replay-verify)</span>
+        <span v-if="replay.policy" class="top-chip ok" data-testid="policy-chip" :title="`policy_seed ${replay.policy.seed} · decisions_hash ${replay.policy.decisionsHash}`">{{ policySummary }}</span>
       </span>
       <span class="eco-top-actions">
-        <button type="button" :disabled="isLoading" @click="loadSample">Пример: seed 50004</button>
+        <button type="button" :disabled="isLoading" @click="loadSample()">Пример: seed 50004</button>
+        <button type="button" :disabled="isLoading" data-testid="policy-sample" @click="loadSample(POLICY_SAMPLE_URL)">Пример: независимые политики</button>
         <button type="button" :disabled="isLoading" @click="input?.click()">{{ isLoading ? 'Проверка…' : 'Открыть файл' }}</button>
       </span>
     </header>

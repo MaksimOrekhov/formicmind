@@ -37,7 +37,7 @@ python -m formicmind.eco sweep --maps 200                     # справедл
 
 | Модуль | Содержимое |
 |---|---|
-| `versions.py` | версии (`eco1-proto-v0`, `eco1-candidate-unvalidated`, `ObservationE1/v1`, `ActionE1/v1` — имена контрактов), схемы, домены хэшей `formicmind/eco/*/v1`, потоки RNG |
+| `versions.py` | версии (`eco1-proto-v0`, `eco1-candidate-unvalidated`, `ObservationE1/v2`, `ActionE1/v1` — имена контрактов), схемы, домены хэшей `formicmind/eco/*/v1`, потоки RNG |
 | `codec.py` | строгий кодек dataclass ↔ canonical JSON: точный набор ключей, `bool` ≠ `int`, безопасные целые, `Literal`, u64 как строка, без `float/None` |
 | `config.py` | `ConfigE1` (+ `EconomyParams`, `ResourceParams`, `MapParams`, `OptionsE1`), `default_config`, сценарии `abundance/moderate/severe`, валидация, `config_hash` |
 | `model.py` | `MapE1`, `NodeE1`, `EdgeE1`, `PatchSpec`; `WorldStateE1`, `ColonyStateE1`, `CohortE1`, `ColonyMemoryE1`, `AgeLedger`, `RunStateE1` |

@@ -203,8 +203,10 @@ class ColonyOrders:
 
 @dataclass(slots=True)
 class WindowStatsE1:
-    harvested: int = 0
-    upkeep_paid: int = 0
+    harvested: int = 0        # food loaded onto workers at patches (not yet spendable)
+    delivered: int = 0        # food actually put into the own nest storage: the colony's income (contracts 9.1)
+    upkeep_due: int = 0       # upkeep owed by the units alive that tick: the colony's burn (contracts 9.1), paid or not
+    upkeep_paid: int = 0      # upkeep actually taken from the storage
     egg_spend: int = 0
     losses_workers: int = 0
     losses_soldiers: int = 0
