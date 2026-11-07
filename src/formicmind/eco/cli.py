@@ -1,11 +1,13 @@
-"""Command line of Ecosystem v1: ``python -m formicmind.eco {map,verify,bench,sweep,run,sim-sweep,bench-run}``.
+"""Command line of Ecosystem v1: ``python -m formicmind.eco {map,verify,bench,sweep,run,sim-sweep,interaction-sweep,bench-run}``.
 
 * ``map``    generate one shared world and print stable JSON (config, map, optional fairness report and tick-0 state summary)
 * ``verify`` re-check a saved ``map`` document: strict schema, hashes, regeneration from the seed, report
 * ``bench``  latency of map generation and of the fairness report
 * ``sweep``  fairness statistics over many seeds, sizes and scenarios
-* ``run``    one headless, peaceful world with physical cohort travel and food transport
+* ``run``    one headless world: physical cohort travel and food transport; ``--role`` adds scouting, guarding and raiding
+             colonies, ``--timeline`` writes the compact event timeline (contacts, discoveries, fights, queen deaths)
 * ``sim-sweep`` multi-map, multi-scenario comparison of peaceful diagnostic fixtures
+* ``interaction-sweep`` named role assignments (control, mixed roles, four raiders) on the same maps, event statistics only
 * ``bench-run`` simulation throughput and traced peak memory
 
 The JSON holds the engine/viewer view of the world (full map). It contains no policy observation and no policy metadata.
@@ -28,8 +30,8 @@ from .fairness import evaluate, report_hash
 from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
-from .fixtures import FIXTURE_CHOICES
-from .simulation import benchmark_simulation, run_simulation, sweep_simulations
+from .fixtures import FIXTURE_CHOICES, normalize_fixture
+from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
 from .versions import (
     ACTION_VERSION, CLI_SCHEMA, ECO_BALANCE_VERSION, ECO_RULES_VERSION, GENERATOR_ALGORITHM, OBSERVATION_VERSION,
 )
@@ -238,11 +240,37 @@ def cmd_sweep(args: argparse.Namespace) -> int:
     return 0 if all(r["failed"] == 0 for r in rows) else 1
 
 
+def _parse_roles(items: list[str], colonies: int) -> dict[int, str]:
+    roles: dict[int, str] = {}
+    for item in items:
+        colony, sep, name = item.partition("=")
+        if not sep or not colony.isdigit():
+            raise ValueError(f"--role expects COLONY=NAME, got {item!r}")
+        if int(colony) >= colonies:
+            raise ValueError(f"--role: colony {colony} does not exist in a world of {colonies}")
+        if int(colony) in roles:
+            raise ValueError(f"--role: colony {colony} given twice")
+        roles[int(colony)] = normalize_fixture(name)
+    return roles
+
+
 def cmd_run(args: argparse.Namespace) -> int:
     config = _config_from_args(args)
+    roles = _parse_roles(args.role, config.n_colonies)
+    want_events = args.timeline is not None or args.events
     result = run_simulation(config, args.seed, args.fixture, ticks=args.ticks,
                             sample_interval=args.sample_every, include_map=not args.omit_map,
-                            collect_timeline=not args.no_time_series)
+                            collect_timeline=not args.no_time_series, roles=roles, include_events=want_events)
+    timeline = result.report.get("event_timeline", [])
+    if args.timeline is not None:
+        text = "".join(line + "\n" for line in timeline)
+        if args.timeline == "-":
+            sys.stderr.write(text)
+        else:
+            with open(args.timeline, "w", encoding="utf-8", newline="\n") as handle:
+                handle.write(text)
+    if not args.events:
+        result.report.pop("event_timeline", None)
     _write(json.dumps(result.report, sort_keys=True, indent=None if args.compact else 2,
                       separators=(",", ":") if args.compact else None, ensure_ascii=True) + "\n", args.out)
     if args.summary:
@@ -261,6 +289,15 @@ def cmd_run(args: argparse.Namespace) -> int:
             f"  performance {report['performance']['ticks_per_second']} ticks/s "
             f"({report['performance']['wall_seconds']} s)\n"
         )
+        inter = report["interaction"]
+        sys.stderr.write(
+            f"  roles={report['roles'] or 'none'} events={inter['event_count']} hash={inter['events_hash'][:16]}\n"
+            f"  first contact={inter['first_contact_tick']} pairs in contact={inter['colony_pairs_in_contact']} "
+            f"nests found={inter['nests_found']} explored nodes per colony={inter['colonies_explored_nodes']}\n"
+            f"  attacks={len(inter['attacks_dispatched'])} combat ticks={inter['combat_ticks']} "
+            f"combat deaths={inter['combat_deaths']} queen deaths={[(q['colony'], q['tick']) for q in inter['queen_deaths']]} "
+            f"extinct={[(e['colony'], e['tick']) for e in inter['extinctions']]}\n"
+        )
     return 0
 
 
@@ -272,6 +309,17 @@ def cmd_sim_sweep(args: argparse.Namespace) -> int:
 
     report = sweep_simulations(sizes=tuple(args.sizes), scenarios=tuple(args.scenarios),
                                fixtures=tuple(args.fixtures), seeds=args.seeds, seed0=args.seed0,
+                               ticks=args.ticks, progress=progress)
+    _write(json.dumps(report, sort_keys=True, indent=2, ensure_ascii=True) + "\n", args.out)
+    return 0
+
+
+def cmd_interaction_sweep(args: argparse.Namespace) -> int:
+    def progress(done: int, total: int, name: str, seed: int) -> None:
+        sys.stderr.write(f"completed {done}/{total}: {name} seed {seed}\n")
+        sys.stderr.flush()
+
+    report = interaction_sweep(colonies=args.colonies, scenario=args.scenario, seeds=args.seeds, seed0=args.seed0,
                                ticks=args.ticks, progress=progress)
     _write(json.dumps(report, sort_keys=True, indent=2, ensure_ascii=True) + "\n", args.out)
     return 0
@@ -323,10 +371,16 @@ def build_parser() -> argparse.ArgumentParser:
     s.add_argument("--out", default=None)
     s.set_defaults(run=cmd_sweep)
 
-    r = sub.add_parser("run", help="run a peaceful headless E1-b simulation on a generated real map")
+    r = sub.add_parser("run", help="run a headless simulation on a generated real map (peaceful unless --role says otherwise)")
     r.add_argument("--seed", type=int, default=42, help="map seed (u64)")
     _add_world_args(r)
-    r.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES)
+    r.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES,
+                   help="behaviour of every colony not named by --role")
+    r.add_argument("--role", action="append", default=[], metavar="COLONY=NAME",
+                   help="give one colony another fixture/role, e.g. --role 0=raider (repeatable)")
+    r.add_argument("--timeline", nargs="?", const="-", default=None, metavar="FILE",
+                   help="write the compact event timeline to FILE (stderr when no file is given)")
+    r.add_argument("--events", action="store_true", help="include the event timeline in the JSON report")
     r.add_argument("--ticks", type=int, default=None, help="world ticks (default: configured horizon)")
     r.add_argument("--sample-every", type=int, default=100, help="time-series sampling interval")
     r.add_argument("--no-time-series", action="store_true", help="omit per-tick summary snapshots")
@@ -345,6 +399,14 @@ def build_parser() -> argparse.ArgumentParser:
     ss.add_argument("--ticks", type=int, default=6000)
     ss.add_argument("--out", default=None)
     ss.set_defaults(run=cmd_sim_sweep)
+
+    isw = sub.add_parser("interaction-sweep", help="run named role assignments (control, mixed roles, raiders) on the same maps")
+    _add_world_args(isw)
+    isw.add_argument("--seeds", type=int, default=6)
+    isw.add_argument("--seed0", type=int, default=50000)
+    isw.add_argument("--ticks", type=int, default=6000)
+    isw.add_argument("--out", default=None)
+    isw.set_defaults(run=cmd_interaction_sweep)
 
     sb = sub.add_parser("bench-run", help="measure real-map simulation throughput and peak traced memory")
     _add_world_args(sb)

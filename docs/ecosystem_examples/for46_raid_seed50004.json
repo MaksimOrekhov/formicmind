@@ -1,0 +1,1899 @@
+{
+  "config": {
+    "alert_interval": 10,
+    "decision_k": 30,
+    "eco_balance_version": "eco1-candidate-unvalidated",
+    "eco_rules_version": "eco1-proto-v0",
+    "economy": {
+      "age_bucket": 100,
+      "attack_dwell": 3,
+      "carry_load": 16,
+      "eggs_per_lay": 1,
+      "harvest_patience": 8,
+      "harvest_rate": 2,
+      "home_defense_den": 4,
+      "home_defense_num": 5,
+      "initial_known_radius": 5,
+      "lane_cap": 8,
+      "lay_interval_ticks": 20,
+      "lifespan_soldier": 2000,
+      "lifespan_worker": 2000,
+      "narrow_lane_cap": 4,
+      "queen_hp": 240,
+      "scout_dwell": 2,
+      "soldier_damage": 2,
+      "soldier_egg_cost": 20,
+      "soldier_hatch_delay": 30,
+      "soldier_hp": 30,
+      "soldier_upkeep_tenths": 8,
+      "start_age_spread_permille": 500,
+      "start_food": 80,
+      "start_soldiers": 2,
+      "start_workers": 10,
+      "starvation_unit_cost": 5,
+      "storage_cap": 600,
+      "worker_egg_cost": 10,
+      "worker_hatch_delay": 20,
+      "worker_hp": 20,
+      "worker_upkeep_tenths": 4
+    },
+    "horizon": 6000,
+    "map_params": {
+      "choke_radius": 8,
+      "contest_radius": 14,
+      "economic_radius": 10,
+      "edge_k": 3,
+      "junction_min_sep": 40,
+      "max_attempts": 40,
+      "max_choke_near": 2,
+      "max_degree": 5,
+      "max_edge_ticks": 6,
+      "max_narrow_share_permille": 150,
+      "max_near_cv_permille": 100,
+      "max_nest_nn_path": 40,
+      "max_radius_cv_permille": 200,
+      "min_edge_ticks": 2,
+      "min_nest_path": 14,
+      "n_border": 8,
+      "n_far": 8,
+      "n_nodes": 96,
+      "near_max_path": 6,
+      "near_min_path": 3,
+      "near_per_nest": 2,
+      "surroundings_per_nest": 6,
+      "units_per_tick": 24,
+      "world_side": 894
+    },
+    "n_colonies": 8,
+    "options": {
+      "loot_on_queen_death": false,
+      "stop_when_alone": false,
+      "workers_flee_default": false
+    },
+    "resources": {
+      "border": {
+        "capacity": 120,
+        "regen": 6,
+        "site_cap": 12
+      },
+      "far": {
+        "capacity": 160,
+        "regen": 8,
+        "site_cap": 16
+      },
+      "near": {
+        "capacity": 100,
+        "regen": 5,
+        "site_cap": 10
+      }
+    },
+    "scenario": "moderate",
+    "schema": "formicmind.eco.config/1"
+  },
+  "final": {
+    "adults": 162,
+    "colonies": [
+      {
+        "adults": 0,
+        "brood": 0,
+        "colony_id": 0,
+        "food": 0,
+        "maintenance_we": 0,
+        "soldiers": 0,
+        "starvation_debt": 0,
+        "status": "extinct",
+        "workers": 0
+      },
+      {
+        "adults": 12,
+        "brood": 1,
+        "colony_id": 1,
+        "food": 90,
+        "maintenance_we": 14,
+        "soldiers": 2,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 10
+      },
+      {
+        "adults": 14,
+        "brood": 1,
+        "colony_id": 2,
+        "food": 70,
+        "maintenance_we": 16,
+        "soldiers": 2,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 12
+      },
+      {
+        "adults": 45,
+        "brood": 1,
+        "colony_id": 3,
+        "food": 408,
+        "maintenance_we": 50,
+        "soldiers": 5,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 40
+      },
+      {
+        "adults": 12,
+        "brood": 1,
+        "colony_id": 4,
+        "food": 90,
+        "maintenance_we": 14,
+        "soldiers": 2,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 10
+      },
+      {
+        "adults": 33,
+        "brood": 1,
+        "colony_id": 5,
+        "food": 216,
+        "maintenance_we": 35,
+        "soldiers": 2,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 31
+      },
+      {
+        "adults": 12,
+        "brood": 1,
+        "colony_id": 6,
+        "food": 90,
+        "maintenance_we": 14,
+        "soldiers": 2,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 10
+      },
+      {
+        "adults": 34,
+        "brood": 0,
+        "colony_id": 7,
+        "food": 228,
+        "maintenance_we": 34,
+        "soldiers": 0,
+        "starvation_debt": 0,
+        "status": "alive",
+        "workers": 34
+      }
+    ],
+    "food_in_piles": 4914,
+    "food_in_transit": 176,
+    "food_in_warehouses": 1192,
+    "food_on_patches": 3812,
+    "maintenance_we": 177,
+    "soldiers": 15,
+    "tick": 6000,
+    "workers": 147
+  },
+  "first_signals": {
+    "contention_tick": 160,
+    "first_delivery_tick": 13,
+    "first_lay_tick": 60,
+    "patch_depletion_tick": null,
+    "starvation_death_tick": 44,
+    "upkeep_shortfall_tick": 14
+  },
+  "fixture": "peaceful_fair",
+  "food_ledger": {
+    "difference": 0,
+    "egg_spend": 22360,
+    "end": 10094,
+    "regenerated": 415376,
+    "start": 4480,
+    "upkeep_paid": 387402
+  },
+  "hashes": {
+    "checkpoint": "35405fdc41489220df8c6f545a2da49862d61f3e9b1acdce58eca21a9f41d2c3",
+    "horizon": "35405fdc41489220df8c6f545a2da49862d61f3e9b1acdce58eca21a9f41d2c3",
+    "midpoint": "c722885f303505746653c285457d3a1a0e4d1f9848d5766716b0b556f1640597",
+    "state": "cde35e88b245e9f052d04d568107b1c63e8478f72dac145981ee0f5a0ea00cd9",
+    "tick_0": "e0fcad1f780266ca96d8b0645a640c8432d91e0e9e41390d35dde42bed32174f"
+  },
+  "interaction": {
+    "attacks_dispatched": [
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 0,
+        "tick": 2280
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 0,
+        "tick": 2520
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 3330
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 3630
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 3930
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 4230
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 4530
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 4830
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 5130
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 5430
+      },
+      {
+        "attacker": 3,
+        "soldiers": 6,
+        "target": 5,
+        "tick": 5730
+      }
+    ],
+    "collapses": [],
+    "colonies_explored_nodes": [
+      12,
+      6,
+      6,
+      40,
+      7,
+      10,
+      8,
+      10
+    ],
+    "colony_outcomes": [
+      {
+        "colony": 0,
+        "reason": "queen_death",
+        "status": "extinct",
+        "terminal_tick": 2621
+      },
+      {
+        "colony": 1,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 2,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 3,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 4,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 5,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 6,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      },
+      {
+        "colony": 7,
+        "reason": "",
+        "status": "alive",
+        "terminal_tick": -1
+      }
+    ],
+    "colony_pairs_in_contact": 5,
+    "combat_deaths": {
+      "soldiers": 19,
+      "workers": 100
+    },
+    "combat_deaths_by_colony": {
+      "0": {
+        "soldiers": 6,
+        "workers": 28
+      },
+      "3": {
+        "soldiers": 1,
+        "workers": 0
+      },
+      "5": {
+        "soldiers": 12,
+        "workers": 72
+      }
+    },
+    "combat_ticks": 307,
+    "event_count": 629,
+    "events_by_kind": {
+      "collapse": 0,
+      "combat": 371,
+      "contact": 10,
+      "death": 119,
+      "discover": 50,
+      "dispatch": 34,
+      "extinct": 1,
+      "nest_found": 2,
+      "queen_damage": 41,
+      "queen_dead": 1
+    },
+    "events_hash": "ed645c925b89b55a8a2f4d7e5fa1d43386c5a834042f39f044259da8af1bc4fa",
+    "extinctions": [
+      {
+        "colony": 0,
+        "tick": 4400
+      }
+    ],
+    "first_combat_tick": 2297,
+    "first_contact_by_pair": [
+      [
+        0,
+        3,
+        578
+      ],
+      [
+        2,
+        3,
+        2886
+      ],
+      [
+        2,
+        5,
+        10
+      ],
+      [
+        3,
+        5,
+        2896
+      ],
+      [
+        5,
+        7,
+        578
+      ]
+    ],
+    "first_contact_tick": 10,
+    "nests_found": 2,
+    "queen_deaths": [
+      {
+        "colony": 0,
+        "killer": 3,
+        "tick": 2621
+      }
+    ]
+  },
+  "map_distance_diagnostics": {
+    "border": {
+      "actual_rank_distances": [
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 727,
+          "calculator_ticks": 7,
+          "max_ticks": 10,
+          "mean_liquid_food_per_worker_tick_x1000": 641,
+          "mean_ticks_x100": 850,
+          "min_ticks": 8,
+          "rank": 1
+        },
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 727,
+          "calculator_ticks": 7,
+          "max_ticks": 12,
+          "mean_liquid_food_per_worker_tick_x1000": 554,
+          "mean_ticks_x100": 1062,
+          "min_ticks": 8,
+          "rank": 2
+        }
+      ],
+      "calculator_distance_assumptions_ticks": [
+        7,
+        7
+      ],
+      "contest_radius_ticks": 14,
+      "economic_radius_ticks": 10,
+      "mean_colonies_within_contest_radius_x100": 200,
+      "mean_colonies_within_economic_radius_x100": 137,
+      "patches": 8
+    },
+    "economic_access": {
+      "calculator_assumption_food_per_colony_x1000": 24000,
+      "max_colony_fair_share_food_x1000": 29000,
+      "mean_fair_share_food_per_colony_x1000": 24000,
+      "min_colony_fair_share_food_x1000": 16000,
+      "radius_ticks": 10
+    },
+    "far": {
+      "actual_rank_distances": [
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 571,
+          "calculator_ticks": 10,
+          "max_ticks": 10,
+          "mean_liquid_food_per_worker_tick_x1000": 684,
+          "mean_ticks_x100": 787,
+          "min_ticks": 5,
+          "rank": 1
+        },
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 571,
+          "calculator_ticks": 10,
+          "max_ticks": 14,
+          "mean_liquid_food_per_worker_tick_x1000": 490,
+          "mean_ticks_x100": 1237,
+          "min_ticks": 11,
+          "rank": 2
+        },
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 571,
+          "calculator_ticks": 10,
+          "max_ticks": 25,
+          "mean_liquid_food_per_worker_tick_x1000": 374,
+          "mean_ticks_x100": 1825,
+          "min_ticks": 11,
+          "rank": 3
+        }
+      ],
+      "calculator_distance_assumptions_ticks": [
+        10,
+        10,
+        10
+      ],
+      "contest_radius_ticks": 14,
+      "economic_radius_ticks": 10,
+      "mean_colonies_within_contest_radius_x100": 225,
+      "mean_colonies_within_economic_radius_x100": 100,
+      "patches": 8
+    },
+    "near": {
+      "actual_rank_distances": [
+        {
+          "calculator_liquid_food_per_worker_tick_x1000": 1142,
+          "calculator_ticks": 3,
+          "max_ticks": 5,
+          "mean_liquid_food_per_worker_tick_x1000": 1012,
+          "mean_ticks_x100": 393,
+          "min_ticks": 3,
+          "rank": 1
+        }
+      ],
+      "calculator_distance_assumptions_ticks": [
+        3
+      ],
+      "contest_radius_ticks": 14,
+      "economic_radius_ticks": 10,
+      "mean_colonies_within_contest_radius_x100": 125,
+      "mean_colonies_within_economic_radius_x100": 100,
+      "patches": 16
+    }
+  },
+  "map_hash": "b7bed336c35f8f53e1bc9d0bf5bf3dab18e72e3431dc13dde97c4bfc8474980d",
+  "map_seed": "50004",
+  "outcome": {
+    "finished": true,
+    "reason": "horizon",
+    "terminal_tick": 5999
+  },
+  "performance": {
+    "ticks_per_second": 1129.8,
+    "wall_seconds": 5.310908
+  },
+  "roles": {
+    "3": "raider"
+  },
+  "schema": "formicmind.eco.simulation/1",
+  "ticks_completed": 6000,
+  "ticks_requested": 6000,
+  "time_series": [
+    {
+      "adults": 96,
+      "colonies": [
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 1,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 3,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 4,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 5,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 6,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 80,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        }
+      ],
+      "food_in_piles": 0,
+      "food_in_transit": 0,
+      "food_in_warehouses": 640,
+      "food_on_patches": 3840,
+      "maintenance_we": 112,
+      "soldiers": 16,
+      "tick": 0,
+      "workers": 80
+    },
+    {
+      "adults": 107,
+      "colonies": [
+        {
+          "adults": 15,
+          "brood": 1,
+          "colony_id": 0,
+          "food": 234,
+          "maintenance_we": 15,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 15
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 11,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 106,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 130,
+          "maintenance_we": 13,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 15,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 106,
+          "maintenance_we": 15,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 15
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 15,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 170,
+          "maintenance_we": 15,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 15
+        }
+      ],
+      "food_in_piles": 316,
+      "food_in_transit": 318,
+      "food_in_warehouses": 1106,
+      "food_on_patches": 3781,
+      "maintenance_we": 114,
+      "soldiers": 7,
+      "tick": 500,
+      "workers": 100
+    },
+    {
+      "adults": 165,
+      "colonies": [
+        {
+          "adults": 38,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 138,
+          "maintenance_we": 40,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 36
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 56,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 14,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 56,
+          "maintenance_we": 15,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 13
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 28,
+          "brood": 0,
+          "colony_id": 5,
+          "food": 98,
+          "maintenance_we": 29,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 27
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 40,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 148,
+          "maintenance_we": 42,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 38
+        }
+      ],
+      "food_in_piles": 696,
+      "food_in_transit": 1030,
+      "food_in_warehouses": 496,
+      "food_on_patches": 3391,
+      "maintenance_we": 171,
+      "soldiers": 6,
+      "tick": 1000,
+      "workers": 159
+    },
+    {
+      "adults": 174,
+      "colonies": [
+        {
+          "adults": 37,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 222,
+          "maintenance_we": 39,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 35
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 1,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 104,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 25,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 236,
+          "maintenance_we": 28,
+          "soldiers": 3,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 22
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 4,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 28,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 164,
+          "maintenance_we": 30,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 26
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 6,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 42,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 190,
+          "maintenance_we": 44,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 40
+        }
+      ],
+      "food_in_piles": 1068,
+      "food_in_transit": 240,
+      "food_in_warehouses": 1192,
+      "food_on_patches": 3812,
+      "maintenance_we": 183,
+      "soldiers": 9,
+      "tick": 1500,
+      "workers": 165
+    },
+    {
+      "adults": 178,
+      "colonies": [
+        {
+          "adults": 38,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 186,
+          "maintenance_we": 40,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 36
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 132,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 32,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 102,
+          "maintenance_we": 36,
+          "soldiers": 4,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 28
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 29,
+          "brood": 0,
+          "colony_id": 5,
+          "food": 82,
+          "maintenance_we": 31,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 27
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 37,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 118,
+          "maintenance_we": 37,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 37
+        }
+      ],
+      "food_in_piles": 1476,
+      "food_in_transit": 1103,
+      "food_in_warehouses": 1076,
+      "food_on_patches": 3492,
+      "maintenance_we": 186,
+      "soldiers": 8,
+      "tick": 2000,
+      "workers": 170
+    },
+    {
+      "adults": 187,
+      "colonies": [
+        {
+          "adults": 37,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 146,
+          "maintenance_we": 39,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 35
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 56,
+          "maintenance_we": 14,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 38,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 320,
+          "maintenance_we": 43,
+          "soldiers": 5,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 33
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 27,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 106,
+          "maintenance_we": 28,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 26
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 39,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 82,
+          "maintenance_we": 40,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 38
+        }
+      ],
+      "food_in_piles": 1824,
+      "food_in_transit": 1068,
+      "food_in_warehouses": 842,
+      "food_on_patches": 3385,
+      "maintenance_we": 200,
+      "soldiers": 13,
+      "tick": 2500,
+      "workers": 174
+    },
+    {
+      "adults": 169,
+      "colonies": [
+        {
+          "adults": 6,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 51,
+          "maintenance_we": 8,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "orphan",
+          "workers": 4
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 14,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 70,
+          "maintenance_we": 16,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 44,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 310,
+          "maintenance_we": 48,
+          "soldiers": 4,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 40
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 29,
+          "brood": 0,
+          "colony_id": 5,
+          "food": 146,
+          "maintenance_we": 29,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 29
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 40,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 180,
+          "maintenance_we": 42,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 38
+        }
+      ],
+      "food_in_piles": 2196,
+      "food_in_transit": 208,
+      "food_in_warehouses": 1027,
+      "food_on_patches": 3809,
+      "maintenance_we": 185,
+      "soldiers": 16,
+      "tick": 3000,
+      "workers": 153
+    },
+    {
+      "adults": 156,
+      "colonies": [
+        {
+          "adults": 3,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 222,
+          "maintenance_we": 3,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "orphan",
+          "workers": 3
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 104,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 41,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 263,
+          "maintenance_we": 44,
+          "soldiers": 3,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 38
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 21,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 194,
+          "maintenance_we": 23,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 19
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 120,
+          "maintenance_we": 15,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 40,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 122,
+          "maintenance_we": 41,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 39
+        }
+      ],
+      "food_in_piles": 2560,
+      "food_in_transit": 964,
+      "food_in_warehouses": 1265,
+      "food_on_patches": 3598,
+      "maintenance_we": 168,
+      "soldiers": 12,
+      "tick": 3500,
+      "workers": 144
+    },
+    {
+      "adults": 138,
+      "colonies": [
+        {
+          "adults": 3,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 390,
+          "maintenance_we": 3,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "orphan",
+          "workers": 3
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 56,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 39,
+          "brood": 0,
+          "colony_id": 3,
+          "food": 183,
+          "maintenance_we": 39,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 39
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 22,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 240,
+          "maintenance_we": 22,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 22
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 0,
+          "maintenance_we": 11,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 11
+        },
+        {
+          "adults": 29,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 152,
+          "maintenance_we": 30,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 28
+        }
+      ],
+      "food_in_piles": 2986,
+      "food_in_transit": 914,
+      "food_in_warehouses": 1021,
+      "food_on_patches": 3450,
+      "maintenance_we": 139,
+      "soldiers": 1,
+      "tick": 4000,
+      "workers": 137
+    },
+    {
+      "adults": 153,
+      "colonies": [
+        {
+          "adults": 0,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 0,
+          "maintenance_we": 0,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "extinct",
+          "workers": 0
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 1,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 0,
+          "colony_id": 2,
+          "food": 104,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 44,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 430,
+          "maintenance_we": 49,
+          "soldiers": 5,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 39
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 4,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 32,
+          "brood": 0,
+          "colony_id": 5,
+          "food": 144,
+          "maintenance_we": 34,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 30
+        },
+        {
+          "adults": 10,
+          "brood": 0,
+          "colony_id": 6,
+          "food": 92,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 35,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 222,
+          "maintenance_we": 35,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 35
+        }
+      ],
+      "food_in_piles": 3882,
+      "food_in_transit": 144,
+      "food_in_warehouses": 1176,
+      "food_on_patches": 3812,
+      "maintenance_we": 160,
+      "soldiers": 7,
+      "tick": 4500,
+      "workers": 146
+    },
+    {
+      "adults": 146,
+      "colonies": [
+        {
+          "adults": 0,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 0,
+          "maintenance_we": 0,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "extinct",
+          "workers": 0
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 132,
+          "maintenance_we": 12,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 41,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 263,
+          "maintenance_we": 44,
+          "soldiers": 3,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 38
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 26,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 176,
+          "maintenance_we": 28,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 24
+        },
+        {
+          "adults": 10,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 152,
+          "maintenance_we": 10,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 37,
+          "brood": 1,
+          "colony_id": 7,
+          "food": 280,
+          "maintenance_we": 39,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 35
+        }
+      ],
+      "food_in_piles": 4206,
+      "food_in_transit": 1006,
+      "food_in_warehouses": 1307,
+      "food_on_patches": 3598,
+      "maintenance_we": 153,
+      "soldiers": 7,
+      "tick": 5000,
+      "workers": 139
+    },
+    {
+      "adults": 148,
+      "colonies": [
+        {
+          "adults": 0,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 0,
+          "maintenance_we": 0,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "extinct",
+          "workers": 0
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 13,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 56,
+          "maintenance_we": 14,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 40,
+          "brood": 0,
+          "colony_id": 3,
+          "food": 192,
+          "maintenance_we": 40,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 40
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 20,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 283,
+          "maintenance_we": 20,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 20
+        },
+        {
+          "adults": 11,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 44,
+          "maintenance_we": 12,
+          "soldiers": 1,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 42,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 50,
+          "maintenance_we": 44,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 40
+        }
+      ],
+      "food_in_piles": 4590,
+      "food_in_transit": 892,
+      "food_in_warehouses": 713,
+      "food_on_patches": 3456,
+      "maintenance_we": 154,
+      "soldiers": 6,
+      "tick": 5500,
+      "workers": 142
+    },
+    {
+      "adults": 162,
+      "colonies": [
+        {
+          "adults": 0,
+          "brood": 0,
+          "colony_id": 0,
+          "food": 0,
+          "maintenance_we": 0,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "extinct",
+          "workers": 0
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 1,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 14,
+          "brood": 1,
+          "colony_id": 2,
+          "food": 70,
+          "maintenance_we": 16,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 12
+        },
+        {
+          "adults": 45,
+          "brood": 1,
+          "colony_id": 3,
+          "food": 408,
+          "maintenance_we": 50,
+          "soldiers": 5,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 40
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 4,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 33,
+          "brood": 1,
+          "colony_id": 5,
+          "food": 216,
+          "maintenance_we": 35,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 31
+        },
+        {
+          "adults": 12,
+          "brood": 1,
+          "colony_id": 6,
+          "food": 90,
+          "maintenance_we": 14,
+          "soldiers": 2,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 10
+        },
+        {
+          "adults": 34,
+          "brood": 0,
+          "colony_id": 7,
+          "food": 228,
+          "maintenance_we": 34,
+          "soldiers": 0,
+          "starvation_debt": 0,
+          "status": "alive",
+          "workers": 34
+        }
+      ],
+      "food_in_piles": 4914,
+      "food_in_transit": 176,
+      "food_in_warehouses": 1192,
+      "food_on_patches": 3812,
+      "maintenance_we": 177,
+      "soldiers": 15,
+      "tick": 6000,
+      "workers": 147
+    }
+  ],
+  "totals": {
+    "combat_losses_soldiers": 19,
+    "combat_losses_workers": 100,
+    "delivered": 410832,
+    "delivered_by_colony": [
+      37104,
+      32000,
+      33376,
+      89248,
+      32000,
+      67136,
+      32000,
+      87968
+    ],
+    "egg_spend": 22360,
+    "harvested": 415404,
+    "harvested_by_zone": {
+      "border": 96434,
+      "far": 89444,
+      "near": 229526,
+      "pile": 0
+    },
+    "hatched_soldiers": 630,
+    "hatched_workers": 969,
+    "laid_soldiers": 631,
+    "laid_workers": 974,
+    "mean_adults": 153.83633333333333,
+    "mean_shared_patch_fill_permille": 958,
+    "min_adults": 83,
+    "old_age_soldiers": 1,
+    "old_age_workers": 201,
+    "peak_adults": 200,
+    "regenerated": 415376,
+    "starvation_soldiers": 611,
+    "starvation_workers": 601,
+    "upkeep_due": 394358,
+    "upkeep_missing": 6956,
+    "upkeep_paid": 387402
+  }
+}

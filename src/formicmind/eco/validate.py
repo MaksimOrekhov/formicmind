@@ -85,7 +85,8 @@ def _validate_memory(memory: ColonyMemoryE1, colony_id: int, config: ConfigE1, w
             else:
                 _need(kn.patch_capacity == 0, "only patches have a capacity")
         else:
-            _need(kn.kind == "unknown" and kn.patch_capacity == 0 and kn.seen_tick == -1 and kn.last_stock_tick == -1,
+            _need(kn.kind == "unknown" and kn.patch_capacity == 0 and kn.seen_tick == -1 and kn.last_stock_tick == -1
+                  and kn.nest_owner_slot == -1 and kn.queen_seen == 0 and kn.queen_seen_tick == -1,
                   f"colony {colony_id}: unvisited node {slot} must not carry information")
         _need(kn.queen_seen in (0, 1, 2), "queen_seen must be 0, 1 or 2")
         _need(-1 <= kn.nest_owner_slot < len(memory.foreign), "nest_owner_slot out of range")
@@ -105,6 +106,36 @@ def _validate_memory(memory: ColonyMemoryE1, colony_id: int, config: ConfigE1, w
               f"colony {colony_id}: an edge can only be known from a visited endpoint")
     _need(len(memory.foreign) <= config.n_colonies - 1, "too many foreign colony records")
     _need(len(memory.sightings) <= 32 and len(memory.events) <= 16, "memory ring buffers overflow")
+    known_colonies: set[int] = set()
+    for fslot, record in enumerate(memory.foreign):
+        _need(0 <= record.colony_id < config.n_colonies and record.colony_id != colony_id
+              and record.colony_id not in known_colonies, f"colony {colony_id}: foreign record {fslot} invalid or duplicated")
+        known_colonies.add(record.colony_id)
+        _need(0 <= record.first_contact_tick <= record.last_seen_tick, f"colony {colony_id}: foreign record {fslot} times")
+        _need(0 <= record.last_seen_workers_bucket <= 7 and 0 <= record.last_seen_soldiers_bucket <= 7,
+              "strength buckets are 0..7")
+        _need(min(record.they_attacked_q, record.i_attacked_q, record.kills_mine_q, record.kills_theirs_q) >= 0,
+              "negative foreign counter")
+        if record.nest_node_slot != -1:
+            _need(0 <= record.nest_node_slot < len(memory.nodes), "foreign nest slot out of range")
+            nest = memory.nodes[record.nest_node_slot]
+            _need(nest.visited and world_map.nodes[nest.node_id].nest_of == record.colony_id,
+                  f"colony {colony_id}: foreign record {fslot} points at a node that is not a visited nest of that colony")
+    for kn in memory.nodes:
+        if kn.nest_owner_slot != -1:
+            _need(world_map.nodes[kn.node_id].kind == "nest"
+                  and world_map.nodes[kn.node_id].nest_of == memory.foreign[kn.nest_owner_slot].colony_id,
+                  f"colony {colony_id}: nest_owner_slot disagrees with the map")
+    for sighting in memory.sightings:
+        _need(0 <= sighting.node_slot < len(memory.nodes) and 0 <= sighting.colony_slot < len(memory.foreign)
+              and memory.nodes[sighting.node_slot].visited, f"colony {colony_id}: sighting out of range")
+        _need(0 <= sighting.workers_bucket <= 7 and 0 <= sighting.soldiers_bucket <= 7 and sighting.tick >= 0,
+              "bad sighting")
+    for item in memory.events:
+        _need(1 <= item.code <= 12 and -1 <= item.node_slot < len(memory.nodes) and -1 <= item.colony_slot < len(memory.foreign),
+              f"colony {colony_id}: bad memory event")
+    for pile in memory.piles_seen:
+        _need(0 <= pile.node_slot < len(memory.nodes) and pile.stock > 0, f"colony {colony_id}: bad pile record")
 
 
 def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
@@ -147,6 +178,15 @@ def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
             _need(loc.node_id == -1 and (min(loc.edge_from, loc.edge_to), max(loc.edge_from, loc.edge_to)) in edge_index
                   and loc.depart_tick < loc.arrive_tick, f"cohort {cohort.cohort_id}: bad edge location")
         _need(-1 <= cohort.mission.target_node < len(world_map.nodes), "mission target out of range")
+        mission = cohort.mission
+        _need(mission.kind != "scout" or cohort.caste == "worker", f"cohort {cohort.cohort_id}: only workers scout")
+        _need(mission.kind not in ("guard", "attack") or cohort.caste == "soldier",
+              f"cohort {cohort.cohort_id}: only soldiers guard and attack")
+        _need((mission.kind == "attack") == (mission.target_colony >= 0)
+              and mission.target_colony < n_col and mission.target_colony != cohort.colony_id,
+              f"cohort {cohort.cohort_id}: target_colony is for attack missions only, and never the own colony")
+        _need(mission.kind in ("home", "forage") or mission.target_node >= 0 or mission.phase == "idle",
+              f"cohort {cohort.cohort_id}: a {mission.kind} mission needs a target node")
         adults[cohort.colony_id][cohort.caste] += cohort.count
 
     for index, col in enumerate(state.colonies):
@@ -197,8 +237,9 @@ def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
         edge = edge_index.get((flow.a, flow.b))
         # Lane capacity is soft (RFC V-7): in-flight units may exceed lane_cap and only lengthen the trip.
         _need(edge is not None and flow.direction in (0, 1) and flow.in_flight_units > 0, "bad edge flow")
-    for outcome in state.outcomes:
+    for outcome, col in zip(state.outcomes, state.colonies):
         _need(outcome.finished == bool(outcome.reason) and (outcome.terminal_tick >= 0) == outcome.finished, "bad colony outcome")
+        _need(outcome.finished == (col.status != "alive"), f"colony {col.colony_id}: outcome contradicts the status")
     wo = state.world_outcome
     _need(wo.finished == bool(wo.reason) and (wo.terminal_tick >= 0) == wo.finished, "bad world outcome")
 
