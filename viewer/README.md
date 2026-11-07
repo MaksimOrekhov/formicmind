@@ -19,3 +19,7 @@ npm run dev
 `test-fixtures/` содержит Replay JSONL, созданные Python writer, и выборочные golden кадры Python ReplayReader. Сжатый timeout fixture позволяет прогнать в frontend-тесте импорт всех 3000 тиков без хранения 10 МиБ JSONL в исходном виде.
 
 Проверки в `viewer/`: `npm run build`, `npm run test`. Windows-only frontend job находится в `.github/workflows/ci.yml`.
+
+## Ecosystem v1 (E1)
+
+По умолчанию открывается viewer Ecosystem v1 (`src/eco/`): локальный replay реального прогона E1 (8 колоний, 96 узлов), карта с pan/zoom, воспроизведение по тикам мира, лента событий и режим «Вид колонии». Пример `public/samples/eco_seed50004_raider3.jsonl` загружается автоматически; свой файл создаёт `python -m formicmind.eco replay-export` (см. `docs/ecosystem_v1_viewer.md`). Viewer L0 доступен по `#/l0` и не изменён. Проверки те же: `npm run build`, `npm run test`.
