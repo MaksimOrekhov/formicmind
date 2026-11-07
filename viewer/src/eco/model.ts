@@ -65,9 +65,14 @@ const MOMENT_LABEL: Partial<Record<EventKind, string>> = {
 
 /** The moments worth jumping to: the first of each interaction kind, and every queen death, collapse and extinction. */
 export function keyMoments(replay: EcoReplay): KeyMoment[] {
+  return keyMomentsOf(replay.events)
+}
+
+/** Same selection over any (already filtered, tick-ordered) event list; the "first of each kind" is relative to that list. */
+export function keyMomentsOf(events: readonly EcoEvent[]): KeyMoment[] {
   const moments: KeyMoment[] = []
   const firstSeen = new Set<EventKind>()
-  for (const event of replay.events) {
+  for (const event of events) {
     const label = MOMENT_LABEL[event.kind]
     if (!label) continue
     if (event.kind === 'dispatch' && event.a !== 3) continue // attack orders only
@@ -179,6 +184,21 @@ export function colonyView(replay: EcoReplay, frame: EcoFrame, colonyId: number)
 export function eventVisibleToColony(event: EcoEvent, colony: number): boolean {
   if (event.colony === colony) return true
   return (event.kind === 'combat' || event.kind === 'queen_dead') && event.other === colony
+}
+
+/**
+ * Whether the colony view may show ``event`` while the viewer displays ``tick``: the colony took part in it AND the displayed state already contains its
+ * effects. The state shown at ``tick`` is the state after tick ``tick - 1`` completed, so an event of tick ``t`` becomes known from ``t + 1`` on.
+ * Everything the colony view lists (feed, counters, markers, jump targets, highlight) goes through this one predicate, so no later or foreign event can leak.
+ */
+export function eventObservedBy(event: EcoEvent, colony: number, tick: number): boolean {
+  return event.tick < tick && eventVisibleToColony(event, colony)
+}
+
+/** Key moments (first contact, queen death ...) of one colony's own story, limited to what it has observed by ``tick``. */
+export function colonyKeyMoments(replay: EcoReplay, colony: number, tick: number): KeyMoment[] {
+  const through = eventCountThrough(replay.events, tick)
+  return keyMomentsOf(replay.events.slice(0, through).filter((event) => eventObservedBy(event, colony, tick)))
 }
 
 export const COLONY_COLORS = ['#e7b04a', '#5fb8ff', '#f0716f', '#6fd49a', '#c58bf0', '#ff9f5a', '#4fd2d2', '#d6e05a'] as const

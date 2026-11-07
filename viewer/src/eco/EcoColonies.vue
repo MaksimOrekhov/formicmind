@@ -23,10 +23,10 @@ function hidden(id: number) {
 
 <template>
   <div class="eco-colonies">
-    <button v-for="row in rows" :key="row.colony.id" type="button" class="eco-colony" :class="[`status-${row.colony.status}`, { selected: selected === row.colony.id }]" :style="{ '--c': colonyColor(row.colony.id) }" :aria-pressed="selected === row.colony.id" @click="emit('select', row.colony.id)">
+    <button v-for="row in rows" :key="row.colony.id" type="button" class="eco-colony" :class="[hidden(row.colony.id) ? 'status-hidden' : `status-${row.colony.status}`, { selected: selected === row.colony.id }]" :style="{ '--c': colonyColor(row.colony.id) }" :aria-pressed="selected === row.colony.id" @click="emit('select', row.colony.id)">
       <span class="ec-head">
         <span class="ec-swatch">{{ row.colony.id }}</span>
-        <span class="ec-title">Колония {{ row.colony.id }}<small v-if="props.replay.roles[String(row.colony.id)]"> · {{ props.replay.roles[String(row.colony.id)] }}</small></span>
+        <span class="ec-title">Колония {{ row.colony.id }}<small v-if="!hidden(row.colony.id) && props.replay.roles[String(row.colony.id)]"> · {{ props.replay.roles[String(row.colony.id)] }}</small></span>
         <span v-if="!hidden(row.colony.id)" class="ec-status">{{ statusLabel[row.colony.status] }}</span>
         <span v-else class="ec-status unknown">{{ foreignOf(row.colony.id) ? 'встречена' : 'не известна' }}</span>
       </span>

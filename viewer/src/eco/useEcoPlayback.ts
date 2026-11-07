@@ -1,5 +1,5 @@
 import { computed, onScopeDispose, ref, watch } from 'vue'
-import { frameIndexAtTick, keyMoments } from './model'
+import { frameIndexAtTick, keyMoments, type KeyMoment } from './model'
 import type { EcoReplay } from './types'
 
 /** Playback speeds in world ticks per second. The viewer shows ticks of the simulated world; it never pretends to be real time. */
@@ -61,9 +61,9 @@ export function useEcoPlayback(replay: EcoReplay) {
   }
 
   /** Jump to the previous/next key moment (first contact, nest found, attack, combat, queen death, extinction). */
-  function jumpMoment(direction: -1 | 1) {
+  function jumpMoment(direction: -1 | 1, list: readonly KeyMoment[] = moments) {
     const at = (m: { tick: number }) => Math.min(lastTick, m.tick + 1) // the state after the tick in which the event happened
-    const candidates = direction === 1 ? moments.filter((m) => at(m) > tick.value) : moments.filter((m) => at(m) < tick.value).reverse()
+    const candidates = direction === 1 ? list.filter((m) => at(m) > tick.value) : list.filter((m) => at(m) < tick.value).reverse()
     return candidates.length ? seek(at(candidates[0])) : tick.value
   }
 

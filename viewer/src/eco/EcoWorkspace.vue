@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import EcoColonies from './EcoColonies.vue'
 import EcoEvents from './EcoEvents.vue'
 import EcoMap from './EcoMap.vue'
 import EcoTimeline from './EcoTimeline.vue'
 import { describeEvent } from './describe'
-import { colonyView, combatLosses, eventCountThrough, eventVisibleToColony } from './model'
+import { colonyKeyMoments, colonyView, combatLosses, eventCountThrough, eventObservedBy } from './model'
 import type { EcoEvent, EcoReplay } from './types'
 import { useEcoPlayback } from './useEcoPlayback'
 
@@ -34,10 +34,22 @@ const recent = computed(() => {
   for (let i = through - 1; i >= 0 && props.replay.events[i].tick > tick.value - 9; i -= 1) {
     const event = props.replay.events[i]
     if (event.kind === 'discover' || event.kind === 'contact' || event.kind === 'nest_found' || event.kind === 'dispatch' || event.kind === 'combat' || event.kind === 'queen_dead' || event.kind === 'extinct' || event.kind === 'collapse') {
-      if (viewColony.value === null || eventVisibleToColony(event, viewColony.value)) out.push(event)
+      if (viewColony.value === null || eventObservedBy(event, viewColony.value, tick.value)) out.push(event)
     }
   }
   return out
+})
+const statusLabel = { alive: 'жива', orphan: 'сирота', extinct: 'вымерла' } as const
+// In the colony view the only status the colony knows is its own; counts over all colonies would reveal rivals' deaths.
+const ownStatus = computed(() => statusLabel[frame.value.colonies[selectedColony.value].status])
+/** An omniscient highlight (an event the colony has not observed, or one in its future) is never drawn in the colony view. */
+const shownFocus = computed(() => (focusEvent.value && (viewColony.value === null || eventObservedBy(focusEvent.value, viewColony.value, tick.value)) ? focusEvent.value : null))
+/** Key moments of the timeline: the whole replay in all-knowledge mode, only the colony's own observed story (up to the displayed tick) in colony view. */
+const moments = computed(() => (viewColony.value === null ? playback.moments : colonyKeyMoments(props.replay, viewColony.value, tick.value)))
+watch([viewMode, selectedColony], () => {
+  focusEvent.value = null
+  selectedNode.value = null
+  map.value?.resetCamera()
 })
 const aliveCount = computed(() => frame.value.colonies.filter((c) => c.status === 'alive').length)
 const orphanCount = computed(() => frame.value.colonies.filter((c) => c.status === 'orphan').length)
@@ -53,8 +65,12 @@ function chooseEvent(event: EcoEvent) {
   }
 }
 function chooseMoment(direction: -1 | 1) {
-  const target = playback.jumpMoment(direction)
-  const moment = props.replay.events.find((event) => event.tick + 1 === target && playback.moments.some((m) => m.eventIndex === event.index))
+  const list = moments.value
+  const before = tick.value
+  const target = playback.jumpMoment(direction, list)
+  if (target === before) return
+  const hit = list.find((m) => Math.min(playback.lastTick, m.tick + 1) === target)
+  const moment = hit ? props.replay.events.find((event) => event.index === hit.eventIndex) : undefined
   if (moment) { focusEvent.value = moment; if (moment.node >= 0) map.value?.focusOn(moment.node) }
 }
 
@@ -104,22 +120,23 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
         <template v-if="viewMode === 'all'">Режим исследователя: показано истинное состояние мира, которого колонии не знают.</template>
         <template v-else>Экранный режим «колония {{ selectedColony }}»: только её память, её юниты и устаревающие наблюдения; скрыты неоткрытые узлы, чужие склады, матки и войска. Это инструмент зрителя, а не данные для ИИ.</template>
       </p>
-      <div class="eco-summary"><span>живых <b>{{ aliveCount }}</b></span><span>сирот <b>{{ orphanCount }}</b></span><span>вымерло <b>{{ extinctCount }}</b></span></div>
+      <div v-if="viewMode === 'all'" class="eco-summary"><span>живых <b>{{ aliveCount }}</b></span><span>сирот <b>{{ orphanCount }}</b></span><span>вымерло <b>{{ extinctCount }}</b></span></div>
+      <div v-else class="eco-summary" data-testid="own-status"><span>колония {{ selectedColony }}: <b>{{ ownStatus }}</b></span></div>
     </div>
     <main class="eco-dashboard">
       <aside class="eco-left" aria-label="Колонии">
-        <div class="eco-intro"><span class="eyebrow">ECOSYSTEM V1 · СИД {{ replay.seed }}</span><h1>{{ replay.colonyCount }} колоний · {{ replay.nodes.length }} узлов · {{ replay.edges.length }} рёбер</h1><p>{{ replay.ticksCompleted }} тиков мира · {{ replay.frames.length }} кадров · {{ replay.events.length }} событий</p></div>
+        <div class="eco-intro"><span class="eyebrow">ECOSYSTEM V1 · СИД {{ replay.seed }}</span><h1>{{ replay.colonyCount }} колоний · {{ replay.nodes.length }} узлов · {{ replay.edges.length }} рёбер</h1><p>{{ replay.ticksCompleted }} тиков мира · {{ replay.frames.length }} кадров<template v-if="viewMode === 'all'"> · {{ replay.events.length }} событий</template></p></div>
         <EcoColonies :replay="replay" :frame="frame" :fog="fog" :selected="selectedColony" :losses="losses" @select="selectedColony = $event" />
       </aside>
       <section class="eco-center" aria-label="Карта и воспроизведение">
         <div class="eco-panel eco-map-card">
-          <EcoMap ref="map" :replay="replay" :frame="frame" :tick="tick" :fog="fog" :selected-node="selectedNode" :recent-events="recent" :focus-event="focusEvent" @select-node="selectedNode = $event" />
+          <EcoMap ref="map" :replay="replay" :frame="frame" :tick="tick" :fog="fog" :selected-node="selectedNode" :recent-events="recent" :focus-event="shownFocus" @select-node="selectedNode = $event" />
         </div>
-        <EcoTimeline :tick="tick" :last-tick="playback.lastTick" :playing="playback.isPlaying.value" :speed="playback.speed.value" :speeds="playback.speeds" :moments="playback.moments" :frame="frame" :frame-count="replay.frames.length"
+        <EcoTimeline :tick="tick" :last-tick="playback.lastTick" :playing="playback.isPlaying.value" :speed="playback.speed.value" :speeds="playback.speeds" :moments="moments" :frame="frame" :frame-count="replay.frames.length"
           @toggle="playback.isPlaying.value ? playback.pause() : playback.play()" @seek="playback.seek" @frame="playback.stepFrame" @moment="chooseMoment" @start="playback.goToStart" @end="playback.goToEnd" @speed="playback.setSpeed" />
       </section>
       <aside class="eco-right" aria-label="События и инспектор">
-        <EcoEvents :replay="replay" :tick="tick" :view-colony="viewColony" :active-index="focusEvent?.index ?? null" @select="chooseEvent" />
+        <EcoEvents :replay="replay" :tick="tick" :view-colony="viewColony" :active-index="shownFocus?.index ?? null" @select="chooseEvent" />
         <section class="eco-panel eco-inspector" aria-label="Инспектор узла">
           <div class="eco-panel-head"><div><span class="eyebrow">ИНСПЕКТОР</span><h2>{{ inspector ? `Узел ${inspector.node.id}` : 'Узел не выбран' }}</h2></div></div>
           <template v-if="inspector">
@@ -146,7 +163,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
               <ul class="eco-here"><li v-for="[colony, row] in inspector.groups" :key="colony">свои: {{ row.workers }} раб. · {{ row.soldiers }} сол.</li></ul>
             </template>
           </template>
-          <p v-if="focusEvent" class="eco-focus-note">Событие: {{ describeEvent(focusEvent) }} (тик {{ focusEvent.tick }})</p>
+          <p v-if="shownFocus" class="eco-focus-note">Событие: {{ describeEvent(shownFocus) }} (тик {{ shownFocus.tick }})</p>
         </section>
       </aside>
     </main>
