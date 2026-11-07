@@ -186,7 +186,8 @@ def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
         a, b = sorted((cohort.loc.edge_from, cohort.loc.edge_to))
         edge = edge_index.get((a, b))
         _need(edge is not None, f"cohort {cohort.cohort_id}: on a missing edge")
-        _need(cohort.loc.depart_tick < cohort.loc.arrive_tick, f"cohort {cohort.cohort_id}: bad edge schedule")
+        _need(cohort.loc.depart_tick + edge.length <= cohort.loc.arrive_tick,
+              f"cohort {cohort.cohort_id}: edge trip shorter than the edge length")
         direction = 0 if cohort.loc.edge_from == edge.a else 1
         key = (a, b, direction)
         flow_totals[key] = flow_totals.get(key, 0) + cohort.count
@@ -194,8 +195,8 @@ def validate_state(state: WorldStateE1, config: ConfigE1, world_map: MapE1, *,
     _need(state.edge_flow == expected_flows, "edge_flow differs from the cohorts currently in transit")
     for flow in state.edge_flow:
         edge = edge_index.get((flow.a, flow.b))
+        # Lane capacity is soft (RFC V-7): in-flight units may exceed lane_cap and only lengthen the trip.
         _need(edge is not None and flow.direction in (0, 1) and flow.in_flight_units > 0, "bad edge flow")
-        _need(flow.in_flight_units <= edge.lane_cap, "directed edge lane capacity exceeded")
     for outcome in state.outcomes:
         _need(outcome.finished == bool(outcome.reason) and (outcome.terminal_tick >= 0) == outcome.finished, "bad colony outcome")
     wo = state.world_outcome

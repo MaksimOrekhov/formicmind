@@ -1,12 +1,15 @@
 from copy import deepcopy
 from dataclasses import replace
 
+import pytest
+
 from formicmind.eco.config import default_config
 from formicmind.eco.engine import RouteTable, split_cohort, step_world_tick
 from formicmind.eco.fixtures import fixture_controller
 from formicmind.eco.initial import build_world
-from formicmind.eco.model import Location, Mission
+from formicmind.eco.model import BroodRecord, Location, Mission
 from formicmind.eco.serialization import checkpoint_hash, state_hash
+from formicmind.eco.validate import InvariantError, validate_state
 
 
 def _run_step(world, routes=None, controller=None):
@@ -157,3 +160,160 @@ def test_midpoint_checkpoint_resume_matches_continuous_run():
     assert world.state.tick == resumed.state.tick == 30
     assert state_hash(world.state) == state_hash(resumed.state)
     assert checkpoint_hash(world.state, world.run) == checkpoint_hash(resumed.state, resumed.run)
+
+
+# ---------------------------------------------------------------------------------------- RFC V-7 soft lane capacity
+
+
+def _depart_setup(num_cohorts_sizes):
+    """Colony 0 workers, split into cohorts of the given sizes, all at the nest and sent over one wide edge."""
+    config = default_config()
+    config = replace(config, economy=replace(config.economy, start_workers=24))
+    world = build_world(config, 42)
+    nest = world.world_map.nests[0]
+    edge = next(ed for ed in world.world_map.edges
+                if nest in (ed.a, ed.b) and ed.lane_cap == world.config.economy.lane_cap)
+    target = edge.b if edge.a == nest else edge.a
+    workers = next(c for c in world.state.cohorts if c.colony_id == 0 and c.caste == "worker")
+    assert workers.count >= sum(num_cohorts_sizes)
+    rest = workers.count - sum(num_cohorts_sizes)
+    if rest:
+        split_cohort(world.state, workers, rest)  # the remainder stays idle at home (higher cohort id)
+    parts = [workers]
+    for size in num_cohorts_sizes[1:]:  # the original keeps the first size; later splits get ascending ids
+        parts.append(split_cohort(world.state, workers, size))
+    assert [c.count for c in parts] == list(num_cohorts_sizes)
+    assert [c.cohort_id for c in parts] == sorted(c.cohort_id for c in parts)
+    for cohort in parts:
+        cohort.mission = Mission("forage", target, -1, "go", 0)
+    return world, edge, parts
+
+
+def test_soft_lane_capacity_delays_later_cohorts_instead_of_holding_them_at_the_node():
+    world, edge, (first, second) = _depart_setup([8, 2])
+    assert edge.lane_cap == 8
+    routes = RouteTable(world.world_map)
+    for other in world.state.cohorts:  # keep every other cohort of the world at home
+        if other not in (first, second):
+            other.mission = Mission("none", -1, -1, "idle", 0)
+
+    _run_step(world, routes)
+    assert first.loc.kind == second.loc.kind == "edge"       # nothing is queued at the node
+    assert first.loc.arrive_tick - first.loc.depart_tick == edge.length
+    assert second.loc.arrive_tick - second.loc.depart_tick == edge.length + 1   # floor(8 / 8)
+    assert second.loc.depart_tick == first.loc.depart_tick
+    assert first.count == 8 and second.count == 2             # no cohort was split to fit the lane
+    assert world.state.edge_flow[0].in_flight_units == 10     # more than lane_cap is in flight at once
+
+
+def test_soft_lane_capacity_multi_cohort_arrivals_are_staggered_by_floor_in_flight_over_cap():
+    world, edge, (a, b, c) = _depart_setup([8, 8, 4])
+    routes = RouteTable(world.world_map)
+    for other in world.state.cohorts:
+        if other not in (a, b, c):
+            other.mission = Mission("none", -1, -1, "idle", 0)
+
+    _run_step(world, routes)
+    delays = [x.loc.arrive_tick - x.loc.depart_tick - edge.length for x in (a, b, c)]
+    assert delays == [0, 1, 2]                                # in flight 0, 8, 16 at the moment of departure
+    assert world.state.edge_flow[0].in_flight_units == 20
+
+    # A cohort that reached the target turns round in the same tick, so its return trip departs at the arrival tick.
+    target = edge.b if edge.a == world.world_map.nests[0] else edge.a
+    start_tick = world.state.tick - 1
+    arrivals = {}
+    while len(arrivals) < 3:
+        _run_step(world, routes)
+        for name, cohort in (("a", a), ("b", b), ("c", c)):
+            if cohort.loc.kind == "edge" and cohort.loc.edge_from == target:
+                arrivals.setdefault(name, cohort.loc.depart_tick)
+        assert world.state.tick < 100
+    assert arrivals["a"] == start_tick + edge.length
+    assert arrivals["b"] == arrivals["a"] + 1 and arrivals["c"] == arrivals["a"] + 2
+
+
+def test_a_cohort_larger_than_lane_cap_departs_whole_and_the_edge_trip_cannot_beat_the_edge_length():
+    world, edge, (big,) = _depart_setup([10])
+    routes = RouteTable(world.world_map)
+    for other in world.state.cohorts:
+        if other is not big:
+            other.mission = Mission("none", -1, -1, "idle", 0)
+
+    _run_step(world, routes)
+    assert big.count == 10 > edge.lane_cap
+    assert big.loc.arrive_tick - big.loc.depart_tick == edge.length  # it only sees what is already in flight
+
+    big.loc = replace(big.loc, arrive_tick=big.loc.depart_tick + edge.length - 1)
+    with pytest.raises(InvariantError, match="shorter than the edge length"):
+        validate_state(world.state, world.config, world.world_map)
+
+
+def test_soft_lane_capacity_checkpoint_resume_is_exact_with_cohorts_in_flight():
+    world, edge, parts = _depart_setup([8, 2])
+    routes = RouteTable(world.world_map)
+    _run_step(world, routes)
+    resumed = deepcopy(world)
+    for _ in range(edge.length + 3):
+        _run_step(world, routes)
+        _run_step(resumed, routes)
+    assert checkpoint_hash(world.state, world.run) == checkpoint_hash(resumed.state, resumed.run)
+
+
+# ------------------------------------------------------------------------------- contracts section 9.5 terminal rules
+
+
+def _emptied_colony(brood=(), food=0, queen_hp=None):
+    world = build_world(default_config(), 5)
+    state = world.state
+    colony = state.colonies[0]
+    state.cohorts = [c for c in state.cohorts if c.colony_id != 0]
+    colony.ages.workers, colony.ages.soldiers = [], []
+    colony.brood = list(brood)
+    colony.food = food
+    colony.orders.egg_level = 0
+    if queen_hp is not None:
+        colony.queen_hp = queen_hp
+        colony.status = "alive" if queen_hp > 0 else "orphan"
+    state.next_cohort_id = max(state.next_cohort_id, 1000)
+    return world, colony
+
+
+def test_empty_colony_with_a_living_queen_and_enough_food_for_a_worker_egg_is_not_terminal():
+    world, colony = _emptied_colony(food=default_config().economy.worker_egg_cost)
+    _run_step(world, RouteTable(world.world_map))
+    assert colony.status == "alive" and colony.queen_hp > 0
+    assert not world.state.outcomes[0].finished
+
+
+def test_empty_colony_without_food_for_a_worker_egg_collapses_and_its_food_becomes_a_pile():
+    cost = default_config().economy.worker_egg_cost
+    world, colony = _emptied_colony(food=cost - 1)
+    nest = world.world_map.nests[0]
+    _run_step(world, RouteTable(world.world_map))
+    assert colony.status == "extinct" and colony.food == 0
+    outcome = world.state.outcomes[0]
+    assert (outcome.finished, outcome.reason, outcome.terminal_tick) == (True, "collapse", 0)
+    assert next(p.stock for p in world.state.piles if p.node_id == nest) == cost - 1
+    assert not world.state.world_outcome.finished           # the other seven colonies go on
+
+
+def test_soldier_only_brood_does_not_prevent_collapse_when_no_worker_egg_is_affordable():
+    cost = default_config().economy.worker_egg_cost
+    world, colony = _emptied_colony(brood=[BroodRecord(900, "soldier", 0, 30)], food=cost - 1)
+    _run_step(world, RouteTable(world.world_map))
+    assert colony.status == "extinct" and colony.brood == []
+    assert world.state.outcomes[0].reason == "collapse"
+
+
+def test_worker_brood_keeps_a_poor_empty_colony_alive_and_it_hatches():
+    world, colony = _emptied_colony(brood=[BroodRecord(900, "worker", -1, 0)], food=0)
+    _run_step(world, RouteTable(world.world_map))
+    assert colony.status == "alive" and not world.state.outcomes[0].finished
+    assert any(c.colony_id == 0 and c.caste == "worker" for c in world.state.cohorts)
+
+
+def test_orphan_extinction_stays_distinct_from_economic_collapse():
+    world, colony = _emptied_colony(food=0, queen_hp=0)
+    _run_step(world, RouteTable(world.world_map))
+    assert colony.status == "extinct"
+    assert world.state.outcomes[0].reason == "no_adults_or_brood"

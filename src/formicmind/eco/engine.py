@@ -513,31 +513,37 @@ def _departures(state: WorldStateE1, config: ConfigE1, world_map: MapE1, routes:
         edge = edge_by_key[(a, b)]
         direction = 0 if cohort.loc.node_id == edge.a else 1
         slot = (a, b, direction)
-        available = edge.lane_cap - occupancy[slot]
-        if available <= 0:
-            continue
-        moving = min(cohort.count, available)
-        if moving < cohort.count:
-            traveler = split_cohort(state, cohort, moving)
-        else:
-            traveler = cohort
-        traveler.loc = Location("edge", -1, cohort.loc.node_id, next_node, tick, tick + edge.length)
-        occupancy[slot] += moving
+        # RFC V-7: soft lane capacity. A cohort always departs; the units already on this directed edge
+        # (including cohorts that left earlier in this same phase, in cohort_id order) lengthen its trip
+        # by floor(in_flight_same_direction / lane_cap). There are no queues and nothing is split.
+        delay = occupancy[slot] // edge.lane_cap
+        cohort.loc = Location("edge", -1, cohort.loc.node_id, next_node, tick, tick + edge.length + delay)
+        occupancy[slot] += cohort.count
 
 
 def _terminal(state: WorldStateE1, config: ConfigE1, world_map: MapE1) -> None:
+    """Contracts §9.5: economic collapse of a colony with a living queen, and extinction of an empty orphan."""
     tick = state.tick
     for colony in state.colonies:
-        if colony.status != "alive":
+        if colony.status == "extinct":
             continue
         adults = sum(cohort.count for cohort in state.cohorts if cohort.colony_id == colony.colony_id)
-        if adults == 0 and not colony.brood:
-            nest = world_map.nests[colony.colony_id]
-            _add_pile(state, nest, colony.food)
+        if colony.queen_hp > 0:
+            # Collapse: no adults, no worker brood, and not enough food to lay a worker egg.
+            # An empty colony that can still pay for a worker egg is alive and is not terminal.
+            worker_brood = any(brood.caste == "worker" for brood in colony.brood)
+            reason = ("collapse" if adults == 0 and not worker_brood
+                      and colony.food < config.economy.worker_egg_cost * config.economy.eggs_per_lay else "")
+        else:
+            # Orphan (queen dead): extinct only once no adults and no brood remain.
+            reason = "no_adults_or_brood" if adults == 0 and not colony.brood else ""
+        if reason:
+            _add_pile(state, world_map.nests[colony.colony_id], colony.food)
             colony.food = 0
+            colony.brood = []  # leftover soldier brood dies with the colony
             colony.status = "extinct"
             state.outcomes[colony.colony_id].finished = True
-            state.outcomes[colony.colony_id].reason = "no_adults_or_brood"
+            state.outcomes[colony.colony_id].reason = reason
             state.outcomes[colony.colony_id].terminal_tick = tick
     if all(colony.status == "extinct" for colony in state.colonies):
         state.world_outcome.finished = True
