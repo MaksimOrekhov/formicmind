@@ -11,7 +11,7 @@ from formicmind.eco.engine import RouteTable, step_world_tick
 from formicmind.eco.events import EventLog
 from formicmind.eco.initial import build_world
 from formicmind.eco.observation import build_observation, observation_bytes
-from formicmind.eco.policy import ObservationHeuristicPolicy, PolicyRunSpec, PolicySpec, build_policies, uniform_spec
+from formicmind.eco.policy import ObservationHeuristicPolicy
 from formicmind.eco.policy_run import PolicyController
 
 

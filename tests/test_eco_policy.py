@@ -3,14 +3,13 @@
 from __future__ import annotations
 
 import copy
-import itertools
 import math
 import random
 from dataclasses import replace
 
 import pytest
 
-from test_eco_policy_helpers import AttackerPolicy, Recorder, Run, explorer_policies, first_observation
+from test_eco_policy_helpers import Recorder, Run, explorer_policies, first_observation
 from formicmind.canonical import CanonicalError
 from formicmind.eco import default_config
 from formicmind.eco.action import (
@@ -22,7 +21,7 @@ from formicmind.eco.events import EventLog
 from formicmind.eco.initial import build_world
 from formicmind.eco.model import ColonyOutcome
 from formicmind.eco.observation import (
-    EVENT_DIM, FOREIGN_DIM, GLOBAL_DIM, COHORT_DIM, EDGE_DIM, NODE_DIM, SIGHTING_DIM, ObservationError, build_observation, next_rolling,
+    EVENT_DIM, GLOBAL_DIM, COHORT_DIM, EDGE_DIM, NODE_DIM, SIGHTING_DIM, ObservationError, build_observation, next_rolling,
     observation_bytes, observation_hash,
 )
 from formicmind.eco.policy import (
@@ -31,7 +30,7 @@ from formicmind.eco.policy import (
 from formicmind.eco.policy_run import PolicyApplyError, PolicyController, run_policies
 from formicmind.eco.replay_file import ReplayFormatError, export_policy_replay, read_replay, verify_replay
 from formicmind.eco.serialization import checkpoint_hash, state_hash
-from formicmind.eco.versions import ACTION_VERSION, OBSERVATION_VERSION
+from formicmind.eco.versions import OBSERVATION_VERSION
 from formicmind.rng import new_stream
 
 

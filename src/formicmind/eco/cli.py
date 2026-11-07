@@ -35,7 +35,7 @@ from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .fixtures import FIXTURE_CHOICES, normalize_fixture
-from .policy import HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec, uniform_spec
+from .policy import HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec
 from .replay_file import ReplayFormatError, export_policy_replay, export_replay, read_replay, verify_replay
 from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
 from .versions import (
