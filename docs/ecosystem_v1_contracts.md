@@ -239,6 +239,8 @@ Sighting: node_slot, colony_slot, tick, workers_bucket, soldiers_bucket, aggress
 
 ## 7. ObservationE1
 
+> **Реализовано в FOR-48** (`eco/observation.py`, `eco/action.py`): `docs/ecosystem_v1_policy_interface.md`. Отличия от таблиц ниже, принятые при реализации: у `sightings` и `events` целочисленные слоты вынесены в отдельные массивы (`sighting_ints`, `event_ints`), в `cohorts` 14-й признак — фаза миссии, добавлены целочисленные `node_ints` и `facts` (нужны маскам без округления float), логарифмическая нормировка кусочно-линейная (без `libm`).
+
 Одна запись на колонию на решение. **Переменный размер**: хранятся только валидные строки (дополнение нулями делает загрузчик батча). Все числа `float32`,
 нормализаторы — константы версии. Никаких мировых `node_id`/`colony_id`, никакого `N`, никакой информации о неоткрытом.
 
@@ -293,6 +295,8 @@ losses_workers, losses_soldiers, kills_observed (log1p-нормализация)
 ---
 
 ## 8. Маски и ActionE1
+
+> **Реализовано в FOR-48**: маски — `eco/action.py::action_masks(obs)`, декодер — `eco/decoder.py::decode`, применение — `eco/apply.py`. Размеры голов декодера — `LAYOUT` (818 латентов). Постоянные приказы отрядов хранятся в `colony.orders.squads`; повторный идентичный приказ выходящему отряду не отправляется.
 
 ### 8.1 Маски — чистые функции от `ObservationE1`
 (как `get_action_mask(obs)` в L0 `actions.py` — маска не читает мир).

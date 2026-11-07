@@ -1,0 +1,385 @@
+{
+  "schema": "formicmind.eco.policy-runs/1",
+  "worlds": [
+    {
+      "alert_decisions": 0,
+      "colonies": 8,
+      "decisions": 23,
+      "description": "all random_valid",
+      "event_counts": {
+        "collapse": 8,
+        "combat": 0,
+        "contact": 2,
+        "death": 0,
+        "discover": 22,
+        "dispatch": 32,
+        "extinct": 8,
+        "nest_found": 0,
+        "queen_damage": 0,
+        "queen_dead": 0
+      },
+      "hashes": {
+        "decisions": "9a77a49b10f71a2d9022e7a3fc26d6312f3a6e9423720cab4f6019ccca11199f",
+        "events": "9c86628665d0cd065fb9f379280566f19129d4ed8baf16743db36af66c4978c3",
+        "state": "693aba3867101813c93399a57238fdde714a49fc3bbcbd973ff6f7f64f1ee419"
+      },
+      "map_seed": "50004",
+      "policy": {
+        "policies": [
+          {
+            "colony": 0,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:0",
+            "variant": ""
+          },
+          {
+            "colony": 1,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:1",
+            "variant": ""
+          },
+          {
+            "colony": 2,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:2",
+            "variant": ""
+          },
+          {
+            "colony": 3,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:3",
+            "variant": ""
+          },
+          {
+            "colony": 4,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:4",
+            "variant": ""
+          },
+          {
+            "colony": 5,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:5",
+            "variant": ""
+          },
+          {
+            "colony": 6,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:6",
+            "variant": ""
+          },
+          {
+            "colony": 7,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:7",
+            "variant": ""
+          }
+        ],
+        "policy_seed": "7",
+        "schema": "formicmind.eco.policy-run/1"
+      },
+      "reproduced": true,
+      "scenario": "moderate",
+      "statuses": [
+        "extinct",
+        "extinct",
+        "extinct",
+        "extinct",
+        "extinct",
+        "extinct",
+        "extinct",
+        "extinct"
+      ],
+      "ticks": 114,
+      "wall_seconds": [
+        0.09,
+        0.09
+      ]
+    },
+    {
+      "alert_decisions": 0,
+      "colonies": 8,
+      "decisions": 640,
+      "description": "fair heuristic economy, scouts, one raider, one random",
+      "event_counts": {
+        "collapse": 2,
+        "combat": 0,
+        "contact": 12,
+        "death": 0,
+        "discover": 103,
+        "dispatch": 102,
+        "extinct": 2,
+        "nest_found": 7,
+        "queen_damage": 0,
+        "queen_dead": 0
+      },
+      "hashes": {
+        "decisions": "ed3a9950d07933a2e529512a04dd74cd9f32a2b61387eb54612d0819c1e030eb",
+        "events": "94ca42c7c40f1d898ae4e3883e55f89830786f15ba5c3bb138721d8a9376d3fe",
+        "state": "838c322d39423579af1d0e831750a3dc0d85f5cf20764f7b54aeec53dccabb60"
+      },
+      "map_seed": "50011",
+      "policy": {
+        "policies": [
+          {
+            "colony": 0,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:0",
+            "variant": "explorer"
+          },
+          {
+            "colony": 1,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:1",
+            "variant": "explorer"
+          },
+          {
+            "colony": 2,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:2",
+            "variant": "peaceful"
+          },
+          {
+            "colony": 3,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:3",
+            "variant": "raider"
+          },
+          {
+            "colony": 4,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:4",
+            "variant": "explorer"
+          },
+          {
+            "colony": 5,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:5",
+            "variant": "peaceful"
+          },
+          {
+            "colony": 6,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:6",
+            "variant": ""
+          },
+          {
+            "colony": 7,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:7",
+            "variant": "explorer"
+          }
+        ],
+        "policy_seed": "11",
+        "schema": "formicmind.eco.policy-run/1"
+      },
+      "reproduced": true,
+      "scenario": "moderate",
+      "statuses": [
+        "alive",
+        "extinct",
+        "alive",
+        "alive",
+        "alive",
+        "alive",
+        "extinct",
+        "alive"
+      ],
+      "ticks": 3000,
+      "wall_seconds": [
+        1.92,
+        1.89
+      ]
+    },
+    {
+      "alert_decisions": 11,
+      "colonies": 8,
+      "decisions": 647,
+      "description": "three aggressors (attack path through ActionE1), raider, peaceful, explorers, one random",
+      "event_counts": {
+        "collapse": 2,
+        "combat": 19,
+        "contact": 7,
+        "death": 2,
+        "discover": 53,
+        "dispatch": 60,
+        "extinct": 2,
+        "nest_found": 3,
+        "queen_damage": 0,
+        "queen_dead": 0
+      },
+      "hashes": {
+        "decisions": "fcdf4c68e57565e9d032152b805ae8113ceb030bf0536aaa02d06c04db58254a",
+        "events": "2336b6bf85a4c793152dd6dad906c2f7c3e78c69105e465b309bca6cb6fbee31",
+        "state": "989bbe55fc247223ec9b7ddb4ee2f74c222616d47a87e051cdaace30494a672d"
+      },
+      "map_seed": "50012",
+      "policy": {
+        "policies": [
+          {
+            "colony": 0,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:0",
+            "variant": "explorer"
+          },
+          {
+            "colony": 1,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:1",
+            "variant": "aggressor"
+          },
+          {
+            "colony": 2,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:2",
+            "variant": "explorer"
+          },
+          {
+            "colony": 3,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:3",
+            "variant": "aggressor"
+          },
+          {
+            "colony": 4,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:4",
+            "variant": "peaceful"
+          },
+          {
+            "colony": 5,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:5",
+            "variant": "aggressor"
+          },
+          {
+            "colony": 6,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:6",
+            "variant": ""
+          },
+          {
+            "colony": 7,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:7",
+            "variant": "raider"
+          }
+        ],
+        "policy_seed": "5",
+        "schema": "formicmind.eco.policy-run/1"
+      },
+      "reproduced": true,
+      "scenario": "moderate",
+      "statuses": [
+        "alive",
+        "extinct",
+        "alive",
+        "alive",
+        "alive",
+        "alive",
+        "extinct",
+        "alive"
+      ],
+      "ticks": 3000,
+      "wall_seconds": [
+        1.77,
+        1.87
+      ]
+    },
+    {
+      "alert_decisions": 0,
+      "colonies": 8,
+      "decisions": 703,
+      "description": "same mix on an abundant map",
+      "event_counts": {
+        "collapse": 1,
+        "combat": 0,
+        "contact": 16,
+        "death": 0,
+        "discover": 133,
+        "dispatch": 125,
+        "extinct": 1,
+        "nest_found": 8,
+        "queen_damage": 0,
+        "queen_dead": 0
+      },
+      "hashes": {
+        "decisions": "3b4ec2b959897e61a0d5c0ae419d66e8bbbd7f0d470b2e770aef582597ea90bf",
+        "events": "ce552a354369c278d82f9bfbcea6b553014bacaa721d85490dbe61601e6684d4",
+        "state": "19c867615581a9dee3c053f5ddfd3ee7cc8a98fffedb3ce910f4e52272e98dbd"
+      },
+      "map_seed": "50031",
+      "policy": {
+        "policies": [
+          {
+            "colony": 0,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:0",
+            "variant": "explorer"
+          },
+          {
+            "colony": 1,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:1",
+            "variant": "aggressor"
+          },
+          {
+            "colony": 2,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:2",
+            "variant": "explorer"
+          },
+          {
+            "colony": 3,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:3",
+            "variant": "raider"
+          },
+          {
+            "colony": 4,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:4",
+            "variant": "peaceful"
+          },
+          {
+            "colony": 5,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:5",
+            "variant": "explorer"
+          },
+          {
+            "colony": 6,
+            "kind": "random_valid",
+            "stream": "policy:random_valid:6",
+            "variant": ""
+          },
+          {
+            "colony": 7,
+            "kind": "heuristic",
+            "stream": "policy:heuristic:7",
+            "variant": "explorer"
+          }
+        ],
+        "policy_seed": "3",
+        "schema": "formicmind.eco.policy-run/1"
+      },
+      "reproduced": true,
+      "scenario": "abundance",
+      "statuses": [
+        "alive",
+        "alive",
+        "alive",
+        "alive",
+        "alive",
+        "alive",
+        "extinct",
+        "alive"
+      ],
+      "ticks": 3000,
+      "wall_seconds": [
+        2.98,
+        3.18
+      ]
+    }
+  ]
+}

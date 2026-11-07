@@ -1,7 +1,7 @@
 import { canonicalString } from '../data/replayJsonl'
 import { hashDomain, utf8 } from '../data/replayCrypto'
 import type {
-  CohortState, ColonyFrame, ColonyStatus, EcoEdge, EcoEvent, EcoFrame, EcoNode, EcoReplay, EventKind, FrameReason, MemoryFrame,
+  CohortState, ColonyFrame, ColonyStatus, EcoEdge, EcoEvent, EcoFrame, EcoNode, EcoPolicyInfo, EcoReplay, EventKind, FrameReason, MemoryFrame,
   MissionKind, MissionPhase,
 } from './types'
 import { EVENT_KINDS } from './types'
@@ -28,6 +28,9 @@ const RESULT_KEYS = ['type', 'seq', 'chain', 'ticks_completed', 'world_outcome',
   'final_state_hash', 'final_checkpoint_hash', 'record_count']
 const COLONY_KEYS = ['id', 'status', 'food', 'queen_hp', 'workers', 'soldiers', 'brood_workers', 'brood_soldiers', 'starvation_debt']
 const MEMORY_KEYS = ['colony', 'visited', 'discovered', 'foreign', 'sightings']
+/** A run decided by independent policies (FOR-48) carries the policy specification in the header and the decision count and chain hash in the result. */
+const POLICY_SCHEMA = 'formicmind.eco.policy-run/1'
+const POLICY_KINDS = ['random_valid', 'heuristic']
 const COHORT_FIELDS = ['id', 'colony', 'caste', 'count', 'hp', 'load', 'kind', 'phase', 'where', 'a', 'b', 'depart', 'arrive', 'target_node', 'target_colony']
 const VISITED_FIELDS = ['node', 'seen_tick', 'last_stock', 'last_stock_tick', 'queen_seen', 'danger']
 const FOREIGN_FIELDS = ['colony', 'first_contact', 'last_seen', 'workers_bucket', 'soldiers_bucket', 'nest_node', 'they_attacked', 'i_attacked', 'kills_mine', 'kills_theirs']
@@ -100,7 +103,8 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
   if (header.schema !== ECO_REPLAY_SCHEMA) {
     throw new EcoReplayVersionError(`Неподдерживаемая версия файла: «${String(header.schema)}». Этот viewer читает «${ECO_REPLAY_SCHEMA}».`)
   }
-  exactKeys(header, HEADER_KEYS, 'header')
+  const policy = 'policy' in header ? parsePolicy(header.policy, header) : null
+  exactKeys(header, policy ? [...HEADER_KEYS, 'policy'] : HEADER_KEYS, 'header')
   need(isRec(header.config) && isRec(header.map), 'header: нет config или map.')
   need(hashDomain(CONFIG_DOMAIN, utf8(canonicalString(header.config))) === header.config_hash, 'header.config_hash не совпадает с конфигурацией в файле.')
   const rawMap = header.map as Rec
@@ -165,7 +169,12 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
 
   const result = records[records.length - 1]
   need(result.type === 'result', 'Последняя запись должна быть result.')
-  exactKeys(result, RESULT_KEYS, 'result')
+  exactKeys(result, policy ? [...RESULT_KEYS, 'decision_count', 'decisions_hash'] : RESULT_KEYS, 'result')
+  if (policy) {
+    need(isInt(result.decision_count) && result.decision_count >= 0 && typeof result.decisions_hash === 'string' && /^[0-9a-f]{64}$/.test(result.decisions_hash), 'result: неверные decision_count/decisions_hash.')
+    policy.decisionCount = result.decision_count as number
+    policy.decisionsHash = result.decisions_hash as string
+  }
   need(isInt(result.ticks_completed) && frames[frames.length - 1].reason === 'final' && frames[frames.length - 1].tick === result.ticks_completed, 'result: последний кадр должен быть финальным.')
   need(result.event_count === events.length && result.events_hash === eventsHead, 'result.events_hash не совпадает с записями событий.')
   need(result.frame_count === frames.length && result.record_count === records.length, 'result: число записей не совпадает.')
@@ -185,8 +194,24 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
     configHash: header.config_hash as string, mapHash: header.map_hash as string, rulesVersion: String(header.rules_version),
     nodes, edges, nests, patchNodes, worldSide, queenMaxHp, decisionK: header.decision_k as number, frames, events, eventsHash: eventsHead, finalStateHash: result.final_state_hash as string,
     chainHead: previous, worldOutcome: { finished: outcome.finished as boolean, reason: outcome.reason as string, terminalTick: outcome.terminal_tick as number },
-    colonyOutcomes, verified: { chain: true, configHash: true, mapHash: true, eventsHash: true },
+    colonyOutcomes, verified: { chain: true, configHash: true, mapHash: true, eventsHash: true }, policy,
   }
+}
+
+function parsePolicy(value: unknown, header: Rec): EcoPolicyInfo {
+  need(isRec(value), 'header.policy: ожидается объект.')
+  exactKeys(value, ['schema', 'policy_seed', 'policies'], 'header.policy')
+  need(value.schema === POLICY_SCHEMA, `Неподдерживаемая версия политик: «${String(value.schema)}».`)
+  need(typeof value.policy_seed === 'string' && /^(0|[1-9][0-9]*)$/.test(value.policy_seed) && Array.isArray(value.policies) && value.policies.length === header.colonies && header.fixture === 'policy',
+    'header.policy: неверные policy_seed или список политик.')
+  const policies = (value.policies as unknown[]).map((item, index) => {
+    need(isRec(item), 'header.policy: неверная запись.')
+    exactKeys(item, ['colony', 'kind', 'variant', 'stream'], 'header.policy.policy')
+    need(item.colony === index && typeof item.kind === 'string' && POLICY_KINDS.includes(item.kind) && typeof item.variant === 'string' && typeof item.stream === 'string',
+      `header.policy: неверная политика колонии ${index}.`)
+    return { colony: index, kind: item.kind as string, variant: item.variant as string }
+  })
+  return { seed: value.policy_seed as string, policies, decisionCount: 0, decisionsHash: '' }
 }
 
 function parseFrame(record: Rec, index: number, colonyCount: number, nodes: EcoNode[], patchNodes: number[], lastTick: number): EcoFrame {

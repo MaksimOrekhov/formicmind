@@ -11,6 +11,8 @@
 * ``bench-run`` simulation throughput and traced peak memory
 * ``replay-export`` run the real engine and write a versioned offline replay (JSONL) for the E1 viewer; ``replay-verify`` re-checks it
   (strict read, then a full re-execution that must reproduce the file byte for byte)
+* ``policy-run`` (FOR-48) the same real world, but every colony is decided by its own ``PolicyE1`` through ObservationE1 -> masks -> ActionE1
+  (``random_valid`` or the observation-only ``heuristic`` adapter); writes the viewer replay and, with ``--decisions``, the decision records
 
 The JSON holds the engine/viewer view of the world (full map). It contains no policy observation and no policy metadata.
 """
@@ -33,7 +35,8 @@ from .initial import build_world, initial_world_state
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .fixtures import FIXTURE_CHOICES, normalize_fixture
-from .replay_file import ReplayFormatError, export_replay, read_replay, verify_replay
+from .policy import HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec, uniform_spec
+from .replay_file import ReplayFormatError, export_policy_replay, export_replay, read_replay, verify_replay
 from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
 from .versions import (
     ACTION_VERSION, CLI_SCHEMA, ECO_BALANCE_VERSION, ECO_RULES_VERSION, GENERATOR_ALGORITHM, OBSERVATION_VERSION,
@@ -331,15 +334,75 @@ def cmd_replay_export(args: argparse.Namespace) -> int:
     return 0
 
 
+def _parse_policy(text: str) -> PolicySpec:
+    kind, _, variant = text.partition(":")
+    if kind not in POLICY_KINDS:
+        raise ValueError(f"policy kind must be one of {POLICY_KINDS}, got {kind!r}")
+    if kind == "random_valid" and variant:
+        raise ValueError("random_valid has no variant")
+    if kind == "heuristic":
+        variant = variant or "peaceful"
+        if variant not in HEURISTIC_VARIANTS:
+            raise ValueError(f"heuristic variant must be one of {HEURISTIC_VARIANTS}, got {variant!r}")
+    return PolicySpec(kind, variant)
+
+
+def _policy_spec(args: argparse.Namespace, colonies: int) -> PolicyRunSpec:
+    base = _parse_policy(args.policy)
+    items = [base] * colonies
+    seen: set[int] = set()
+    for entry in args.policy_for:
+        colony_text, _, policy_text = entry.partition("=")
+        colony = int(colony_text)
+        if not 0 <= colony < colonies or colony in seen or not policy_text:
+            raise ValueError(f"--policy-for expects COLONY=KIND[:VARIANT] with a colony in 0..{colonies - 1}, once each: {entry!r}")
+        seen.add(colony)
+        items[colony] = _parse_policy(policy_text)
+    if not 0 <= args.policy_seed < 2 ** 64:
+        raise ValueError("--policy-seed must be a u64")
+    return PolicyRunSpec(args.policy_seed, tuple(items))
+
+
+def cmd_policy_run(args: argparse.Namespace) -> int:
+    config = _config_from_args(args)
+    spec = _policy_spec(args, config.n_colonies)
+    started = time.perf_counter()
+    replay, decisions = export_policy_replay(config, args.seed, spec, args.ticks, args.frame_every)
+    elapsed = time.perf_counter() - started
+    with open(args.out, "wb") as handle:
+        handle.write(replay)
+    if args.decisions:
+        with open(args.decisions, "wb") as handle:
+            handle.write(decisions)
+    document = read_replay(replay)
+    result = document.result
+    sys.stderr.write(
+        f"wrote {args.out}: {len(replay)} bytes, {result['record_count']} records; decisions: {result['decision_count']} "
+        f"(hash {result['decisions_hash'][:16]}){' -> ' + args.decisions if args.decisions else ''}\n"
+        f"  colonies={config.n_colonies} scenario={config.scenario} seed={args.seed} policy_seed={args.policy_seed} "
+        f"policies={[p.kind + (':' + p.variant if p.variant else '') for p in spec.policies]}\n"
+        f"  ticks={result['ticks_completed']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
+        f"final_state={result['final_state_hash'][:16]} statuses={[o['status'] for o in result['colony_outcomes']]} ({elapsed:.1f} s)\n")
+    if args.verify:
+        verify_replay(replay, decisions)
+        sys.stderr.write("verified: strict read OK and re-execution reproduces the replay and the decision records\n")
+    return 0
+
+
 def cmd_replay_verify(args: argparse.Namespace) -> int:
     with open(args.file, "rb") as handle:
         data = handle.read()
-    document = verify_replay(data) if not args.read_only else read_replay(data)
+    sidecar = None
+    if args.decisions:
+        with open(args.decisions, "rb") as handle:
+            sidecar = handle.read()
+    document = verify_replay(data, sidecar) if not args.read_only else read_replay(data)
     header, result = document.header, document.result
     sys.stdout.write(
         f"OK  schema={header['schema']} seed={header['seed']} colonies={header['colonies']} ticks={result['ticks_completed']} "
         f"frames={result['frame_count']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
-        f"{'strict read only' if args.read_only else 'byte-exact re-execution'}\n")
+        f"{'strict read only' if args.read_only else 'byte-exact re-execution'}"
+        f"{' decisions=' + str(result['decision_count']) if 'decision_count' in result else ''}\n")
     return 0
 
 
@@ -451,7 +514,21 @@ def build_parser() -> argparse.ArgumentParser:
     rv = sub.add_parser("replay-verify", help="strictly read a replay and re-execute the run from its header")
     rv.add_argument("file")
     rv.add_argument("--read-only", action="store_true", help="only the strict structural/hash check, no re-execution")
+    rv.add_argument("--decisions", default=None, help="policy run: the decision records file that must equal the re-executed ones")
     rv.set_defaults(run=cmd_replay_verify)
+
+    pr = sub.add_parser("policy-run", help="run a real world whose colonies are decided by independent policies (ObservationE1 -> ActionE1)")
+    pr.add_argument("--seed", type=int, default=50011, help="map seed (u64)")
+    _add_world_args(pr)
+    pr.add_argument("--policy", default="random_valid", help="policy of every colony: random_valid | heuristic[:peaceful|explorer|raider]")
+    pr.add_argument("--policy-for", action="append", default=[], metavar="COLONY=KIND[:VARIANT]", help="override one colony (repeatable)")
+    pr.add_argument("--policy-seed", type=int, default=1, help="root seed of the colonies' private policy random streams (u64)")
+    pr.add_argument("--ticks", type=int, default=3000, help="world ticks (default 3000)")
+    pr.add_argument("--frame-every", type=int, default=20, help="write a frame every N ticks (plus start, end and key events)")
+    pr.add_argument("--decisions", default=None, help="also write the decision records (tick, colony, observation hash, action) as JSONL")
+    pr.add_argument("--verify", action="store_true", help="re-execute the run and demand identical replay and decision bytes")
+    pr.add_argument("--out", required=True, help="output replay .jsonl path (opens in the E1 viewer)")
+    pr.set_defaults(run=cmd_policy_run)
 
     sb = sub.add_parser("bench-run", help="measure real-map simulation throughput and peak traced memory")
     _add_world_args(sb)

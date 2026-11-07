@@ -4,8 +4,8 @@ from __future__ import annotations
 
 ECO_RULES_VERSION = "eco1-proto-v0"
 ECO_BALANCE_VERSION = "eco1-candidate-unvalidated"
-OBSERVATION_VERSION = "ObservationE1/v1"  # contract only; the builder arrives in E2
-ACTION_VERSION = "ActionE1/v1"  # contract only
+OBSERVATION_VERSION = "ObservationE1/v1"  # builder: observation.py (FOR-48)
+ACTION_VERSION = "ActionE1/v1"  # masks / decoder / application: action.py, decoder.py, apply.py (FOR-48)
 
 CONFIG_SCHEMA = "formicmind.eco.config/1"
 MAP_SCHEMA = "formicmind.eco.map/1"
