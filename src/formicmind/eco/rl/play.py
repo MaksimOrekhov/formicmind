@@ -28,9 +28,20 @@ class PlayStats:
         self.delivered, self.eggs_laid = [0] * n, [0] * n
         self.worker_eggs, self.soldier_eggs = [0] * n, [0] * n      # eggs_laid split by caste (FOR-50: the nest gate counts worker eggs)
         self.worker_sum, self.soldier_sum, self.worker_peak = [0] * n, [0] * n, [0] * n
+        self.scout_orders, self.scouts_sent, self.scout_arrivals = [0] * n, [0] * n, [0] * n      # FOR-52: scout sorties actually applied / sent / arrived
+        self.found = {source: [0] * n for source in ("scout", "forage", "mixed", "other")}         # first visits by the kind of cohort that made them
+        self.scout_sum = [0] * n                                                                    # scout workers sampled every SAMPLE_EVERY ticks
         self.samples = 0
 
     def tick(self, state, record) -> None:
+        for item in record.events:
+            if item.kind == "dispatch" and item.a == 1:     # MISSION_CODES["scout"]: the order was applied and idle workers left the nest
+                self.scout_orders[item.colony] += 1
+                self.scouts_sent[item.colony] += item.b
+        for colony, _node, count in record.scout_arrivals:
+            self.scout_arrivals[colony] += count
+        for colony, _node, source in record.discoveries:
+            self.found[source][colony] += 1
         for colony, amount in record.delivered_by_colony.items():
             self.delivered[colony] += amount
         for colony in state.colonies:
@@ -40,10 +51,13 @@ class PlayStats:
                     (self.worker_eggs if brood.caste == "worker" else self.soldier_eggs)[colony.colony_id] += 1
         if record.tick % SAMPLE_EVERY == 0:
             self.samples += 1
-            workers, soldiers = [0] * self.n, [0] * self.n
+            workers, soldiers, scouts = [0] * self.n, [0] * self.n, [0] * self.n
             for cohort in state.cohorts:
                 (workers if cohort.caste == "worker" else soldiers)[cohort.colony_id] += cohort.count
+                if cohort.caste == "worker" and cohort.mission.kind == "scout":
+                    scouts[cohort.colony_id] += cohort.count
             for i in range(self.n):
+                self.scout_sum[i] += scouts[i]
                 self.worker_sum[i] += workers[i]
                 self.soldier_sum[i] += soldiers[i]
                 self.worker_peak[i] = max(self.worker_peak[i], workers[i])
@@ -142,6 +156,19 @@ def colony_metrics(result: PlayResult) -> list[dict]:
             "worker_eggs_laid": result.stats.worker_eggs[colony.colony_id],
             "soldier_eggs_laid": result.stats.soldier_eggs[colony.colony_id],
             "soldiers_end": adults[colony.colony_id][1],
+            # FOR-52 scouting, true values for reporting only. ``discovered_by_scout`` counts first visits made while only scout cohorts of the colony stood
+            # on the node, ``discovered_by_forage`` only foragers; ``discovered_mixed`` (both there in the same tick) and ``discovered_other`` are kept apart, so the
+            # four add up to ``discover`` and no node is counted twice. A scouting colony is one that sent scouts and has a first visit credited to them alone.
+            "scout_orders": result.stats.scout_orders[colony.colony_id],
+            "scouts_sent": result.stats.scouts_sent[colony.colony_id],
+            "scout_arrivals": result.stats.scout_arrivals[colony.colony_id],
+            "discovered_by_scout": result.stats.found["scout"][colony.colony_id],
+            "discovered_by_forage": result.stats.found["forage"][colony.colony_id],
+            "discovered_mixed": result.stats.found["mixed"][colony.colony_id],
+            "discovered_other": result.stats.found["other"][colony.colony_id],
+            "scouts_mean": result.stats.scout_sum[colony.colony_id] / max(1, result.stats.samples),
+            "scout_share": result.stats.scout_sum[colony.colony_id] / max(1, result.stats.worker_sum[colony.colony_id]),
+            "non_scout_workers_mean": (result.stats.worker_sum[colony.colony_id] - result.stats.scout_sum[colony.colony_id]) / max(1, result.stats.samples),
             "delivered": result.delivered[colony.colony_id],
             "food_end": colony.food,
             **per_colony_events[colony.colony_id],
@@ -154,12 +181,15 @@ def summarize(runs: list[list[dict]]) -> dict:
     rows = [row for run in runs for row in run]
     keys = ("reward", "reward_v1", "reward_v2", "mean_viability", "viability_end", "workers_end", "adults_end", "workers_mean", "adults_mean",
             "workers_peak", "soldiers_end", "brood_end", "eggs_laid", "worker_eggs_laid", "soldier_eggs_laid", "delivered", "food_end", "discover", "contact", "nest_found", "dispatch_attack",
-            "combat", "queen_damage")
+            "combat", "queen_damage", "scout_orders", "scouts_sent", "scout_arrivals", "discovered_by_scout", "discovered_by_forage", "discovered_mixed",
+            "discovered_other", "scouts_mean", "scout_share", "non_scout_workers_mean")
     summary = {key: sum(row[key] for row in rows) / len(rows) for key in keys}
     summary["survival"] = sum(1 for row in rows if row["survived"]) / len(rows)                 # = physical_survival (kept for older reports)
     summary["physical_survival"] = summary["survival"]
     summary["functional_survival"] = sum(1 for row in rows if row["functional_survived"]) / len(rows)
     summary["share_worker_eggs_ge_50"] = sum(1 for row in rows if row["worker_eggs_laid"] >= 50) / len(rows)       # FOR-50 gate, per colony
+    summary["share_sent_scout"] = sum(1 for row in rows if row["scout_orders"] > 0) / len(rows)                    # FOR-52 gate, per colony
+    summary["share_scouted_new_node"] = sum(1 for row in rows if row["scout_orders"] > 0 and row["discovered_by_scout"] > 0) / len(rows)
     summary["share_workers_end_ge_5"] = sum(1 for row in rows if row["workers_end"] >= 5) / len(rows)
     reasons: dict[str, int] = {}
     for row in rows:

@@ -66,8 +66,10 @@ def slot_of_node(memory: ColonyMemoryE1) -> dict[int, int]:
 class _Observer:
     """Per colony, per tick working view of the memory (slot index, edge set, foreign index)."""
 
-    def __init__(self, state: WorldStateE1, world_map: MapE1, colony_id: int, events: list[EventE1]) -> None:
+    def __init__(self, state: WorldStateE1, world_map: MapE1, colony_id: int, events: list[EventE1],
+                 discoveries: list[tuple[int, int, str]] | None = None, kinds_at: dict[int, set[str]] | None = None) -> None:
         self.state, self.world_map, self.colony_id, self.events = state, world_map, colony_id, events
+        self.discoveries, self.kinds_at = discoveries, kinds_at or {}
         self.tick = state.tick
         self.memory = state.colonies[colony_id].memory
         self.slot_of = slot_of_node(self.memory)
@@ -105,6 +107,8 @@ class _Observer:
             if truth.patch:
                 known.patch_capacity = truth.patch[0].capacity
             self.events.append(event(tick, "discover", self.colony_id, -1, node_id, slot))
+            if self.discoveries is not None:      # reporting only (FOR-52): who stood there; never read by a policy, in no hash
+                self.discoveries.append((self.colony_id, node_id, discovery_source(self.kinds_at.get(node_id, ()))))
         known.seen_tick = tick
         known.danger_q = known.danger_q * 31 // 32
 
@@ -170,12 +174,24 @@ class _Observer:
             self.memory.edges.sort(key=lambda e: (e.slot_a, e.slot_b))
 
 
-def sense(state: WorldStateE1, world_map: MapE1, events: list[EventE1]) -> None:
-    """Sensor phase (after Arrival): update the private memory of every colony from what stands in the nodes it occupies."""
+def discovery_source(kinds) -> str:
+    """Who first stood on a node: ``scout`` (only scout cohorts of the colony), ``forage`` (only foragers), ``mixed`` (both in the same tick, so
+    the discovery cannot be given to either) or ``other`` (any other mission). A node is discovered once, so the four counts never overlap."""
+    has_scout, has_forage = "scout" in kinds, "forage" in kinds
+    return "mixed" if has_scout and has_forage else "scout" if has_scout else "forage" if has_forage else "other"
+
+
+def sense(state: WorldStateE1, world_map: MapE1, events: list[EventE1], discoveries: list[tuple[int, int, str]] | None = None) -> None:
+    """Sensor phase (after Arrival): update the private memory of every colony from what stands in the nodes it occupies.
+
+    ``discoveries`` (optional, reporting only): receives ``(colony, node, source)`` for every ``discover`` event of this phase, where ``source`` is
+    ``discovery_source`` of the mission kinds of the colony's own cohorts standing on the node. It changes neither memory, events, state nor any hash."""
     presence: dict[int, dict[int, list[int]]] = {}
+    kinds: dict[int, dict[int, set[str]]] = {}
     for cohort in state.cohorts:
         if cohort.loc.kind != "node":
             continue
+        kinds.setdefault(cohort.colony_id, {}).setdefault(cohort.loc.node_id, set()).add(cohort.mission.kind)
         row = presence.setdefault(cohort.loc.node_id, {}).setdefault(cohort.colony_id, [0, 0, 0])
         row[0 if cohort.caste == "worker" else 1] += cohort.count
         if cohort.mission.kind == "attack":
@@ -191,7 +207,7 @@ def sense(state: WorldStateE1, world_map: MapE1, events: list[EventE1]) -> None:
             nodes.add(world_map.nests[colony_id])  # the motionless queen watches her own nest
         if not nodes:
             continue
-        observer = _Observer(state, world_map, colony_id, events)
+        observer = _Observer(state, world_map, colony_id, events, discoveries, kinds.get(colony_id))
         for node_id in sorted(nodes):
             observer.observe(node_id, presence.get(node_id, {}), stock, piles)
         observer.finish()

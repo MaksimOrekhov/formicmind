@@ -67,6 +67,10 @@ const curriculumLabel = computed(() => {
   const profile = replay.value?.policy?.curriculum
   return profile && profile !== 'none' ? `curriculum: ${profile}` : ''
 })
+const curriculumHint = computed(() =>
+  replay.value?.policy?.curriculum === 'scout-v1'
+    ? 'Диагностический режим: новые яйца — рабочие, нет приказов отрядам, но число разведчиков и их цели выбирает сама политика. Это не полностью свободный агент.'
+    : 'Диагностический режим: действия ограничены масками (новые яйца — рабочие, без разведчиков и приказов отрядам). Это не полностью свободный агент.')
 
 onMounted(() => { if (typeof fetch === 'function') void loadSample() })
 </script>
@@ -82,7 +86,7 @@ onMounted(() => { if (typeof fetch === 'function') void loadSample() })
         <span class="top-chip ok" :title="`events_hash ${replay.eventsHash}`">цепочка ✓ · config ✓ · карта ✓ · события ✓</span>
         <span class="top-chip" :title="`chain_head ${replay.chainHead}`">hash состояния: из Python (python -m formicmind.eco replay-verify)</span>
         <span v-if="replay.policy" class="top-chip ok" data-testid="policy-chip" :title="`policy_seed ${replay.policy.seed} · decisions_hash ${replay.policy.decisionsHash}`">{{ policySummary }}</span>
-        <span v-if="curriculumLabel" class="top-chip warn" data-testid="curriculum-chip" title="Диагностический режим: действия ограничены масками (новые яйца — рабочие, без разведчиков и приказов отрядам). Это не полностью свободный агент.">{{ curriculumLabel }}</span>
+        <span v-if="curriculumLabel" class="top-chip warn" data-testid="curriculum-chip" :title="curriculumHint">{{ curriculumLabel }}</span>
       </span>
       <span class="eco-top-actions">
         <button type="button" :disabled="isLoading" @click="loadSample()">Пример: seed 50004</button>

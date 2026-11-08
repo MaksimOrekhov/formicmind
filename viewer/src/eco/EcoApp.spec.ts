@@ -144,6 +144,12 @@ describe('E1 viewer application', () => {
     await settle(wrapper)
     expect(wrapper.get('[data-testid="curriculum-chip"]').text()).toBe('curriculum: nest-v1')
     expect(wrapper.text()).toContain('nest.jsonl')
+    expect(wrapper.get('[data-testid="curriculum-chip"]').attributes('title')).toContain('без разведчиков')
+    const scout = rechain(textLines(policySampleBytes()), (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, curriculum: 'scout-v1' } } : record))
+    await chooseFile(wrapper, 'scout.jsonl', scout)
+    await settle(wrapper)
+    expect(wrapper.get('[data-testid="curriculum-chip"]').text()).toBe('curriculum: scout-v1')
+    expect(wrapper.get('[data-testid="curriculum-chip"]').attributes('title')).toContain('выбирает сама политика')
     wrapper.unmount()
   })
 
