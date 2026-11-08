@@ -14,6 +14,37 @@ from ..initial import build_world
 from ..viability import DEATH_PENALTY, Q, REWARD_VERSION, ViabilityTracker
 
 
+SAMPLE_EVERY = 10   # ticks between the adult-count samples of the report
+LEGACY_VERSIONS = (1, 2)   # older rewards that are tracked beside the current one only to re-score a run against them (reports label them)
+
+
+class PlayStats:
+    """Reporting-only counters of one running world, shared by evaluation (``play_world``) and training rollouts: food delivered into each nest,
+    eggs laid, and workers / soldiers sampled every ``SAMPLE_EVERY`` ticks (their mean and the peak of the workers). Reads the omniscient world; nothing
+    here reaches a policy."""
+
+    def __init__(self, n: int) -> None:
+        self.n = n
+        self.delivered, self.eggs_laid = [0] * n, [0] * n
+        self.worker_sum, self.soldier_sum, self.worker_peak = [0] * n, [0] * n, [0] * n
+        self.samples = 0
+
+    def tick(self, state, record) -> None:
+        for colony, amount in record.delivered_by_colony.items():
+            self.delivered[colony] += amount
+        for colony in state.colonies:
+            self.eggs_laid[colony.colony_id] += sum(1 for brood in colony.brood if brood.laid_tick == record.tick)
+        if record.tick % SAMPLE_EVERY == 0:
+            self.samples += 1
+            workers, soldiers = [0] * self.n, [0] * self.n
+            for cohort in state.cohorts:
+                (workers if cohort.caste == "worker" else soldiers)[cohort.colony_id] += cohort.count
+            for i in range(self.n):
+                self.worker_sum[i] += workers[i]
+                self.soldier_sum[i] += soldiers[i]
+                self.worker_peak[i] = max(self.worker_peak[i], workers[i])
+
+
 @dataclass(slots=True)
 class PlayResult:
     config: ConfigE1
@@ -21,58 +52,42 @@ class PlayResult:
     state: object
     tracker: ViabilityTracker
     events: EventLog
-    delivered: list[int]
+    stats: PlayStats
     ticks: int
     wall_seconds: float
-    eggs_laid: list[int] = field(default_factory=list)       # per colony: eggs laid over the whole play
-    worker_sum: list[int] = field(default_factory=list)      # per colony: workers summed over the sampled ticks (every ``SAMPLE_EVERY``)
-    worker_peak: list[int] = field(default_factory=list)
-    samples: int = 0
-    tracker_v1: ViabilityTracker | None = None                # the first pilot's reward, kept only to re-score runs against it
+    legacy: dict = field(default_factory=dict)      # reward version -> tracker of an older reward over the same run (reports only)
 
-
-SAMPLE_EVERY = 10   # ticks between the worker-count samples of the report
+    @property
+    def delivered(self) -> list[int]:
+        return self.stats.delivered
 
 
 def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_version: int = REWARD_VERSION) -> PlayResult:
-    """Run ``ticks`` ticks (or until the world ends) with the tracker watching from outside. ``controller`` is any engine controller.
+    """Run ``ticks`` ticks (or until the world ends) with the trackers watching from outside. ``controller`` is any engine controller.
 
-    ``reward_version`` picks the reward of ``reward``; the first pilot's reward is always tracked as well (``reward_v1``) so that old and new
-    scores of the same run can be compared."""
+    The world is the natural one: nothing is retired when a colony's agent episode ends (reward v3 ``functional_extinction``), the policy keeps
+    playing its colony, and the terminal only shows in the scores. ``reward`` is the reward of ``reward_version``; the older rewards are tracked beside
+    it (``reward_v1``, ``reward_v2``) so that old and new scores of the same run can be compared - but never as numbers on one scale."""
     import time
     started = time.perf_counter()
     world = build_world(config, seed)
     routes = RouteTable(world.world_map)
     tracker = ViabilityTracker(world.state, reward_version)
-    tracker_v1 = tracker if reward_version == 1 else ViabilityTracker(world.state, 1)
+    legacy = {v: tracker if v == reward_version else ViabilityTracker(world.state, v) for v in LEGACY_VERSIONS}
     events = EventLog()
-    n = config.n_colonies
-    delivered, eggs, worker_sum, worker_peak = [0] * n, [0] * n, [0] * n, [0] * n
-    samples = 0
+    stats = PlayStats(config.n_colonies)
     for _ in range(ticks):
         record = step_world_tick(world.state, world.run, config, world.world_map, controller, routes=routes,
                                  validate_input=world.state.tick == 0)
         events.extend(record.events)
         tracker.update(world.state, record)
-        if tracker_v1 is not tracker:
-            tracker_v1.update(world.state, record)
-        for colony, amount in record.delivered_by_colony.items():
-            delivered[colony] += amount
-        for colony in world.state.colonies:
-            eggs[colony.colony_id] += sum(1 for brood in colony.brood if brood.laid_tick == record.tick)
-        if record.tick % SAMPLE_EVERY == 0:
-            samples += 1
-            workers = [0] * n
-            for cohort in world.state.cohorts:
-                if cohort.caste == "worker":
-                    workers[cohort.colony_id] += cohort.count
-            for i in range(n):
-                worker_sum[i] += workers[i]
-                worker_peak[i] = max(worker_peak[i], workers[i])
+        for other in legacy.values():
+            if other is not tracker:
+                other.update(world.state, record)
+        stats.tick(world.state, record)
         if world.state.world_outcome.finished:
             break
-    return PlayResult(config, seed, world.state, tracker, events, delivered, world.state.tick, time.perf_counter() - started,
-                      eggs, worker_sum, worker_peak, samples, tracker_v1)
+    return PlayResult(config, seed, world.state, tracker, events, stats, world.state.tick, time.perf_counter() - started, legacy)
 
 
 def _reward(trace, horizon: int) -> float:
@@ -107,15 +122,19 @@ def colony_metrics(result: PlayResult) -> list[dict]:
             "reward": total / (Q * config.horizon) - (DEATH_PENALTY if dead else 0.0),
             "mean_viability": total / (Q * max(1, result.ticks)),     # zeros after death count: a dead colony is not viable
             "viability_end": (trace.v_q[-1] if trace.v_q else 0) / Q,
-            "reward_v1": _reward(result.tracker_v1.traces[colony.colony_id], config.horizon) if result.tracker_v1 else None,
-            "survived": colony.status == "alive",
+            **{f"reward_v{v}": _reward(other.traces[colony.colony_id], config.horizon) for v, other in sorted(result.legacy.items())},
+            "survived": colony.status == "alive",                    # physical survival: queen alive and the colony not extinct in the world
+            "functional_survived": not dead,                         # the agent episode did not end (v3: also not functionally extinct)
+            "terminal_reason": trace.reason,
             "death_tick": None if trace.death_tick is None else trace.death_tick - 1,
             "hollow": colony.status == "alive" and not any(adults[colony.colony_id]),   # alive on paper: a queen with no workers or soldiers
             "workers_end": adults[colony.colony_id][0],
-            "workers_mean": result.worker_sum[colony.colony_id] / max(1, result.samples) if result.worker_sum else 0.0,
-            "workers_peak": result.worker_peak[colony.colony_id] if result.worker_peak else 0,
+            "adults_end": sum(adults[colony.colony_id]),
+            "workers_mean": result.stats.worker_sum[colony.colony_id] / max(1, result.stats.samples),   # mean over the samples every SAMPLE_EVERY ticks
+            "adults_mean": (result.stats.worker_sum[colony.colony_id] + result.stats.soldier_sum[colony.colony_id]) / max(1, result.stats.samples),
+            "workers_peak": result.stats.worker_peak[colony.colony_id],
             "brood_end": len(colony.brood),
-            "eggs_laid": result.eggs_laid[colony.colony_id] if result.eggs_laid else 0,
+            "eggs_laid": result.stats.eggs_laid[colony.colony_id],
             "soldiers_end": adults[colony.colony_id][1],
             "delivered": result.delivered[colony.colony_id],
             "food_end": colony.food,
@@ -127,10 +146,19 @@ def colony_metrics(result: PlayResult) -> list[dict]:
 def summarize(runs: list[list[dict]]) -> dict:
     """Mean of the per-colony metrics over all colonies of all runs."""
     rows = [row for run in runs for row in run]
-    keys = ("reward", "reward_v1", "mean_viability", "viability_end", "workers_end", "workers_mean", "workers_peak", "soldiers_end", "brood_end",
-            "eggs_laid", "delivered", "food_end", "discover", "contact", "nest_found", "dispatch_attack", "combat", "queen_damage")
+    keys = ("reward", "reward_v1", "reward_v2", "mean_viability", "viability_end", "workers_end", "adults_end", "workers_mean", "adults_mean",
+            "workers_peak", "soldiers_end", "brood_end", "eggs_laid", "delivered", "food_end", "discover", "contact", "nest_found", "dispatch_attack",
+            "combat", "queen_damage")
     summary = {key: sum(row[key] for row in rows) / len(rows) for key in keys}
-    summary["survival"] = sum(1 for row in rows if row["survived"]) / len(rows)
+    summary["survival"] = sum(1 for row in rows if row["survived"]) / len(rows)                 # = physical_survival (kept for older reports)
+    summary["physical_survival"] = summary["survival"]
+    summary["functional_survival"] = sum(1 for row in rows if row["functional_survived"]) / len(rows)
+    reasons: dict[str, int] = {}
+    for row in rows:
+        if row["terminal_reason"]:
+            reasons[row["terminal_reason"]] = reasons.get(row["terminal_reason"], 0) + 1
+    summary["terminal_reasons"] = dict(sorted(reasons.items()))
+    summary["functional_extinction"] = reasons.get("functional_extinction", 0) / len(rows)
     summary["hollow"] = sum(1 for row in rows if row["hollow"]) / len(rows)      # share of colonies that "survive" with nobody left
     summary["colonies"] = len(rows)
     return summary

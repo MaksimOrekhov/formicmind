@@ -180,7 +180,7 @@ def test_a_model_survives_a_save_load_roundtrip_and_a_tampered_one_is_refused(tm
     manifest = save_model(tmp_path / "m", model, training={"iterations": 0})
     loaded, again = load_model(tmp_path / "m")
     assert again["weights_sha256"] == manifest["weights_sha256"] and again["observation_version"] == "ObservationE1/v2"
-    assert manifest["reward_version"] == again["reward_version"] == REWARD_VERSION == 2        # a new model says which reward it was trained on
+    assert manifest["reward_version"] == again["reward_version"] == REWARD_VERSION == 3        # a new model says which reward it was trained on
     obs, masks = recorded_decisions()[5]
     batch = cat([step_batch(obs, masks)])
     zero = torch.zeros(1, model.config.hidden)

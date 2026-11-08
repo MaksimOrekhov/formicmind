@@ -3,7 +3,7 @@
 ``MirrorRuntime`` is one network driving every colony of a world ("mirror" mode): the colonies that decide at the same tick are answered by one
 forward pass, but each colony has its **own** GRU memories (actor and critic) and its **own** PCG32 stream, and each only ever sees its own
 observation. While recording it closes every decision interval ``[t_i, t_{i+1})`` with the per-tick viability trace of ``ViabilityTracker`` and
-computes the time-aware GAE of contracts 9.2 / 9.2a per colony: terminal intervals (queen death, collapse) pay the penalty once and do not
+computes the time-aware GAE of contracts 9.2 / 9.2a per colony: terminal intervals (queen death, collapse, functional extinction) pay the penalty once and do not
 bootstrap; the interval cut by the end of the run is truncated and bootstraps with the **learned critic** on the final observation, never with
 viability.
 """
@@ -28,7 +28,7 @@ from ..viability import GAMMA_30, LAMBDA_30, IntervalStep, ViabilityTracker, gae
 from .distribution import Sample, cat_samples, evaluate, sample_rows
 from .features import Batch, cat, step_batch
 from .network import ActorCriticE1
-from .play import PlayResult, colony_metrics
+from .play import PlayResult, PlayStats, colony_metrics
 
 POLICY_ID = "learned"
 
@@ -177,19 +177,22 @@ def collect_episode(config: ConfigE1, seed: int, model: ActorCriticE1, policy_se
     runtime = MirrorRuntime(model, config.n_colonies, policy_seed, record=True, tracker=tracker, horizon=config.horizon,
                             reward_scale=reward_scale)
     controller = PolicyController([SlotPolicy(runtime, c) for c in range(config.n_colonies)], batcher=runtime)
-    events, delivered = EventLog(), [0] * config.n_colonies
+    events, stats = EventLog(), PlayStats(config.n_colonies)
     model.eval()
     for _ in range(ticks):
         record = step_world_tick(world.state, world.run, config, world.world_map, controller, routes=routes,
                                  validate_input=world.state.tick == 0)
         events.extend(record.events)
         tracker.update(world.state, record)
-        for colony, amount in record.delivered_by_colony.items():
-            delivered[colony] += amount
+        stats.tick(world.state, record)
+        # A colony whose agent episode has ended (queen death, collapse, or - reward v3 - functional extinction) is retired: from the next decision
+        # on the network is not run for it (no memory update, no sample, no log-prob, no reward, no new episode). The world rules do not know:
+        # the colony keeps its queen, its store, its status and its standing orders, and the other colonies are stepped as before.
+        controller.retired |= tracker.terminated()
         if world.state.world_outcome.finished:
             break
     done = runtime.finish(world.state, config, world.state.tick, gamma30=gamma30, lambda30=lambda30)
-    play = PlayResult(config, seed, world.state, tracker, events, delivered, world.state.tick, time.perf_counter() - started)
+    play = PlayResult(config, seed, world.state, tracker, events, stats, world.state.tick, time.perf_counter() - started)
     meta = runtime.meta
     return Episode(
         batch=cat(runtime.batches), sample=cat_samples(runtime.samples), old_logp=torch.cat(runtime.logps), value=torch.cat(runtime.values),

@@ -149,13 +149,13 @@ def test_viability_formula_and_bounds():
 # ------------------------------------------------------------------------------------------------ reward v2: no pay for a hollow colony (contracts 9.1)
 
 
-def test_reward_versions_are_separate_and_the_current_one_is_two():
-    assert REWARD_VERSION == 2 and REWARD_VERSIONS == (1, 2)
+def test_reward_versions_are_separate_and_the_current_one_is_three():
+    assert REWARD_VERSION == 3 and REWARD_VERSIONS == (1, 2, 3)
     assert viability_q(0, 0, 0, 600, True, 1) == 4 * Q // 10           # v1 (first pilot): nobody alive, food in the store -> 0.4 forever
     assert viability_q(0, 0, 0, 600, True, 2) == 0                      # v2: the same colony earns nothing
     assert viability_q(0, 0, 0, 600, True) == viability_q(0, 0, 0, 600, True, REWARD_VERSION)
     with pytest.raises(ValueError):
-        viability_q(0, 0, 0, 600, True, 3)
+        viability_q(0, 0, 0, 600, True, 4)
     with pytest.raises(ValueError):
         ViabilityTracker(build_world(default_config(8, "moderate"), 50012).state, 0)
 
@@ -185,9 +185,9 @@ def test_viability_matches_the_independent_exact_reference_for_both_versions(ref
                         want = ref.viability_q_exact(Fraction(pop_q, Q), Fraction(income_q, Q), Fraction(burn_q, Q), food, alive, version)
                         assert abs(got - want) <= 3, (version, pop_q, income_q, burn_q, food, alive, got, want)
                         checked += 1
-    assert checked == 2 * 9 * 5 * 5 * 2
+    assert checked == len(REWARD_VERSIONS) * 9 * 5 * 5 * 2
     with pytest.raises(ValueError):
-        ref.viability_exact(1, 0, 0, 1, True, version=3)
+        ref.viability_exact(1, 0, 0, 1, True, version=4)
     # the reference alone already says: hollow + full store = 0.4 under v1, 0 under v2
     assert ref.viability_exact(0, 0, 0, 600, True, 1) == Fraction(2, 5) and ref.viability_exact(0, 0, 0, 600, True, 2) == 0
 

@@ -23,7 +23,14 @@ nothing for its stored food. ``REWARD_VERSION`` is the version used for training
 same memory as the windowed EMAs of the observation (``observation.next_rolling``, weight 1/4 per 30 ticks), because deliveries are lumpy.
 All arithmetic is integer; a rounded-to-nearest EMA step keeps it free of the floor bias.
 
-Interval bookkeeping: a colony that dies in tick ``tau_d`` (queen killed, or collapse) has ``v_q(tau_d) = 0`` and its terminal interval ends at
+Reward v3 (contracts 9.1 / 9.5a) keeps the v2 formula and adds one **agent-episode** terminal, ``functional_extinction``: the colony is physically
+``alive`` (queen alive, status ``alive``) but has no adult worker, no adult soldier and no worker brood, whatever its store holds. The tracker then ends
+the agent's episode exactly like a death (``v_q(tau) = 0``, the penalty is paid once, nothing is recorded afterwards) and says why
+(``terminal_reason``). This is a definition of the *reward and the episode*, not a world rule: the tracker never writes to the world, the colony keeps
+its queen, its store and its status, and the physical collapse rule of contracts 9.5 is unchanged. A physical terminal (queen death, collapse) wins
+over the functional one when both hold in the same tick, so a colony is terminated once and pays one penalty.
+
+Interval bookkeeping: a colony that dies in tick ``tau_d`` (queen killed, or collapse, or - v3 - functional extinction) has ``v_q(tau_d) = 0`` and its terminal interval ends at
 ``death_tick = tau_d + 1`` (so a planned decision that was taken at the start of ``tau_d`` still has a one-tick interval and the penalty is paid
 once, in it). Rewards are float64 and computed outside the rules from the integer trace.
 """
@@ -44,8 +51,9 @@ K_NOMINAL = 30
 GAMMA_30 = 0.997
 LAMBDA_30 = 0.95
 DEATH_PENALTY = 1.0
-REWARD_VERSION = 2          # contracts 9.1 revision of the reward; 1 = first FOR-49 pilot (no population gate on security)
-REWARD_VERSIONS = (1, 2)
+REWARD_VERSION = 3          # reward revision: 1 = first FOR-49 pilot, 2 = + population gate on security, 3 = v2 + functional-extinction episode terminal
+REWARD_VERSIONS = (1, 2, 3)
+REASON_QUEEN_DEATH, REASON_COLLAPSE, REASON_FUNCTIONAL = "queen_death", "collapse", "functional_extinction"
 GATE_POP_WE = 10            # workers-equivalents of E_pop at which the population gate of ``security`` opens fully (v2)
 
 
@@ -68,6 +76,12 @@ def viability_q(pop_ema_q: int, income_ema_q: int, burn_ema_q: int, food: int, q
     return (W_POP_Q * pop_q + W_SECURITY_Q * security_q) // 10
 
 
+def functional_extinction(adult_workers: int, adult_soldiers: int, worker_brood: int) -> bool:
+    """The agent-episode terminal of reward v3 for a physically alive colony: nobody to work or fight and no worker brood that could become workers.
+    Soldier brood alone does not count (it cannot forage), and the store is deliberately not part of the condition."""
+    return adult_workers == 0 and adult_soldiers == 0 and worker_brood == 0
+
+
 @dataclass(slots=True)
 class _ColonyTrace:
     pop_ema_q: int
@@ -75,6 +89,7 @@ class _ColonyTrace:
     burn_ema_q: int
     v_q: list[int] = field(default_factory=list)   # v_q[tau], one entry per world tick since the start (zero in the tick of death)
     death_tick: int | None = None                  # tau_d + 1; None while the colony lives
+    reason: str | None = None                      # queen_death | collapse | functional_extinction (v3 only); None while the colony lives
 
 
 class ViabilityTracker:
@@ -99,13 +114,23 @@ class ViabilityTracker:
                 continue
             workers, soldiers = adults[colony.colony_id]
             alive = colony.status == "alive" and colony.queen_hp > 0
+            reason = None if alive else (REASON_QUEEN_DEATH if colony.queen_hp <= 0 else REASON_COLLAPSE)
+            if alive and self.version >= 3 and functional_extinction(workers, soldiers, sum(1 for b in colony.brood if b.caste == "worker")):
+                alive, reason = False, REASON_FUNCTIONAL
             trace.pop_ema_q = _ema(trace.pop_ema_q, (2 * workers + soldiers) * Q // 2, TAU_POP)
             trace.income_ema_q = _ema(trace.income_ema_q, record.delivered_by_colony.get(colony.colony_id, 0) * Q, TAU_ECON)
             trace.burn_ema_q = _ema(trace.burn_ema_q, record.upkeep_due_by_colony.get(colony.colony_id, 0) * Q, TAU_ECON)
             trace.v_q.append(viability_q(trace.pop_ema_q, trace.income_ema_q, trace.burn_ema_q, colony.food, alive, self.version))
             if not alive:
-                trace.death_tick = self.tick + 1
+                trace.death_tick, trace.reason = self.tick + 1, reason
         self.tick += 1
+
+    def terminated(self) -> set[int]:
+        """Colonies whose agent episode has ended (any reason). The rollout stops asking them for decisions."""
+        return {i for i, trace in enumerate(self.traces) if trace.death_tick is not None}
+
+    def terminal_reason(self, colony: int) -> str | None:
+        return self.traces[colony].reason
 
     def death_tick(self, colony: int) -> int | None:
         return self.traces[colony].death_tick

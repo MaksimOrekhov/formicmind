@@ -35,18 +35,39 @@ def viability_exact(e_pop, income, burn, food, queen_alive: bool, version: int =
 
     * reward v1 (first FOR-49 pilot): ``v = alive * (0.6 pop + 0.4 security)``;
     * reward v2: ``security`` is multiplied by the population gate ``min(1, e_pop / 10)``, so a colony with no adults is paid nothing
-      for the food in its store.
+      for the food in its store;
+    * reward v3: the same ``v`` as v2 (the formula does not change) plus the agent-episode terminal of ``functional_extinction`` below.
     Written without reading ``formicmind``; the engine's integer ``viability_q`` must stay within a few units of ``floor(Q * v)``."""
-    if version not in (1, 2):
+    if version not in (1, 2, 3):
         raise ValueError(f"unknown reward version {version}")
     if not queen_alive:
         return Fraction(0)
     e_pop, income, burn, food = Fraction(e_pop), Fraction(income), Fraction(burn), Fraction(food)
     pop = min(Fraction(1), e_pop / 60)
     security = Fraction(1) if burn <= income else min(Fraction(1), food / (burn - income) / 40)
-    if version == 2:
+    if version >= 2:
         security *= min(Fraction(1), e_pop / 10)
     return Fraction(6, 10) * pop + Fraction(4, 10) * security
+
+
+def functional_extinction(adult_workers: int, adult_soldiers: int, worker_brood: int, soldier_brood: int = 0) -> bool:
+    """Reward v3 agent-episode terminal for a PHYSICALLY ALIVE colony (status ``alive``, queen alive): nobody to work or fight and no worker brood.
+    Soldier brood does not count (it cannot forage); the store is not part of the condition. Written from the contract, independent of the engine
+    code: it is true exactly when the colony has no adult of either caste and no brood that could hatch into a worker."""
+    del soldier_brood  # deliberately ignored
+    return not (adult_workers or adult_soldiers or worker_brood)
+
+
+def episode_end(status: str, queen_hp: int, adult_workers: int, adult_soldiers: int, worker_brood: int, version: int = 3):
+    """Why the agent episode of a colony ends at the end of a tick, or ``None``. A physical terminal wins over the functional one; one reason only
+    (so the death penalty is paid once). v1 and v2 know only the physical terminals."""
+    if queen_hp <= 0:
+        return "queen_death"
+    if status != "alive":
+        return "collapse"
+    if version >= 3 and functional_extinction(adult_workers, adult_soldiers, worker_brood):
+        return "functional_extinction"
+    return None
 
 
 def viability_q_exact(e_pop, income, burn, food, queen_alive: bool, version: int = 2) -> int:

@@ -44,8 +44,8 @@ def cmd_eval(args) -> int:
     report["model"] = {"weights_sha256": manifest["weights_sha256"], "path": str(args.model)}
     for name in (k for k in report if isinstance(report[k], dict) and "reward" in report[k]):
         row = report[name]
-        sys.stderr.write(f"{name:22s} reward={row['reward']:.4f} survival={row['survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
-                         f"delivered={row['delivered']:.0f} contacts={row['contact']:.1f} attacks={row['dispatch_attack']:.2f}\n")
+        sys.stderr.write(f"{name:22s} reward={row['reward']:.4f} phys={row['physical_survival']:.2f} func={row['functional_survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
+                         f"eggs={row['eggs_laid']:.0f} brood={row['brood_end']:.1f} delivered={row['delivered']:.0f} contacts={row['contact']:.1f} attacks={row['dispatch_attack']:.2f}\n")
     text = json.dumps(report, indent=2, sort_keys=True) + "\n"
     if args.out:
         Path(args.out).write_text(text, encoding="utf-8", newline="\n")

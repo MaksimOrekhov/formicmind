@@ -121,7 +121,10 @@ def episode_summary(episodes: list[Episode]) -> dict:
     return {
         "reward": sum(r["reward"] for r in rows) / n, "mean_viability": sum(r["mean_viability"] for r in rows) / n,
         "survival": sum(1 for r in rows if r["survived"]) / n, "hollow": sum(1 for r in rows if r["hollow"]) / n,
-        "workers_end": sum(r["workers_end"] for r in rows) / n,
+        "functional_survival": sum(1 for r in rows if r["functional_survived"]) / n,
+        "functional_extinction": sum(1 for r in rows if r["terminal_reason"] == "functional_extinction") / n,
+        "workers_end": sum(r["workers_end"] for r in rows) / n, "workers_mean": sum(r["workers_mean"] for r in rows) / n,
+        "eggs_laid": sum(r["eggs_laid"] for r in rows) / n,
         "delivered": sum(r["delivered"] for r in rows) / n, "contacts": sum(r["contact"] for r in rows) / n,
         "attacks": sum(r["dispatch_attack"] for r in rows) / n, "discovered": sum(r["discover"] for r in rows) / n,
         "steps": sum(ep.batch.size for ep in episodes), "sim_wall_mean": sum(ep.wall for ep in episodes) / len(episodes),
@@ -166,8 +169,8 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
                    "collect_s": t1 - t0, "update_s": t2 - t1, "elapsed_s": time.perf_counter() - started}
             with open(metrics_path, "a", encoding="utf-8", newline="\n") as handle:
                 handle.write(json.dumps(row, sort_keys=True) + "\n")
-            log(f"it {iteration + 1:3d}/{config.iterations} reward={row['reward']:.4f} surv={row['survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
-                f"deliv={row['delivered']:.0f} ent={row['ppo_entropy']:.2f} kl={row['ppo_approx_kl']:.4f} vloss={row['ppo_value_loss']:.4f} "
+            log(f"it {iteration + 1:3d}/{config.iterations} reward={row['reward']:.4f} surv={row['survival']:.2f} fsurv={row['functional_survival']:.2f} hollow={row['hollow']:.2f} "
+                f"workers={row['workers_mean']:.1f}/{row['workers_end']:.1f} eggs={row['eggs_laid']:.0f} deliv={row['delivered']:.0f} ent={row['ppo_entropy']:.2f} kl={row['ppo_approx_kl']:.4f} vloss={row['ppo_value_loss']:.4f} "
                 f"ev={row['ppo_explained_variance']:.2f} idev={row['ppo_identity_ratio_max_dev']:.1e} collect={row['collect_s']:.0f}s "
                 f"update={row['update_s']:.0f}s")
             save_model(out / "latest", model, training={"iteration": iteration + 1, "config": config.to_dict()})
@@ -186,7 +189,7 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
             log("final evaluation on held-out maps:")
             for name in (k for k in final_eval if isinstance(final_eval[k], dict)):
                 row = final_eval[name]
-                log(f"  {name:22s} reward={row['reward']:.4f} survival={row['survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
+                log(f"  {name:22s} reward={row['reward']:.4f} phys={row['physical_survival']:.2f} func={row['functional_survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
                     f"brood={row['brood_end']:.1f} eggs={row['eggs_laid']:.0f} delivered={row['delivered']:.0f} contacts={row['contact']:.1f} "
                     f"attacks={row['dispatch_attack']:.2f} combat={row['combat']:.1f}")
     finally:
