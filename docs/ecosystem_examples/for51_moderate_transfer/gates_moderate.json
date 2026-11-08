@@ -1,0 +1,51 @@
+{
+  "abundance_reproduces_for50_eval": true,
+  "all_gates_pass_greedy": true,
+  "moderate": {
+    "learned": {
+      "functional_survival_ge_0.80": [
+        0.921875,
+        true
+      ],
+      "reward_ge_peaceful_minus_0.15": [
+        0.44876652884483337,
+        true
+      ],
+      "worker_eggs_ge_50": [
+        74.328125,
+        true
+      ],
+      "workers_end_ge_5": [
+        17.3125,
+        true
+      ],
+      "workers_mean_ge_10": [
+        15.992864583333333,
+        true
+      ]
+    },
+    "learned_greedy": {
+      "functional_survival_ge_0.80": [
+        1.0,
+        true
+      ],
+      "reward_ge_peaceful_minus_0.15": [
+        0.5890363732179006,
+        true
+      ],
+      "worker_eggs_ge_50": [
+        73.234375,
+        true
+      ],
+      "workers_end_ge_5": [
+        22.6875,
+        true
+      ],
+      "workers_mean_ge_10": [
+        19.536302083333332,
+        true
+      ]
+    }
+  },
+  "peaceful_moderate_reward": 0.5083797685702642
+}
