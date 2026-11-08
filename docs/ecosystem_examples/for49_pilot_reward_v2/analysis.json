@@ -1,0 +1,15 @@
+{
+  "note": "Offline analysis of the stopped reward-v2 pilot (iteration 89), maps 90000..90003 (windows) and 90000..90007 (extinction); no training. Scripts are described in docs/ecosystem_v1_training.md.",
+  "mean_v_per_500_ticks": {
+    "learned_v2": [0.42, 0.40, 0.38, 0.27, 0.08, 0.02, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00],
+    "peaceful":   [0.44, 0.52, 0.56, 0.58, 0.58, 0.56, 0.55, 0.54, 0.54, 0.53, 0.54, 0.55]
+  },
+  "discounted_return_per_colony": {"learned_v2": 0.1185, "peaceful": 0.4038},
+  "functional_extinction_terminal_rescoring": {
+    "definition": "colony alive, no adults, no worker brood (whatever the store holds) -> terminated once, penalty 1.0, v_q after that tick not counted",
+    "learned_v2": {"colonies": 64, "fired": 64, "fire_tick": 2001, "reward_v2": 0.131, "reward_with_terminal": -0.877},
+    "heuristic:peaceful": {"colonies": 64, "fired": 0, "reward_v2": 0.508, "reward_with_terminal": 0.508},
+    "heuristic:explorer": {"colonies": 64, "fired_without_real_death": 1, "real_deaths": 37, "reward_v2": -0.248, "reward_with_terminal": -0.264}
+  },
+  "eggs_laid_per_colony_in_eval": {"iteration_20": 4.219, "iteration_40": 0.0, "iteration_60": 0.0, "iteration_80": 0.0, "final_89": 0.0}
+}

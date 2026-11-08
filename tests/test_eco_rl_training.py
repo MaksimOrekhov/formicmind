@@ -294,3 +294,36 @@ def test_the_committed_pilot_numbers_say_what_the_report_says():
     rows = [json.loads(line) for line in (PILOT / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
     assert len(rows) == 120 and max(r["ppo_identity_ratio_max_dev"] for r in rows) < 1e-4
     assert rows[0]["reward"] < -0.99 and rows[-1]["reward"] > 0.4
+
+
+# ------------------------------------------------------------------------------------------------ the committed reward-v2 pilot (stopped at iteration 89)
+
+
+PILOT2 = ROOT / "docs" / "ecosystem_examples" / "for49_pilot_reward_v2"
+
+
+def test_the_committed_reward_v2_model_replays_the_committed_replay_byte_for_byte():
+    model, manifest = register_model(PILOT2 / "model")
+    assert manifest["reward_version"] == 2 and manifest["training"]["iterations"] == 89 and manifest["training"]["stopped_by_owner"] is True
+    document = verify_replay((PILOT2 / "replay_seed90000.jsonl").read_bytes())
+    assert document.header["seed"] == "90000" and {p.variant for p in document.policy.policies} == {variant_for(manifest, "sample")}
+    assert [o["status"] for o in document.result["colony_outcomes"]] == ["alive"] * 8
+
+
+def test_the_committed_reward_v2_numbers_say_what_the_report_says():
+    """The report claims: reward v2 closed the paid-for-nothing path but the network still ends with a queen and no adults (no eggs), far below
+    the peaceful baseline. If these numbers change, docs/ecosystem_v1_training.md must change with them."""
+    final = json.loads((PILOT2 / "eval_final.json").read_text(encoding="utf-8"))
+    learned, peaceful, pilot1 = final["learned"], final["heuristic:peaceful"], final["pilot1_reward_v1_model"]
+    assert final["reward_version"] == 2 and final["seeds"] == list(range(90000, 90008)) and learned["colonies"] == 64
+    assert learned["hollow"] == 1.0 and learned["workers_end"] == 0.0 and learned["eggs_laid"] == 0.0 and learned["brood_end"] == 0.0
+    assert 0.1 < learned["reward"] < 0.2 and learned["reward_v1"] > 0.4 and peaceful["reward"] > 0.5 and peaceful["hollow"] == 0.0
+    assert peaceful["eggs_laid"] > 100 and peaceful["workers_mean"] > 15 and final["untrained_init"]["reward"] < -0.99
+    assert abs(pilot1["reward"] - learned["reward"]) < 0.02              # no better than the model of pilot 1 re-scored by the new formula
+    assert learned["discover"] == learned["contact"] == learned["dispatch_attack"] == learned["combat"] == 0.0
+    rows = [json.loads(line) for line in (PILOT2 / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 89 and max(r["ppo_identity_ratio_max_dev"] for r in rows) < 1e-4 and rows[0]["reward"] < -0.99 and rows[-1]["reward"] > 0.1
+    assert json.loads((PILOT2 / "config.json").read_text(encoding="utf-8"))["reward_version"] == 2
+    analysis = json.loads((PILOT2 / "analysis.json").read_text(encoding="utf-8"))
+    rescored = analysis["functional_extinction_terminal_rescoring"]
+    assert rescored["learned_v2"]["fired"] == 64 and rescored["heuristic:peaceful"]["fired"] == 0
