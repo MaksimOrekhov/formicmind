@@ -1,0 +1,56 @@
+{
+  "action_version": "ActionE1/v1",
+  "curriculum": "nest-v1",
+  "eco_rules_version": "eco1-proto-v0",
+  "network": {
+    "hidden": 128,
+    "key_dim": 32,
+    "message_rounds": 2,
+    "node_dim": 64
+  },
+  "observation_version": "ObservationE1/v2",
+  "parameters": 430693,
+  "reward_version": 3,
+  "schema": "formicmind.eco.rl.model/1",
+  "torch": "2.15.0+cpu",
+  "training": {
+    "config": {
+      "colonies": 8,
+      "curriculum": "nest-v1",
+      "eval_every": 20,
+      "eval_seed0": 90000,
+      "eval_worlds": 8,
+      "iterations": 80,
+      "network": {
+        "hidden": 128,
+        "key_dim": 32,
+        "message_rounds": 2,
+        "node_dim": 64
+      },
+      "ppo": {
+        "clip": 0.2,
+        "ent_coef": 0.01,
+        "ent_coef_z": 0.001,
+        "epochs": 4,
+        "lr": 0.0003,
+        "max_grad_norm": 0.5,
+        "normalize_advantages": true,
+        "seqs_per_chunk": 4,
+        "seqs_per_minibatch": 16,
+        "target_kl": 0.03,
+        "vf_coef": 0.5
+      },
+      "reward_scale": 10.0,
+      "scenario": "abundance",
+      "seed": 1,
+      "ticks": 6000,
+      "train_seed0": 200000,
+      "workers": 8,
+      "worlds_per_iteration": 16
+    },
+    "iterations": 80,
+    "wall_seconds": 2991.3962981000004
+  },
+  "weights_file": "weights.pt",
+  "weights_sha256": "1b4f8740a1b5ea3d5c2e5c9012c9dd23959c84eca25640f8b33c21a782c55d44"
+}

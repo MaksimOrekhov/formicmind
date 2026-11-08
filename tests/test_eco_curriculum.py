@@ -420,3 +420,41 @@ def test_a_plain_training_run_is_not_marked(tmp_path):
     assert main(["train", "--out", str(out), "--iterations", "1", "--worlds", "1", "--ticks", "90", "--eval-worlds", "0", "--minibatch-seqs", "8"]) == 0
     assert json.loads((out / "config.json").read_text(encoding="utf-8"))["curriculum"] == "none"
     assert json.loads((out / "final" / "manifest.json").read_text(encoding="utf-8"))["curriculum"] == "none"
+
+
+# ------------------------------------------------------------------------------------------------ the committed FOR-50 pilot
+
+
+PILOT = ROOT / "docs" / "ecosystem_examples" / "for50_nest_pilot"
+
+
+def test_the_committed_nest_model_replays_the_committed_replay_byte_for_byte():
+    from formicmind.eco.rl.learned import register_model, variant_for
+
+    model, manifest = register_model(PILOT / "model")
+    assert manifest["curriculum"] == "nest-v1" and manifest["reward_version"] == 3 and manifest["training"]["iterations"] == 80
+    document = verify_replay((PILOT / "replay_seed90000.jsonl").read_bytes())
+    assert document.policy.curriculum == "nest-v1" and document.header["seed"] == "90000"
+    assert {p.variant for p in document.policy.policies} == {variant_for(manifest, "sample")}
+    assert [o["status"] for o in document.result["colony_outcomes"]] == ["alive"] * 8 and document.result["event_count"] == 0
+
+
+def test_the_committed_nest_numbers_say_what_the_report_says():
+    """Stage-1 gates (fixed before the run): functional survival >= 80%, workers mean >= 10 and at the horizon >= 5, >= 50 worker eggs per colony.
+    If these numbers change, docs/ecosystem_v1_curriculum_nest.md must change with them."""
+    final = json.loads((PILOT / "eval_final.json").read_text(encoding="utf-8"))
+    assert final["curriculum"] == "nest-v1" and final["reward_version"] == 3 and final["scenario"] == "abundance"
+    assert final["seeds"] == list(range(90000, 90008)) and final["colonies"] == 8 and final["learned"]["colonies"] == 64
+    for name in ("learned_greedy", "learned"):
+        row = final[name]
+        assert row["functional_survival"] >= 0.8 and row["workers_mean"] >= 10 and row["workers_end"] >= 5 and row["worker_eggs_laid"] >= 50
+        assert row["share_worker_eggs_ge_50"] == row["share_workers_end_ge_5"] == 1.0
+        assert row["dispatch_attack"] == row["contact"] == row["combat"] == 0.0                 # zero by construction, not an achievement
+    assert final["learned_greedy"]["reward"] > final["heuristic:peaceful"]["reward"] > 0.5
+    assert final["untrained_init"]["functional_survival"] == final["random_valid"]["functional_survival"] == 0.0
+    config = json.loads((PILOT / "config.json").read_text(encoding="utf-8"))
+    assert (config["curriculum"], config["scenario"], config["iterations"], config["worlds_per_iteration"], config["seed"]) == ("nest-v1", "abundance", 80, 16, 1)
+    rows = [json.loads(line) for line in (PILOT / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 80 and max(r["ppo_identity_ratio_max_dev"] for r in rows) < 1e-4 and rows[0]["functional_survival"] == 0.0
+    transfer = json.loads((PILOT / "transfer_none_eval.json").read_text(encoding="utf-8"))
+    assert transfer["curriculum"] == "none" and transfer["learned_greedy"]["functional_survival"] == 0.0    # not a gate: the masks cannot simply be removed
