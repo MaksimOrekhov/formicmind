@@ -26,7 +26,7 @@ def cmd_train(args) -> int:
     config = TrainConfig(
         colonies=args.colonies, scenario=args.scenario, ticks=args.ticks, iterations=args.iterations, worlds_per_iteration=args.worlds,
         workers=args.workers, seed=args.seed, train_seed0=args.train_seed0, eval_seed0=args.eval_seed0, eval_worlds=args.eval_worlds,
-        eval_every=args.eval_every, reward_scale=args.reward_scale,
+        eval_every=args.eval_every, reward_scale=args.reward_scale, curriculum=args.curriculum,
         ppo=PPOConfig(lr=args.lr, epochs=args.epochs, seqs_per_minibatch=args.minibatch_seqs))
     train(config, args.out, init_model=args.init, log=lambda text: (sys.stderr.write(text + "\n"), sys.stderr.flush()))
     return 0
@@ -34,14 +34,15 @@ def cmd_train(args) -> int:
 
 def cmd_eval(args) -> int:
     model, manifest = load_model(args.model)
+    curriculum = args.curriculum if args.curriculum is not None else manifest["curriculum"]
     config = TrainConfig(colonies=args.colonies, scenario=args.scenario, ticks=args.ticks, workers=args.workers,
-                         eval_seed0=args.seed0, eval_worlds=args.worlds)
+                         eval_seed0=args.seed0, eval_worlds=args.worlds, curriculum=curriculum)
     pool = _Pool(args.workers)
     try:
         report = evaluation_suite(model, config, pool, label=str(args.model), baselines=not args.no_baselines, greedy=True)
     finally:
         pool.close()
-    report["model"] = {"weights_sha256": manifest["weights_sha256"], "path": str(args.model)}
+    report["model"] = {"weights_sha256": manifest["weights_sha256"], "path": str(args.model), "trained_curriculum": manifest["curriculum"]}
     for name in (k for k in report if isinstance(report[k], dict) and "reward" in report[k]):
         row = report[name]
         sys.stderr.write(f"{name:22s} reward={row['reward']:.4f} phys={row['physical_survival']:.2f} func={row['functional_survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
@@ -56,7 +57,7 @@ def cmd_eval(args) -> int:
         replay_config = default_config(args.colonies, args.scenario)
         seed = args.replay_seed if args.replay_seed is not None else args.seed0
         variant = variant_for(manifest, args.replay_mode)
-        spec = PolicyRunSpec(args.policy_seed, tuple(PolicySpec("learned", variant) for _ in range(replay_config.n_colonies)))
+        spec = PolicyRunSpec(args.policy_seed, tuple(PolicySpec("learned", variant) for _ in range(replay_config.n_colonies)), curriculum)
         started = time.perf_counter()
         replay, decisions = export_policy_replay(replay_config, seed, spec, args.replay_ticks, args.frame_every)
         Path(args.replay_out).write_bytes(replay)

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from ..curriculum import CURRICULUM_PROFILES
+
 SCENARIOS = ("scarcity", "moderate", "abundance")
 
 
@@ -24,6 +26,8 @@ def add_rl_commands(sub, add_world_args) -> None:
     t.add_argument("--minibatch-seqs", type=int, default=16, help="colony trajectories per PPO minibatch")
     t.add_argument("--reward-scale", type=float, default=10.0)
     t.add_argument("--init", default=None, help="start from the weights of this model directory instead of a fresh network")
+    t.add_argument("--curriculum", default="none", choices=CURRICULUM_PROFILES,
+                   help="action-mask profile of every rollout and evaluation (FOR-50): nest-v1 = workers only, no scouts, no squad orders (a diagnostic stage, not a free agent)")
 
     e = sub.add_parser("eval", help="evaluate a trained model next to scripted baselines on held-out maps; optionally export a viewer replay")
     e.add_argument("--model", required=True, help="model directory (weights.pt + manifest.json)")
@@ -34,6 +38,8 @@ def add_rl_commands(sub, add_world_args) -> None:
     e.add_argument("--ticks", type=int, default=6000)
     e.add_argument("--workers", type=int, default=1)
     e.add_argument("--no-baselines", action="store_true", help="evaluate only the learned policy")
+    e.add_argument("--curriculum", default=None, choices=CURRICULUM_PROFILES,
+                   help="action-mask profile of the evaluation and of the replay (default: the profile the model was trained under; `none` tests the transfer to the full action space)")
     e.add_argument("--out", default=None, help="write the evaluation report (JSON) here")
     e.add_argument("--replay-out", default=None, help="also export one evaluation replay of the learned policy for the E1 viewer")
     e.add_argument("--replay-seed", type=int, default=None, help="map seed of the replay (default: the first held-out seed)")

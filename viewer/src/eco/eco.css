@@ -11,6 +11,7 @@
 .eco-chips-top { display: flex; gap: 8px; flex-wrap: wrap; }
 .top-chip { padding: 5px 9px; border: 1px solid #34413f; border-radius: 7px; color: #8fa09a; font: 9px var(--mono); }
 .top-chip.ok { border-color: #425b45; color: #a8dfb0; background: #1b2b21; }
+.top-chip.warn { border-color: #6a5a2c; color: #e6cf86; background: #2b2616; }
 .eco-top-actions { margin-left: auto; display: flex; gap: 8px; }
 .eco-top-actions button, .eco-controls button, .eco-mode button, .eco-more button, .eco-zoom button { min-height: 30px; padding: 0 11px; border: 1px solid #536744; border-radius: 7px; color: #d4eea0; background: #293626; font: 10px var(--mono); letter-spacing: .05em; cursor: pointer; }
 .eco-top-actions button:hover:not(:disabled), .eco-controls button:hover:not(:disabled) { border-color: var(--mint); background: #34432b; }

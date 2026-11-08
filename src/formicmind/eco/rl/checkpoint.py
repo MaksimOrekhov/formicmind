@@ -12,6 +12,7 @@ from pathlib import Path
 
 import torch
 
+from ..curriculum import validate_profile
 from ..versions import ACTION_VERSION, ECO_RULES_VERSION, OBSERVATION_VERSION
 from ..viability import REWARD_VERSION
 from .network import ActorCriticE1, NetworkConfig
@@ -33,8 +34,9 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | None = None) -> dict:
-    """Write ``weights.pt`` and ``manifest.json`` into ``directory`` and return the manifest."""
+def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | None = None, curriculum: str = "none") -> dict:
+    """Write ``weights.pt`` and ``manifest.json`` into ``directory`` and return the manifest. ``curriculum`` is the action-mask profile the model was
+    trained under (FOR-50): a model of ``nest-v1`` is a diagnostic policy of a restricted action space, never to be mistaken for a free agent."""
     folder = Path(directory)
     folder.mkdir(parents=True, exist_ok=True)
     state = {k: v.detach().cpu().contiguous() for k, v in model.state_dict().items()}
@@ -43,7 +45,7 @@ def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | 
         "schema": MODEL_SCHEMA, "eco_rules_version": ECO_RULES_VERSION, "observation_version": OBSERVATION_VERSION,
         "action_version": ACTION_VERSION, "reward_version": REWARD_VERSION, "network": model.config.to_dict(), "weights_file": WEIGHTS,
         "weights_sha256": sha256_file(folder / WEIGHTS), "parameters": sum(p.numel() for p in model.parameters()),
-        "torch": torch.__version__, "training": training or {},
+        "torch": torch.__version__, "training": training or {}, "curriculum": validate_profile(curriculum),
     }
     (folder / MANIFEST).write_text(json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=True) + "\n", encoding="utf-8", newline="\n")
     return manifest
@@ -70,6 +72,7 @@ def load_model(directory: str | Path) -> tuple[ActorCriticE1, dict]:
     except (RuntimeError, TypeError, KeyError) as exc:
         raise ModelError(f"{folder}: the weights do not fit the network of the manifest: {exc}") from exc
     model.eval()
+    manifest.setdefault("curriculum", "none")    # models trained before FOR-50 had the full action space
     manifest.setdefault("reward_version", 1)     # models trained before the reward revision (first FOR-49 pilot) carry no field: they were trained on v1
     return model, manifest
 

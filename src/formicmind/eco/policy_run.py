@@ -26,6 +26,7 @@ from ..canonical import canonical_dumps, domain_hash
 from .action import ActionE1, action_masks, action_to_canonical, validate_action
 from .apply import apply_action, dispatch_forage
 from .config import ConfigE1
+from .curriculum import apply_curriculum_masks, validate_profile
 from .decoder import decode
 from .engine import RouteTable
 from .model import MapE1, WindowStatsE1, WorldStateE1
@@ -65,9 +66,10 @@ class PolicyController:
     are validated and applied exactly as before; the batcher sees the same private observations and nothing else.
     """
 
-    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None) -> None:
+    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None, curriculum: str = "none") -> None:
         self.policies = list(policies)
         self.batcher = batcher
+        self.curriculum = validate_profile(curriculum)
         self.log = DecisionLog() if log is None else log
         self.last_decision = [-1] * len(self.policies)
         self.decisions = [0] * len(self.policies)
@@ -94,7 +96,7 @@ class PolicyController:
             rolling = next_rolling(colony.rolling, colony.window, workers, soldiers, delta)
             obs = build_observation(colony, own, tick, config, decision_index=self.decisions[cid], ticks_since_last_decision=delta,
                                     rolling=rolling)
-            masks = action_masks(obs)
+            masks = apply_curriculum_masks(obs, action_masks(obs), self.curriculum)    # the one effective mask: policy, decoder and validator all use it
             pending.append((cid, obs, masks, rolling))
         if self.batcher is not None:
             answers = self.batcher.act_batch([(cid, obs, masks) for cid, obs, masks, _ in pending])
@@ -128,8 +130,11 @@ class PolicyController:
 
         for cid, obs, action, _rolling in plans:
             canonical = action_to_canonical(action)
-            self.log.append({"tick": tick, "colony": cid, "kind": kind, "index": self.decisions[cid], "obs": observation_hash(obs),
-                             "action": canonical, "action_hash": domain_hash(ACTION_DOMAIN, canonical_dumps(canonical))})
+            record = {"tick": tick, "colony": cid, "kind": kind, "index": self.decisions[cid], "obs": observation_hash(obs),
+                      "action": canonical, "action_hash": domain_hash(ACTION_DOMAIN, canonical_dumps(canonical))}
+            if self.curriculum != "none":      # decision metadata: this decision was taken under restricted masks (absent = full action space, unchanged bytes)
+                record["curriculum"] = self.curriculum
+            self.log.append(record)
             self.last_decision[cid] = tick
             self.decisions[cid] += 1
 
@@ -139,9 +144,13 @@ class PolicyController:
                 "log": {"head": self.log.head, "count": self.log.count}, "policies": [p.snapshot() for p in self.policies]}
         if self.retired:
             data["retired"] = sorted(self.retired)
+        if self.curriculum != "none":
+            data["curriculum"] = self.curriculum
         return data
 
     def restore(self, data: dict) -> None:
+        if data.get("curriculum", "none") != self.curriculum:
+            raise ValueError(f"the checkpoint was taken under curriculum {data.get('curriculum', 'none')!r}, this controller runs {self.curriculum!r}")
         self.last_decision, self.decisions = list(data["last_decision"]), list(data["decisions"])
         self.retired = set(data.get("retired", ()))
         self.log.head, self.log.count = data["log"]["head"], data["log"]["count"]
@@ -179,7 +188,7 @@ def run_policies(config: ConfigE1, seed: int, spec, ticks: int | None = None) ->
         raise ValueError("ticks must be an integer between zero and the configured horizon")
     world = build_world(config, seed)
     routes = RouteTable(world.world_map)
-    controller = PolicyController(build_policies(spec, config))
+    controller = PolicyController(build_policies(spec, config), curriculum=spec.curriculum)
     events = EventLog()
     for _ in range(duration):
         record = step_world_tick(world.state, world.run, config, world.world_map, controller, routes=routes,

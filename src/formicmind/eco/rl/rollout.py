@@ -19,6 +19,7 @@ from torch import Tensor
 from ...rng import new_stream, policy_stream_id
 from ..action import action_masks
 from ..config import ConfigE1
+from ..curriculum import apply_curriculum_masks, validate_profile
 from ..engine import RouteTable, step_world_tick
 from ..events import EventLog
 from ..initial import build_world
@@ -58,8 +59,9 @@ class MirrorRuntime:
     """One network, ``n_slots`` private memories and streams. Implements ``act_batch`` for ``PolicyController``."""
 
     def __init__(self, model: ActorCriticE1, n_slots: int, policy_seed: int, *, greedy: bool = False, record: bool = False,
-                 tracker: ViabilityTracker | None = None, horizon: int = 6000, reward_scale: float = 1.0) -> None:
+                 tracker: ViabilityTracker | None = None, horizon: int = 6000, reward_scale: float = 1.0, curriculum: str = "none") -> None:
         self.model, self.greedy, self.record = model, greedy, record
+        self.curriculum = validate_profile(curriculum)      # the bootstrap observation of a truncated trajectory is masked exactly like every decision
         self.tracker, self.horizon, self.reward_scale = tracker, horizon, reward_scale
         hidden = model.config.hidden
         self.h_actor = torch.zeros(n_slots, hidden)
@@ -128,7 +130,7 @@ class MirrorRuntime:
             decisions = sum(1 for m in self.meta if m["slot"] == slot)
             obs = build_observation(colony, own.get(slot, []), state.tick, config, decision_index=decisions,
                                     ticks_since_last_decision=state.tick - last["tick"])
-            pending.append((slot, step_batch(obs, action_masks(obs))))
+            pending.append((slot, step_batch(obs, apply_curriculum_masks(obs, action_masks(obs), self.curriculum))))
             self._close(slot, ticks, terminated=False, stop=state.tick)
         bootstrap: dict[int, float] = {}
         if pending:
@@ -168,15 +170,15 @@ class SlotPolicy:
 
 
 def collect_episode(config: ConfigE1, seed: int, model: ActorCriticE1, policy_seed: int, ticks: int, *, reward_scale: float = 1.0,
-                    gamma30: float = GAMMA_30, lambda30: float = LAMBDA_30) -> Episode:
+                    gamma30: float = GAMMA_30, lambda30: float = LAMBDA_30, curriculum: str = "none") -> Episode:
     """One world of ``config.n_colonies`` mirrored colonies, played for ``ticks`` ticks with the stochastic policy and recorded for PPO."""
     started = time.perf_counter()
     world = build_world(config, seed)
     routes = RouteTable(world.world_map)
     tracker = ViabilityTracker(world.state)
     runtime = MirrorRuntime(model, config.n_colonies, policy_seed, record=True, tracker=tracker, horizon=config.horizon,
-                            reward_scale=reward_scale)
-    controller = PolicyController([SlotPolicy(runtime, c) for c in range(config.n_colonies)], batcher=runtime)
+                            reward_scale=reward_scale, curriculum=curriculum)
+    controller = PolicyController([SlotPolicy(runtime, c) for c in range(config.n_colonies)], batcher=runtime, curriculum=curriculum)
     events, stats = EventLog(), PlayStats(config.n_colonies)
     model.eval()
     for _ in range(ticks):

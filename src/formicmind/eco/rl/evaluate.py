@@ -38,7 +38,7 @@ def _controller(job: dict, config):
         base, _, variant = kind.partition(":")
         spec = PolicyRunSpec(EVAL_POLICY_SEED, tuple(PolicySpec(base, variant) for _ in range(config.n_colonies)))
         policies = build_policies(spec, config)
-    return PolicyController(policies)
+    return PolicyController(policies, curriculum=job.get("curriculum", "none"))       # baselines and the learned policy play under the same masks
 
 
 def _eval_job(job: dict) -> list[dict]:
@@ -70,10 +70,11 @@ def evaluation_suite(model: ActorCriticE1, config, pool, *, label: str, baseline
         weights = _weights(net) if net is not None else b""
         for seed in seeds:
             jobs.append({"kind": kind, "weights": weights, "network": net.config.to_dict() if net is not None else {}, "colonies": config.colonies,
-                         "scenario": config.scenario, "seed": seed, "ticks": config.ticks})
+                         "scenario": config.scenario, "seed": seed, "ticks": config.ticks, "curriculum": config.curriculum})
             owners.append(name)
     results = pool.map(_eval_job, jobs)
-    report: dict = {"label": label, "reward_version": REWARD_VERSION, "seeds": seeds, "ticks": config.ticks, "colonies": config.colonies, "scenario": config.scenario}
+    report: dict = {"label": label, "reward_version": REWARD_VERSION, "seeds": seeds, "ticks": config.ticks, "colonies": config.colonies, "scenario": config.scenario,
+                    "curriculum": config.curriculum}
     for name, _, _ in contestants:
         runs = [r for owner, r in zip(owners, results) if owner == name]
         report[name] = summarize(runs)

@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EcoApp from './EcoApp.vue'
 import Root from '../Root.vue'
-import { learnedSampleBytes, policySampleBytes, sampleBytes, textLines, joinLines } from './testing'
+import { learnedSampleBytes, policySampleBytes, rechain, sampleBytes, textLines, joinLines } from './testing'
 
 function respondWithSample() {
   const bytes = sampleBytes()
@@ -128,6 +128,22 @@ describe('E1 viewer application', () => {
     expect(chip).toMatch(/learned:sample-[0-9a-f]{16} ×8/)
     expect(wrapper.text()).toContain('eco_learned_ppo_seed90000.jsonl')
     expect(wrapper.findAll('.eco-colony')).toHaveLength(8)
+    wrapper.unmount()
+  })
+
+  it('marks a run played under a curriculum profile as a diagnostic mode, and a full-action-space run is not marked (FOR-50)', async () => {
+    respondWithSample()
+    const wrapper = mount(EcoApp, { attachTo: document.body })
+    await settle(wrapper)
+    await chooseFile(wrapper, 'plain.jsonl', policySampleBytes())
+    await settle(wrapper)
+    expect(wrapper.find('[data-testid="policy-chip"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="curriculum-chip"]').exists()).toBe(false)
+    const nest = rechain(textLines(policySampleBytes()), (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, curriculum: 'nest-v1' } } : record))
+    await chooseFile(wrapper, 'nest.jsonl', nest)
+    await settle(wrapper)
+    expect(wrapper.get('[data-testid="curriculum-chip"]').text()).toBe('curriculum: nest-v1')
+    expect(wrapper.text()).toContain('nest.jsonl')
     wrapper.unmount()
   })
 

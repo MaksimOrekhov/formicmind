@@ -31,6 +31,8 @@ const MEMORY_KEYS = ['colony', 'visited', 'discovered', 'foreign', 'sightings']
 /** A run decided by independent policies (FOR-48) carries the policy specification in the header and the decision count and chain hash in the result. */
 const POLICY_SCHEMA = 'formicmind.eco.policy-run/1'
 const POLICY_KINDS = ['random_valid', 'heuristic', 'learned']
+/** Curriculum profiles (FOR-50); a replay of the full action space carries no `curriculum` key at all. */
+const CURRICULUM_PROFILES = ['nest-v1']
 const COHORT_FIELDS = ['id', 'colony', 'caste', 'count', 'hp', 'load', 'kind', 'phase', 'where', 'a', 'b', 'depart', 'arrive', 'target_node', 'target_colony']
 const VISITED_FIELDS = ['node', 'seen_tick', 'last_stock', 'last_stock_tick', 'queen_seen', 'danger']
 const FOREIGN_FIELDS = ['colony', 'first_contact', 'last_seen', 'workers_bucket', 'soldiers_bucket', 'nest_node', 'they_attacked', 'i_attacked', 'kills_mine', 'kills_theirs']
@@ -200,7 +202,8 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
 
 function parsePolicy(value: unknown, header: Rec): EcoPolicyInfo {
   need(isRec(value), 'header.policy: ожидается объект.')
-  exactKeys(value, ['schema', 'policy_seed', 'policies'], 'header.policy')
+  exactKeys(value, 'curriculum' in value ? ['schema', 'policy_seed', 'policies', 'curriculum'] : ['schema', 'policy_seed', 'policies'], 'header.policy')
+  need(!('curriculum' in value) || (typeof value.curriculum === 'string' && CURRICULUM_PROFILES.includes(value.curriculum)), `header.policy: неизвестный curriculum «${String(value.curriculum)}».`)
   need(value.schema === POLICY_SCHEMA, `Неподдерживаемая версия политик: «${String(value.schema)}».`)
   need(typeof value.policy_seed === 'string' && /^(0|[1-9][0-9]*)$/.test(value.policy_seed) && Array.isArray(value.policies) && value.policies.length === header.colonies && header.fixture === 'policy',
     'header.policy: неверные policy_seed или список политик.')
@@ -211,7 +214,7 @@ function parsePolicy(value: unknown, header: Rec): EcoPolicyInfo {
       `header.policy: неверная политика колонии ${index}.`)
     return { colony: index, kind: item.kind as string, variant: item.variant as string }
   })
-  return { seed: value.policy_seed as string, policies, decisionCount: 0, decisionsHash: '' }
+  return { seed: value.policy_seed as string, policies, decisionCount: 0, decisionsHash: '', curriculum: 'curriculum' in value ? (value.curriculum as string) : 'none' }
 }
 
 function parseFrame(record: Rec, index: number, colonyCount: number, nodes: EcoNode[], patchNodes: number[], lastTick: number): EcoFrame {
