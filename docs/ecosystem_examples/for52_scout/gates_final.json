@@ -1,0 +1,115 @@
+{
+  "all_gates_pass_greedy": false,
+  "all_gates_pass_sample": false,
+  "learned": {
+    "functional_survival_ge_0.80": [
+      1.0,
+      true
+    ],
+    "no_attacks": [
+      0.0,
+      true
+    ],
+    "no_combat": [
+      0.0,
+      true
+    ],
+    "share_colonies_scouting_new_node_ge_0.50": [
+      0.25,
+      false
+    ],
+    "unique_new_nodes_by_scouts_per_colony_ge_2": [
+      0.3125,
+      false
+    ],
+    "worker_eggs_ge_50": [
+      74.796875,
+      true
+    ],
+    "workers_end_ge_5": [
+      19.734375,
+      true
+    ],
+    "workers_mean_ge_10": [
+      18.449348958333335,
+      true
+    ]
+  },
+  "learned_greedy": {
+    "functional_survival_ge_0.80": [
+      1.0,
+      true
+    ],
+    "no_attacks": [
+      0.0,
+      true
+    ],
+    "no_combat": [
+      0.0,
+      true
+    ],
+    "share_colonies_scouting_new_node_ge_0.50": [
+      0.0,
+      false
+    ],
+    "unique_new_nodes_by_scouts_per_colony_ge_2": [
+      0.0,
+      false
+    ],
+    "worker_eggs_ge_50": [
+      67.890625,
+      true
+    ],
+    "workers_end_ge_5": [
+      20.765625,
+      true
+    ],
+    "workers_mean_ge_10": [
+      20.555729166666666,
+      true
+    ]
+  },
+  "report": "eval_final.json",
+  "thresholds": {
+    "functional_survival_ge_0.80": [
+      "functional_survival",
+      ">=",
+      0.8
+    ],
+    "no_attacks": [
+      "dispatch_attack",
+      "==",
+      0.0
+    ],
+    "no_combat": [
+      "combat",
+      "==",
+      0.0
+    ],
+    "share_colonies_scouting_new_node_ge_0.50": [
+      "share_scouted_new_node",
+      ">=",
+      0.5
+    ],
+    "unique_new_nodes_by_scouts_per_colony_ge_2": [
+      "discovered_by_scout",
+      ">=",
+      2.0
+    ],
+    "worker_eggs_ge_50": [
+      "worker_eggs_laid",
+      ">=",
+      50
+    ],
+    "workers_end_ge_5": [
+      "workers_end",
+      ">=",
+      5
+    ],
+    "workers_mean_ge_10": [
+      "workers_mean",
+      ">=",
+      10
+    ]
+  }
+}
