@@ -110,7 +110,7 @@ export interface EcoPolicyInfo {
   policies: { colony: number; kind: string; variant: string }[]
   decisionCount: number
   decisionsHash: string
-  /** FOR-50: the action-mask profile the run was played under (`none` = the full action space; `nest-v1` = a diagnostic stage without soldier orders, scouts and squads). */
+  /** FOR-50: the action-mask profile the run was played under (`none` = the full action space; `nest-v1` = a diagnostic stage without soldier orders, scouts and squads; `scout-v1` = the same, but scouts are free). */
   curriculum: string
 }
 

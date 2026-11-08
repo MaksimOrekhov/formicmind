@@ -32,7 +32,7 @@ const MEMORY_KEYS = ['colony', 'visited', 'discovered', 'foreign', 'sightings']
 const POLICY_SCHEMA = 'formicmind.eco.policy-run/1'
 const POLICY_KINDS = ['random_valid', 'heuristic', 'learned']
 /** Curriculum profiles (FOR-50); a replay of the full action space carries no `curriculum` key at all. */
-const CURRICULUM_PROFILES = ['nest-v1']
+const CURRICULUM_PROFILES = ['nest-v1', 'scout-v1']
 const COHORT_FIELDS = ['id', 'colony', 'caste', 'count', 'hp', 'load', 'kind', 'phase', 'where', 'a', 'b', 'depart', 'arrive', 'target_node', 'target_colony']
 const VISITED_FIELDS = ['node', 'seen_tick', 'last_stock', 'last_stock_tick', 'queen_seen', 'danger']
 const FOREIGN_FIELDS = ['colony', 'first_contact', 'last_seen', 'workers_bucket', 'soldiers_bucket', 'nest_node', 'they_attacked', 'i_attacked', 'kills_mine', 'kills_theirs']
