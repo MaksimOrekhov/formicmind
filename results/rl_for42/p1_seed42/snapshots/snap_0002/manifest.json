@@ -1,0 +1,7 @@
+{
+  "iteration": 10,
+  "path": "results\\rl_for42\\p1_seed42\\snapshots\\snap_0002\\weights.pt",
+  "schema": "formicmind.rl-snapshot/v1",
+  "sha256": "ad5ab6568e0d8dacdcaccdf8895dae4d7f886d82eacb46118aa99be8b5853425",
+  "snapshot_id": 2
+}

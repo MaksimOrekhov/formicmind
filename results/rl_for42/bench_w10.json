@@ -1,0 +1,82 @@
+{
+  "chunk_size": 4,
+  "cuda_available": true,
+  "decisions": 3244,
+  "episodes_per_second": 118.39744616706584,
+  "gpu_utilization_during_collection_percent": [
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0,
+    3.0
+  ],
+  "long_matches_balanced_vs_turtle": {
+    "engine_ms_per_tick_per_worker": 0.19813959166668457,
+    "episodes_per_second": 16.628682598442396,
+    "matches": 40,
+    "mean_ticks": 3000.0,
+    "ticks_per_second": 49886.047795327184,
+    "wall_seconds": 2.405482199999824
+  },
+  "matches": 160,
+  "policy_decisions_per_second": 2400.50822103726,
+  "ppo_update_capacity": {
+    "cpu": {
+      "gpu_utilization_percent_samples": [],
+      "sample_epochs_per_second": 109366.04423109657,
+      "update_seconds": 2.194465399999899
+    },
+    "cuda": {
+      "gpu_utilization_percent_samples": [
+        21.0
+      ],
+      "sample_epochs_per_second": 391483.0257851299,
+      "update_seconds": 0.6130534000003536
+    },
+    "samples": 60000
+  },
+  "profile_single_process": {
+    "decisions": 244,
+    "engine_fraction_estimate": 0.8007389706628455,
+    "inference_fraction": 0.19926102933715448,
+    "inference_seconds": 0.2278461000050811,
+    "matches": 8,
+    "ms_per_decision_inference": 0.9337954918241028,
+    "ticks": 3555,
+    "top_cumulative": [
+      "         2873536 function calls (2685096 primitive calls) in 0.989 seconds",
+      "",
+      "   Ordered by: cumulative time",
+      "   List reduced from 499 to 14 due to restriction <14>",
+      "",
+      "   ncalls  tottime  percall  cumtime  percall filename:lineno(function)",
+      "     3552    0.002    0.000    0.161    0.000 E:\\FormicMind\\src\\formicmind\\tick.py:172(_phase_harvest)",
+      "     3552    0.043    0.000    0.158    0.000 E:\\FormicMind\\src\\formicmind\\economy.py:153(harvest)",
+      "     3674    0.018    0.000    0.135    0.000 E:\\FormicMind\\src\\formicmind\\movement.py:58(dispatch_available)",
+      "      244    0.045    0.000    0.115    0.000 E:\\FormicMind\\src\\formicmind\\rl\\distribution.py:125(evaluate_latent)",
+      "     5306    0.003    0.000    0.104    0.000 E:\\FormicMind\\src\\formicmind\\routing.py:86(shortest_path)",
+      "      244    0.015    0.000    0.094    0.000 E:\\FormicMind\\src\\formicmind\\observation.py:202(build_observation)",
+      "     4578    0.002    0.000    0.092    0.000 E:\\FormicMind\\src\\formicmind\\routing.py:107(next_hop)",
+      "     3552    0.002    0.000    0.087    0.000 E:\\FormicMind\\src\\formicmind\\tick.py:176(_phase_upkeep)",
+      "     5306    0.013    0.000    0.086    0.000 E:\\FormicMind\\src\\formicmind\\routing.py:65(_search)",
+      "     3555    0.005    0.000    0.085    0.000 E:\\FormicMind\\src\\formicmind\\tick.py:162(_phase_arrival)",
+      "     3552    0.020    0.000    0.084    0.000 E:\\FormicMind\\src\\formicmind\\economy.py:193(upkeep)",
+      "     3552    0.002    0.000    0.078    0.000 E:\\FormicMind\\src\\formicmind\\tick.py:188(_phase_automatic_depart)",
+      "    25271    0.011    0.000    0.076    0.000 E:\\FormicMind\\src\\formicmind\\economy.py:61(_add_window)",
+      "     3555    0.003    0.000    0.067    0.000 E:\\FormicMind\\src\\formicmind\\tick.py:192(_phase_combat)",
+      "",
+      ""
+    ],
+    "wall_seconds": 1.143455399999766
+  },
+  "ticks": 46825,
+  "ticks_per_second": 34649.75260483036,
+  "wall_seconds": 1.3513805000002321,
+  "worker_sim_seconds": 10.708975800001099,
+  "worker_wall_seconds": 10.952133100002357,
+  "workers": 10
+}
