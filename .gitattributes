@@ -5,3 +5,11 @@ results/ml_quality_for37/quality.jsonl -text
 docs/ecosystem_examples/*.json text eol=lf
 viewer/public/samples/*.jsonl text eol=lf
 docs/ecosystem_examples/*.txt text eol=lf
+docs/ecosystem_examples/for49_pilot_reward_v2/*.json text eol=lf
+docs/ecosystem_examples/for49_pilot_reward_v2/*.jsonl text eol=lf
+docs/ecosystem_examples/for49_pilot_reward_v2/model/*.json text eol=lf
+docs/ecosystem_examples/for49_pilot_reward_v2/model/weights.pt binary
+docs/ecosystem_examples/for49_reward_v3/*.json text eol=lf
+docs/ecosystem_examples/for49_reward_v3/*.jsonl text eol=lf
+docs/ecosystem_examples/for49_reward_v3/model/*.json text eol=lf
+docs/ecosystem_examples/for49_reward_v3/model/weights.pt binary
