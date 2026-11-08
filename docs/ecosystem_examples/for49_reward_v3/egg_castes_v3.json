@@ -1,0 +1,10 @@
+{
+  "note": "Reward-v3 pilot model (iteration 82), natural worlds on the held-out maps 90000..90007, 64 colonies, sampled policy, no training. Eggs by caste, and the tick at which the agent episode ended. Mechanism traced on map 90000 colony 0: soldier egg laid at tick 1881, hatched 1911, the last worker died of old age at 2001, the soldier ate the hoard (0.8 food/tick, 579 -> 0) and starved at 2663 (collapse).",
+  "eggs_total_by_caste": {"soldier": 70, "worker": 1},
+  "colonies_by_egg_set": {
+    "one soldier egg": {"colonies": 58, "episode_end_tick": {"median": 2646, "min": 2332, "max": 2710}},
+    "two soldier eggs": {"colonies": 5, "episode_end_tick": {"median": 2521, "min": 2164, "max": 2610}},
+    "three soldier eggs and one worker egg": {"colonies": 1, "episode_end_tick": {"median": 3882, "min": 3882, "max": 3882}}
+  },
+  "reference_pilots_1_and_2": {"episode_end_tick": 2001, "eggs": 0}
+}

@@ -106,3 +106,41 @@ def test_the_manifest_and_the_report_say_which_reward_they_belong_to(tmp_path):
     assert manifest["reward_version"] == REWARD_VERSION == 3
     assert json.loads((tmp_path / "m" / MANIFEST).read_text(encoding="utf-8"))["reward_version"] == 3
     assert Q == 65536
+
+
+# ------------------------------------------------------------------------------------------------ the committed reward-v3 pilot (stopped early at iteration 82)
+
+
+PILOT3 = ROOT / "docs" / "ecosystem_examples" / "for49_reward_v3"
+
+
+def test_the_committed_reward_v3_model_replays_the_committed_replay_byte_for_byte():
+    from formicmind.eco.replay_file import verify_replay
+    from formicmind.eco.rl.learned import register_model, variant_for
+
+    model, manifest = register_model(PILOT3 / "model")
+    assert manifest["reward_version"] == 3 and manifest["training"]["iterations"] == 82 and manifest["training"]["stopped_early"] is True
+    document = verify_replay((PILOT3 / "replay_seed90000.jsonl").read_bytes())      # strict read + full re-execution of the world with the model
+    assert document.header["seed"] == "90000" and {p.variant for p in document.policy.policies} == {variant_for(manifest, "sample")}
+    assert [o["status"] for o in document.result["colony_outcomes"]] == ["extinct"] * 8
+
+
+def test_the_committed_reward_v3_numbers_say_what_the_report_says():
+    """The report claims: v3 closed the hollow-survivor path, but the network did not learn to reproduce - every colony ends in physical collapse,
+    almost no eggs (and those are soldiers), reward far below peaceful. If these numbers change, docs/ecosystem_v1_training.md must change with them."""
+    final = json.loads((PILOT3 / "eval_final.json").read_text(encoding="utf-8"))
+    learned, peaceful = final["learned"], final["heuristic:peaceful"]
+    assert final["reward_version"] == 3 and final["seeds"] == list(range(90000, 90008)) and learned["colonies"] == 64
+    assert learned["physical_survival"] == 0.0 and learned["functional_survival"] == 0.0 and learned["terminal_reasons"] == {"collapse": 64}
+    assert learned["hollow"] == 0.0 and learned["workers_end"] == 0.0 and learned["eggs_laid"] < 2 and learned["brood_end"] == 0.0
+    assert -0.9 < learned["reward"] < -0.8 and peaceful["reward"] > 0.5 and peaceful["eggs_laid"] > 100 and peaceful["functional_survival"] > 0.9
+    assert final["untrained_init"]["reward"] < -0.99 and final["pilot2_model_reward_v2"]["functional_extinction"] == 1.0
+    assert learned["contact"] == learned["dispatch_attack"] == learned["combat"] == 0.0
+    rows = [json.loads(line) for line in (PILOT3 / "metrics.jsonl").read_text(encoding="utf-8").splitlines()]
+    assert len(rows) == 82 and max(r["ppo_identity_ratio_max_dev"] for r in rows) < 1e-4 and rows[0]["reward"] < -0.99
+    assert rows[-1]["reward"] < -0.8 and all(r["functional_survival"] == 0.0 for r in rows)
+    assert json.loads((PILOT3 / "config.json").read_text(encoding="utf-8"))["reward_version"] == 3
+    castes = json.loads((PILOT3 / "egg_castes_v3.json").read_text(encoding="utf-8"))
+    assert castes["eggs_total_by_caste"] == {"soldier": 70, "worker": 1}
+    offline = json.loads((PILOT3 / "offline_rescoring_v3.json").read_text(encoding="utf-8"))
+    assert offline["learned"]["functional_extinction"] == 1.0 and offline["heuristic:peaceful"]["reward"] == final["heuristic:peaceful"]["reward"]

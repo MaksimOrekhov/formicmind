@@ -1,0 +1,59 @@
+{
+  "colonies": 8,
+  "label": "iteration 20",
+  "learned": {
+    "adults_end": 0.0,
+    "adults_mean": 3.428698386564246,
+    "brood_end": 0.0,
+    "colonies": 64,
+    "combat": 0.0,
+    "contact": 0.0,
+    "delivered": 1237.25,
+    "discover": 0.78125,
+    "dispatch_attack": 0.0,
+    "eggs_laid": 3.09375,
+    "food_end": 0.0,
+    "functional_extinction": 0.0,
+    "functional_survival": 0.0,
+    "hollow": 0.0,
+    "mean_viability": 0.18998477295517863,
+    "nest_found": 0.0,
+    "per_world_reward": [
+      -0.9687682081858318,
+      -0.967402177810669,
+      -0.968353510538737,
+      -0.9722771091461182,
+      -0.9697294740676881,
+      -0.9701863896052043,
+      -0.9731860383351644,
+      -0.9760940138498942
+    ],
+    "physical_survival": 0.0,
+    "queen_damage": 0.0,
+    "reward": -0.9707496151924133,
+    "reward_v1": -0.9659335294961929,
+    "reward_v2": -0.9707496151924133,
+    "soldiers_end": 0.0,
+    "survival": 0.0,
+    "terminal_reasons": {
+      "collapse": 64
+    },
+    "viability_end": 0.0,
+    "workers_end": 0.0,
+    "workers_mean": 3.176493848576271,
+    "workers_peak": 10.0
+  },
+  "reward_version": 3,
+  "scenario": "moderate",
+  "seeds": [
+    90000,
+    90001,
+    90002,
+    90003,
+    90004,
+    90005,
+    90006,
+    90007
+  ],
+  "ticks": 6000
+}
