@@ -29,6 +29,7 @@ from typing import Any
 
 from ..canonical import CanonicalError, canonical_dumps, canonical_loads
 from .codec import to_canonical
+from .curriculum import CURRICULUM_PROFILES
 from .config import SCENARIOS, SIZES, ConfigE1, ConfigError, config_from_canonical, config_hash, default_config
 from .fairness import evaluate, report_hash
 from .initial import build_world, initial_world_state
@@ -363,7 +364,7 @@ def _policy_spec(args: argparse.Namespace, colonies: int) -> PolicyRunSpec:
         items[colony] = _parse_policy(policy_text)
     if not 0 <= args.policy_seed < 2 ** 64:
         raise ValueError("--policy-seed must be a u64")
-    return PolicyRunSpec(args.policy_seed, tuple(items))
+    return PolicyRunSpec(args.policy_seed, tuple(items), getattr(args, "curriculum", "none"))
 
 
 def cmd_policy_run(args: argparse.Namespace) -> int:
@@ -383,7 +384,7 @@ def cmd_policy_run(args: argparse.Namespace) -> int:
     sys.stderr.write(
         f"wrote {args.out}: {len(replay)} bytes, {result['record_count']} records; decisions: {result['decision_count']} "
         f"(hash {result['decisions_hash'][:16]}){' -> ' + args.decisions if args.decisions else ''}\n"
-        f"  colonies={config.n_colonies} scenario={config.scenario} seed={args.seed} policy_seed={args.policy_seed} "
+        f"  colonies={config.n_colonies} scenario={config.scenario} seed={args.seed} policy_seed={args.policy_seed} curriculum={spec.curriculum} "
         f"policies={[p.kind + (':' + p.variant if p.variant else '') for p in spec.policies]}\n"
         f"  ticks={result['ticks_completed']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
         f"final_state={result['final_state_hash'][:16]} statuses={[o['status'] for o in result['colony_outcomes']]} ({elapsed:.1f} s)\n")
@@ -423,7 +424,8 @@ def cmd_replay_verify(args: argparse.Namespace) -> int:
         f"OK  schema={header['schema']} seed={header['seed']} colonies={header['colonies']} ticks={result['ticks_completed']} "
         f"frames={result['frame_count']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
         f"{'strict read only' if args.read_only else 'byte-exact re-execution'}"
-        f"{' decisions=' + str(result['decision_count']) if 'decision_count' in result else ''}\n")
+        f"{' decisions=' + str(result['decision_count']) if 'decision_count' in result else ''}"
+        f"{' curriculum=' + document.policy.curriculum if document.policy is not None and document.policy.curriculum != 'none' else ''}\n")
     return 0
 
 
@@ -550,6 +552,8 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--decisions", default=None, help="also write the decision records (tick, colony, observation hash, action) as JSONL")
     pr.add_argument("--verify", action="store_true", help="re-execute the run and demand identical replay and decision bytes")
     pr.add_argument("--out", required=True, help="output replay .jsonl path (opens in the E1 viewer)")
+    pr.add_argument("--curriculum", default="none", choices=CURRICULUM_PROFILES,
+                    help="action-mask profile of every decision (FOR-50; recorded in the replay header): nest-v1 = diagnostic stage, workers only, no scouts, no squad orders")
     pr.add_argument("--model", action="append", default=[], help="model directory for --policy learned:<sample|greedy>-<sha prefix> (repeatable)")
     pr.set_defaults(run=cmd_policy_run)
 

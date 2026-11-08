@@ -13,3 +13,7 @@ docs/ecosystem_examples/for49_reward_v3/*.json text eol=lf
 docs/ecosystem_examples/for49_reward_v3/*.jsonl text eol=lf
 docs/ecosystem_examples/for49_reward_v3/model/*.json text eol=lf
 docs/ecosystem_examples/for49_reward_v3/model/weights.pt binary
+docs/ecosystem_examples/for50_nest_pilot/*.json text eol=lf
+docs/ecosystem_examples/for50_nest_pilot/*.jsonl text eol=lf
+docs/ecosystem_examples/for50_nest_pilot/model/*.json text eol=lf
+docs/ecosystem_examples/for50_nest_pilot/model/weights.pt binary

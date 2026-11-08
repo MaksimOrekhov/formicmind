@@ -171,6 +171,14 @@ describe('E1 replay of independent policies (FOR-48)', () => {
     expect(replay.events.some((e) => e.kind === 'dispatch' && e.a === 1)).toBe(true) // scouting orders exist
   })
 
+  it('has no curriculum on a full-action-space run, and reads and validates the FOR-50 profile', () => {
+    expect(replay.policy!.curriculum).toBe('none')
+    const lines = textLines(policySampleBytes())
+    const withProfile = (curriculum: unknown) => rechain(lines, (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, curriculum } } : record))
+    expect(parseEcoReplayBytes(withProfile('nest-v1')).policy!.curriculum).toBe('nest-v1')
+    for (const bad of ['none', 'nest', 1]) expect(() => parseEcoReplayBytes(withProfile(bad))).toThrow(EcoReplayError)
+  })
+
   it('runs of the fixtures have no policy block', () => {
     expect(sampleReplay().policy).toBeNull()
   })

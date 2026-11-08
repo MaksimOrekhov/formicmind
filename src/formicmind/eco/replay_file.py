@@ -144,8 +144,8 @@ def export_policy_replay(config: ConfigE1, seed: int, spec: PolicyRunSpec, ticks
     The replay has the ordinary ``formicmind.eco.replay/1`` records (so the viewer shows the movements and events) plus the specification of the
     policies in the header and the count and chain hash of the decision records in the result; the decision records themselves are the sidecar.
     """
-    controller = PolicyController(build_policies(spec, config))
-    roles = {str(i): (p.kind if not p.variant else f"{p.kind}:{p.variant}") for i, p in enumerate(spec.policies)}
+    controller = PolicyController(build_policies(spec, config), curriculum=spec.curriculum)
+    roles ={str(i): (p.kind if not p.variant else f"{p.kind}:{p.variant}") for i, p in enumerate(spec.policies)}
     replay = _export(config, seed, controller, "policy", roles, ticks, frame_every, spec_to_canonical(spec), controller.log)
     return replay, controller.log.to_bytes()
 

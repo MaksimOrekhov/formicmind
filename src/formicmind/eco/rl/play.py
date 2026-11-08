@@ -26,6 +26,7 @@ class PlayStats:
     def __init__(self, n: int) -> None:
         self.n = n
         self.delivered, self.eggs_laid = [0] * n, [0] * n
+        self.worker_eggs, self.soldier_eggs = [0] * n, [0] * n      # eggs_laid split by caste (FOR-50: the nest gate counts worker eggs)
         self.worker_sum, self.soldier_sum, self.worker_peak = [0] * n, [0] * n, [0] * n
         self.samples = 0
 
@@ -33,7 +34,10 @@ class PlayStats:
         for colony, amount in record.delivered_by_colony.items():
             self.delivered[colony] += amount
         for colony in state.colonies:
-            self.eggs_laid[colony.colony_id] += sum(1 for brood in colony.brood if brood.laid_tick == record.tick)
+            for brood in colony.brood:
+                if brood.laid_tick == record.tick:
+                    self.eggs_laid[colony.colony_id] += 1
+                    (self.worker_eggs if brood.caste == "worker" else self.soldier_eggs)[colony.colony_id] += 1
         if record.tick % SAMPLE_EVERY == 0:
             self.samples += 1
             workers, soldiers = [0] * self.n, [0] * self.n
@@ -135,6 +139,8 @@ def colony_metrics(result: PlayResult) -> list[dict]:
             "workers_peak": result.stats.worker_peak[colony.colony_id],
             "brood_end": len(colony.brood),
             "eggs_laid": result.stats.eggs_laid[colony.colony_id],
+            "worker_eggs_laid": result.stats.worker_eggs[colony.colony_id],
+            "soldier_eggs_laid": result.stats.soldier_eggs[colony.colony_id],
             "soldiers_end": adults[colony.colony_id][1],
             "delivered": result.delivered[colony.colony_id],
             "food_end": colony.food,
@@ -147,12 +153,14 @@ def summarize(runs: list[list[dict]]) -> dict:
     """Mean of the per-colony metrics over all colonies of all runs."""
     rows = [row for run in runs for row in run]
     keys = ("reward", "reward_v1", "reward_v2", "mean_viability", "viability_end", "workers_end", "adults_end", "workers_mean", "adults_mean",
-            "workers_peak", "soldiers_end", "brood_end", "eggs_laid", "delivered", "food_end", "discover", "contact", "nest_found", "dispatch_attack",
+            "workers_peak", "soldiers_end", "brood_end", "eggs_laid", "worker_eggs_laid", "soldier_eggs_laid", "delivered", "food_end", "discover", "contact", "nest_found", "dispatch_attack",
             "combat", "queen_damage")
     summary = {key: sum(row[key] for row in rows) / len(rows) for key in keys}
     summary["survival"] = sum(1 for row in rows if row["survived"]) / len(rows)                 # = physical_survival (kept for older reports)
     summary["physical_survival"] = summary["survival"]
     summary["functional_survival"] = sum(1 for row in rows if row["functional_survived"]) / len(rows)
+    summary["share_worker_eggs_ge_50"] = sum(1 for row in rows if row["worker_eggs_laid"] >= 50) / len(rows)       # FOR-50 gate, per colony
+    summary["share_workers_end_ge_5"] = sum(1 for row in rows if row["workers_end"] >= 5) / len(rows)
     reasons: dict[str, int] = {}
     for row in rows:
         if row["terminal_reason"]:

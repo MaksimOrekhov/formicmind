@@ -16,6 +16,7 @@ from ..canonical import CanonicalError
 from ..rng import Pcg32, new_stream, policy_stream_id
 from .action import ActionE1, ActionMasksE1, SquadActionE1, NO_SQUAD
 from .config import ConfigE1
+from .curriculum import CURRICULUM_PROFILES
 from .decoder import LATENT_SIZE
 from .observation import ObservationE1
 
@@ -160,6 +161,7 @@ class PolicyRunSpec:
 
     policy_seed: int
     policies: tuple[PolicySpec, ...]
+    curriculum: str = "none"    # FOR-50: the static action-mask profile every decision of the run is taken under (curriculum.py); "none" = full action space
 
 
 POLICY_RUN_SCHEMA = "formicmind.eco.policy-run/1"
@@ -193,16 +195,23 @@ def build_policies(spec: PolicyRunSpec, config: ConfigE1) -> list[PolicyE1]:
 
 
 def spec_to_canonical(spec: PolicyRunSpec) -> dict:
-    return {
+    data = {
         "schema": POLICY_RUN_SCHEMA, "policy_seed": str(spec.policy_seed),
         "policies": [{"colony": i, "kind": p.kind, "variant": p.variant, "stream": stream_id_of(p, i)} for i, p in enumerate(spec.policies)],
     }
+    if spec.curriculum != "none":      # absent for the full action space, so that every file written without a profile is byte-for-byte what it was
+        data["curriculum"] = spec.curriculum
+    return data
 
 
 def spec_from_canonical(data: object) -> PolicyRunSpec:
-    if (type(data) is not dict or set(data) != {"schema", "policy_seed", "policies"} or data["schema"] != POLICY_RUN_SCHEMA
+    base_keys = {"schema", "policy_seed", "policies"}
+    if (type(data) is not dict or set(data) not in (base_keys, base_keys | {"curriculum"}) or data["schema"] != POLICY_RUN_SCHEMA
             or type(data["policy_seed"]) is not str or not data["policy_seed"].isdigit() or type(data["policies"]) is not list):
         raise CanonicalError("not a formicmind.eco.policy-run/1 specification")
+    curriculum = data.get("curriculum", "none")
+    if type(curriculum) is not str or curriculum == "none" and "curriculum" in data or curriculum not in CURRICULUM_PROFILES:
+        raise CanonicalError(f"unknown curriculum profile {curriculum!r}")
     items = []
     for index, row in enumerate(data["policies"]):
         if (type(row) is not dict or set(row) != {"colony", "kind", "variant", "stream"} or row["colony"] != index
@@ -212,4 +221,4 @@ def spec_from_canonical(data: object) -> PolicyRunSpec:
         if row["stream"] != stream_id_of(item, index):
             raise CanonicalError(f"policy {index}: the stream id does not follow from the kind and the colony")
         items.append(item)
-    return PolicyRunSpec(int(data["policy_seed"]), tuple(items))
+    return PolicyRunSpec(int(data["policy_seed"]), tuple(items), curriculum)
