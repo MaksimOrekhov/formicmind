@@ -8,6 +8,10 @@ colony in a fight) it works in two phases on **one world snapshot**:
 2. *apply* (atomic): the actions are applied colony after colony through ``apply.py``; the closed accounting window and the rolling averages are
    updated. If anything refuses, the cohorts, orders and accumulators are restored and ``PolicyApplyError`` is raised: a technical error, never a defeat.
 
+``retired`` (FOR-49, reward v3) is a set of colony ids that no longer decide: their agent episode is over (the trainer fills it from the viability
+tracker). A retired colony is asked nothing - no observation, no mask, no policy call, no decision record, no accounting-window update - and keeps its
+standing orders exactly as they were; the world rules do not know about the set. It is empty by default, so every normal run, fixture and replay is unchanged.
+
 Orphans (queen dead) decide nothing; they keep re-running the last foraging plan (standing orders, contracts 5). Every decision appends a compact
 record (tick, colony, observation hash, action) to a hash-chained ``DecisionLog``; the records never contain a world id.
 """
@@ -54,13 +58,20 @@ class DecisionLog:
 
 
 class PolicyController:
-    """One independent policy per colony behind the engine's controller interface."""
+    """One independent policy per colony behind the engine's controller interface.
 
-    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None) -> None:
+    ``batcher`` (optional, FOR-49) is an object with ``act_batch(items) -> list[answer]`` where ``items`` is a list of ``(colony, obs, masks)``:
+    the colonies that decide at the same tick are then answered by one call (one network forward pass) instead of one ``act`` each. The answers
+    are validated and applied exactly as before; the batcher sees the same private observations and nothing else.
+    """
+
+    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None) -> None:
         self.policies = list(policies)
+        self.batcher = batcher
         self.log = DecisionLog() if log is None else log
         self.last_decision = [-1] * len(self.policies)
         self.decisions = [0] * len(self.policies)
+        self.retired: set[int] = set()
 
     # -- the engine calls this in the Policy phase
     def __call__(self, state: WorldStateE1, config: ConfigE1, world_map: MapE1, routes: RouteTable) -> None:
@@ -68,11 +79,12 @@ class PolicyController:
             raise ValueError("one policy per colony is required")
         kind = "alert" if routes.alert else "planned"
         deciding = sorted(routes.alert) if routes.alert else [c.colony_id for c in state.colonies if c.status == "alive"]
-        deciding = [cid for cid in deciding if state.colonies[cid].status == "alive"]
+        deciding = [cid for cid in deciding if state.colonies[cid].status == "alive" and cid not in self.retired]
         tick = state.tick
 
         # ---- phase 1: decide on the snapshot; nothing is written to the world
         plans = []
+        pending = []
         for cid in deciding:
             colony = state.colonies[cid]
             own = [c for c in state.cohorts if c.colony_id == cid]
@@ -83,7 +95,12 @@ class PolicyController:
             obs = build_observation(colony, own, tick, config, decision_index=self.decisions[cid], ticks_since_last_decision=delta,
                                     rolling=rolling)
             masks = action_masks(obs)
-            answer = self.policies[cid].act(obs, masks)
+            pending.append((cid, obs, masks, rolling))
+        if self.batcher is not None:
+            answers = self.batcher.act_batch([(cid, obs, masks) for cid, obs, masks, _ in pending])
+        else:
+            answers = [self.policies[cid].act(obs, masks) for cid, obs, masks, _ in pending]
+        for (cid, obs, masks, rolling), answer in zip(pending, answers):
             action = answer if isinstance(answer, ActionE1) else decode(answer, masks)
             validate_action(action, masks)
             plans.append((cid, obs, action, rolling))
@@ -118,11 +135,15 @@ class PolicyController:
 
     # -- checkpointing of the controller (the world has its own checkpoint)
     def snapshot(self) -> dict:
-        return {"last_decision": list(self.last_decision), "decisions": list(self.decisions),
+        data = {"last_decision": list(self.last_decision), "decisions": list(self.decisions),
                 "log": {"head": self.log.head, "count": self.log.count}, "policies": [p.snapshot() for p in self.policies]}
+        if self.retired:
+            data["retired"] = sorted(self.retired)
+        return data
 
     def restore(self, data: dict) -> None:
         self.last_decision, self.decisions = list(data["last_decision"]), list(data["decisions"])
+        self.retired = set(data.get("retired", ()))
         self.log.head, self.log.count = data["log"]["head"], data["log"]["count"]
         for policy, item in zip(self.policies, data["policies"]):
             policy.restore(item)

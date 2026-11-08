@@ -7,6 +7,7 @@ import './eco.css'
 
 const SAMPLE_URL = 'samples/eco_seed50004_raider3.jsonl'
 const POLICY_SAMPLE_URL = 'samples/eco_policy_seed50012.jsonl'
+const LEARNED_SAMPLE_URL = 'samples/eco_learned_ppo_seed90000.jsonl'
 
 const replay = shallowRef<EcoReplay | null>(null)
 const generation = ref(0)
@@ -79,6 +80,7 @@ onMounted(() => { if (typeof fetch === 'function') void loadSample() })
       <span class="eco-top-actions">
         <button type="button" :disabled="isLoading" @click="loadSample()">Пример: seed 50004</button>
         <button type="button" :disabled="isLoading" data-testid="policy-sample" @click="loadSample(POLICY_SAMPLE_URL)">Пример: независимые политики</button>
+        <button type="button" :disabled="isLoading" data-testid="learned-sample" @click="loadSample(LEARNED_SAMPLE_URL)">Пример: обученная сеть (PPO)</button>
         <button type="button" :disabled="isLoading" @click="input?.click()">{{ isLoading ? 'Проверка…' : 'Открыть файл' }}</button>
       </span>
     </header>

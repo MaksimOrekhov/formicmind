@@ -1,0 +1,152 @@
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+C:\Users\Максим\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\_subclasses\functional_tensor.py:377: UserWarning: Failed to initialize NumPy: No module named 'numpy' (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\torch\csrc\utils\tensor_numpy.cpp:82.)
+  cpu = _conversion_method_template(device=torch.device("cpu"))
+eval iteration 0: {"colonies": 64, "contact": 0.21875, "delivered": 73.0, "discover": 2.765625, "dispatch_attack": 0.015625, "food_end": 0.0, "mean_viability": 0.08251944910864364, "nest_found": 0.0, "per_world_reward": [-0.9983592389424641, -0.9983315302530924, -0.9982919801076253, -0.9982150885264078, -0.9982672414779663, -0.998195294380188, -0.9983779315948487, -0.9982012128829956], "reward": -0.9982799397706985, "soldiers_end": 0.0, "survival": 0.0, "viability_end": 0.0, "workers_end": 0.0}
+it   1/120 reward=-0.9982 surv=0.00 workers=0.0 deliv=74 ent=14.74 kl=0.0160 vloss=23.1033 ev=-0.81 idev=9.5e-07 collect=0s update=2s
+it   2/120 reward=-0.9979 surv=0.00 workers=0.0 deliv=103 ent=14.35 kl=0.0128 vloss=1.8693 ev=-4.03 idev=1.9e-06 collect=0s update=2s
+it   3/120 reward=-0.9978 surv=0.00 workers=0.0 deliv=106 ent=14.10 kl=0.0153 vloss=0.0830 ev=-16.89 idev=1.9e-06 collect=0s update=2s
+it   4/120 reward=-0.9980 surv=0.00 workers=0.0 deliv=98 ent=14.34 kl=0.0176 vloss=0.0039 ev=-0.94 idev=1.9e-06 collect=0s update=2s
+it   5/120 reward=-0.9979 surv=0.00 workers=0.0 deliv=102 ent=14.17 kl=0.0168 vloss=0.0016 ev=-0.07 idev=1.9e-06 collect=0s update=2s
+it   6/120 reward=-0.9977 surv=0.00 workers=0.0 deliv=115 ent=14.09 kl=0.0228 vloss=0.0014 ev=-0.00 idev=1.9e-06 collect=0s update=2s
+it   7/120 reward=-0.9974 surv=0.00 workers=0.0 deliv=139 ent=13.95 kl=0.0188 vloss=0.0017 ev=0.14 idev=1.9e-06 collect=0s update=1s
+it   8/120 reward=-0.9972 surv=0.00 workers=0.0 deliv=158 ent=13.70 kl=0.0176 vloss=0.0015 ev=-0.20 idev=1.9e-06 collect=0s update=1s
+it   9/120 reward=-0.9969 surv=0.00 workers=0.0 deliv=183 ent=13.43 kl=0.0217 vloss=0.0018 ev=0.30 idev=2.9e-06 collect=0s update=2s
+it  10/120 reward=-0.9965 surv=0.00 workers=0.0 deliv=204 ent=13.19 kl=0.0261 vloss=0.0019 ev=0.10 idev=1.9e-06 collect=0s update=2s
+it  11/120 reward=-0.9959 surv=0.00 workers=0.0 deliv=236 ent=12.87 kl=0.0194 vloss=0.0023 ev=0.28 idev=3.8e-06 collect=1s update=1s
+it  12/120 reward=-0.9947 surv=0.00 workers=0.0 deliv=289 ent=12.31 kl=0.0218 vloss=0.0038 ev=0.20 idev=1.9e-06 collect=1s update=1s
+it  13/120 reward=-0.9940 surv=0.00 workers=0.0 deliv=311 ent=11.82 kl=0.0208 vloss=0.0046 ev=0.19 idev=1.9e-06 collect=1s update=1s
+it  14/120 reward=-0.9906 surv=0.00 workers=0.0 deliv=456 ent=11.63 kl=0.0246 vloss=0.0115 ev=0.15 idev=3.8e-06 collect=1s update=3s
+it  15/120 reward=-0.9897 surv=0.00 workers=0.0 deliv=490 ent=11.14 kl=0.0247 vloss=0.0115 ev=0.28 idev=2.9e-06 collect=1s update=1s
+it  16/120 reward=-0.9853 surv=0.00 workers=0.0 deliv=631 ent=10.68 kl=0.0209 vloss=0.0164 ev=0.22 idev=1.9e-06 collect=1s update=2s
+it  17/120 reward=-0.9789 surv=0.00 workers=0.0 deliv=858 ent=10.44 kl=0.0197 vloss=0.0218 ev=0.24 idev=3.8e-06 collect=1s update=4s
+it  18/120 reward=-0.9696 surv=0.00 workers=0.0 deliv=1165 ent=9.85 kl=0.0169 vloss=0.0354 ev=0.35 idev=1.9e-06 collect=2s update=5s
+it  19/120 reward=-0.9565 surv=0.00 workers=0.0 deliv=1686 ent=9.58 kl=0.0165 vloss=0.0470 ev=0.59 idev=3.8e-06 collect=2s update=5s
+it  20/120 reward=-0.9466 surv=0.00 workers=0.0 deliv=1997 ent=9.52 kl=0.0181 vloss=0.0560 ev=0.61 idev=3.8e-06 collect=3s update=6s
+eval iteration 20: {"colonies": 64, "contact": 0.0625, "delivered": 2656.5, "discover": 1.640625, "dispatch_attack": 0.046875, "food_end": 0.21875, "mean_viability": 0.21222133408162885, "nest_found": 0.0, "per_world_reward": [-0.9217191133499145, -0.7719691235224406, -0.9392300618489584, -0.9367086572647094, -0.911930510520935, -0.9185146160125732, -0.9360105476379394, -0.9295076084136963], "reward": -0.9081987798213959, "soldiers_end": 0.0, "survival": 0.015625, "viability_end": 0.006250143051147461, "workers_end": 0.0}
+it  21/120 reward=-0.9261 surv=0.00 workers=0.0 deliv=2789 ent=8.92 kl=0.0149 vloss=0.0490 ev=0.72 idev=3.8e-06 collect=3s update=7s
+it  22/120 reward=-0.8921 surv=0.01 workers=0.0 deliv=3570 ent=8.56 kl=0.0112 vloss=0.0571 ev=0.72 idev=2.9e-06 collect=5s update=9s
+it  23/120 reward=-0.8611 surv=0.02 workers=0.0 deliv=4285 ent=8.17 kl=0.0093 vloss=0.0544 ev=0.79 idev=3.8e-06 collect=5s update=10s
+it  24/120 reward=-0.8329 surv=0.02 workers=0.0 deliv=4812 ent=7.86 kl=0.0088 vloss=0.0539 ev=0.83 idev=1.9e-06 collect=6s update=10s
+it  25/120 reward=-0.7930 surv=0.05 workers=0.0 deliv=5129 ent=7.63 kl=0.0073 vloss=0.0479 ev=0.88 idev=3.8e-06 collect=6s update=11s
+it  26/120 reward=-0.7708 surv=0.05 workers=0.0 deliv=5463 ent=7.40 kl=0.0073 vloss=0.0626 ev=0.86 idev=2.9e-06 collect=6s update=12s
+it  27/120 reward=-0.8063 surv=0.02 workers=0.0 deliv=5354 ent=7.27 kl=0.0071 vloss=0.0882 ev=0.88 idev=1.9e-06 collect=6s update=11s
+it  28/120 reward=-0.7748 surv=0.04 workers=0.0 deliv=5459 ent=6.97 kl=0.0066 vloss=0.0688 ev=0.88 idev=3.8e-06 collect=6s update=12s
+it  29/120 reward=-0.7754 surv=0.03 workers=0.0 deliv=5298 ent=6.71 kl=0.0066 vloss=0.0637 ev=0.89 idev=1.9e-06 collect=6s update=13s
+it  30/120 reward=-0.7942 surv=0.01 workers=0.0 deliv=5375 ent=6.71 kl=0.0067 vloss=0.0818 ev=0.87 idev=1.9e-06 collect=6s update=13s
+it  31/120 reward=-0.7187 surv=0.05 workers=0.0 deliv=5271 ent=6.21 kl=0.0076 vloss=0.0873 ev=0.86 idev=1.9e-06 collect=7s update=16s
+it  32/120 reward=-0.6475 surv=0.10 workers=0.0 deliv=5245 ent=6.08 kl=0.0073 vloss=0.1063 ev=0.83 idev=1.9e-06 collect=8s update=18s
+it  33/120 reward=-0.1752 surv=0.48 workers=0.0 deliv=5134 ent=5.45 kl=0.0064 vloss=0.0997 ev=0.79 idev=1.9e-06 collect=9s update=22s
+it  34/120 reward=-0.0301 surv=0.61 workers=0.0 deliv=5168 ent=5.28 kl=0.0051 vloss=0.1000 ev=0.76 idev=1.9e-06 collect=8s update=22s
+it  35/120 reward=0.1787 surv=0.79 workers=0.0 deliv=5049 ent=5.16 kl=0.0066 vloss=0.0930 ev=0.74 idev=1.9e-06 collect=9s update=22s
+it  36/120 reward=0.2128 surv=0.82 workers=0.0 deliv=5086 ent=5.12 kl=0.0054 vloss=0.0939 ev=0.76 idev=1.9e-06 collect=9s update=24s
+it  37/120 reward=0.3023 surv=0.90 workers=0.0 deliv=5228 ent=5.09 kl=0.0049 vloss=0.0778 ev=0.75 idev=1.9e-06 collect=10s update=23s
+it  38/120 reward=0.3565 surv=0.95 workers=0.0 deliv=5143 ent=5.04 kl=0.0062 vloss=0.0415 ev=0.85 idev=1.9e-06 collect=10s update=25s
+it  39/120 reward=0.3563 surv=0.95 workers=0.0 deliv=4950 ent=5.03 kl=0.0057 vloss=0.0584 ev=0.77 idev=1.9e-06 collect=10s update=25s
+it  40/120 reward=0.3920 surv=0.98 workers=0.0 deliv=5147 ent=5.02 kl=0.0039 vloss=0.0351 ev=0.92 idev=1.9e-06 collect=10s update=24s
+eval iteration 40: {"colonies": 64, "contact": 0.0, "delivered": 5218.796875, "discover": 0.0, "dispatch_attack": 0.0, "food_end": 586.453125, "mean_viability": 0.416926722685496, "nest_found": 0.0, "per_world_reward": [0.42163062413533525, 0.42166002464294433, 0.42060566902160645, 0.4201644010543823, 0.4220013987223307, 0.4222514050801595, 0.26130193773905436, 0.4207983210881551], "reward": 0.401301722685496, "soldiers_end": 0.0, "survival": 0.984375, "viability_end": 0.39375901222229004, "workers_end": 0.0}
+it  41/120 reward=0.4015 surv=0.98 workers=0.0 deliv=4890 ent=5.01 kl=0.0042 vloss=0.0305 ev=0.88 idev=1.9e-06 collect=9s update=23s
+it  42/120 reward=0.4006 surv=0.98 workers=0.0 deliv=4870 ent=5.03 kl=0.0050 vloss=0.0250 ev=0.93 idev=1.9e-06 collect=10s update=24s
+it  43/120 reward=0.4113 surv=0.99 workers=0.0 deliv=4926 ent=5.04 kl=0.0043 vloss=0.0188 ev=0.95 idev=1.9e-06 collect=10s update=24s
+it  44/120 reward=0.4112 surv=0.99 workers=0.0 deliv=4946 ent=5.05 kl=0.0041 vloss=0.0214 ev=0.94 idev=1.9e-06 collect=10s update=23s
+it  45/120 reward=0.4210 surv=1.00 workers=0.0 deliv=5098 ent=5.00 kl=0.0038 vloss=0.0061 ev=1.00 idev=1.9e-06 collect=10s update=25s
+it  46/120 reward=0.4205 surv=1.00 workers=0.0 deliv=5007 ent=5.00 kl=0.0039 vloss=0.0052 ev=1.00 idev=1.9e-06 collect=11s update=25s
+it  47/120 reward=0.4208 surv=1.00 workers=0.0 deliv=5073 ent=5.05 kl=0.0046 vloss=0.0038 ev=1.00 idev=1.9e-06 collect=10s update=24s
+it  48/120 reward=0.4205 surv=1.00 workers=0.0 deliv=4972 ent=4.99 kl=0.0041 vloss=0.0031 ev=1.00 idev=1.9e-06 collect=10s update=23s
+it  49/120 reward=0.4017 surv=0.98 workers=0.0 deliv=5050 ent=4.97 kl=0.0056 vloss=0.0246 ev=0.96 idev=1.9e-06 collect=9s update=23s
+it  50/120 reward=0.4094 surv=0.99 workers=0.0 deliv=4944 ent=5.02 kl=0.0047 vloss=0.0237 ev=0.97 idev=1.9e-06 collect=10s update=24s
+it  51/120 reward=0.4093 surv=0.99 workers=0.0 deliv=4912 ent=5.03 kl=0.0043 vloss=0.0127 ev=0.99 idev=1.9e-06 collect=9s update=24s
+it  52/120 reward=0.4200 surv=1.00 workers=0.0 deliv=4888 ent=5.05 kl=0.0043 vloss=0.0013 ev=1.00 idev=1.9e-06 collect=9s update=24s
+it  53/120 reward=0.4105 surv=0.99 workers=0.0 deliv=5000 ent=5.08 kl=0.0059 vloss=0.0182 ev=0.97 idev=1.9e-06 collect=9s update=25s
+it  54/120 reward=0.4110 surv=0.99 workers=0.0 deliv=4885 ent=5.08 kl=0.0045 vloss=0.0149 ev=0.98 idev=9.5e-07 collect=10s update=23s
+it  55/120 reward=0.4207 surv=1.00 workers=0.0 deliv=4992 ent=5.08 kl=0.0046 vloss=0.0006 ev=1.00 idev=1.9e-06 collect=10s update=23s
+it  56/120 reward=0.4203 surv=1.00 workers=0.0 deliv=4916 ent=5.05 kl=0.0042 vloss=0.0004 ev=1.00 idev=1.9e-06 collect=9s update=22s
+it  57/120 reward=0.4213 surv=1.00 workers=0.0 deliv=5106 ent=5.07 kl=0.0046 vloss=0.0010 ev=1.00 idev=1.9e-06 collect=10s update=22s
+it  58/120 reward=0.4133 surv=0.99 workers=0.0 deliv=5144 ent=5.08 kl=0.0079 vloss=0.0127 ev=0.99 idev=1.9e-06 collect=8s update=21s
+it  59/120 reward=0.4212 surv=1.00 workers=0.0 deliv=5067 ent=5.12 kl=0.0040 vloss=0.0022 ev=1.00 idev=1.4e-06 collect=8s update=21s
+it  60/120 reward=0.4209 surv=1.00 workers=0.0 deliv=5046 ent=5.13 kl=0.0043 vloss=0.0024 ev=1.00 idev=1.9e-06 collect=8s update=22s
+eval iteration 60: {"colonies": 64, "contact": 0.0, "delivered": 5006.15625, "discover": 0.0, "dispatch_attack": 0.0, "food_end": 587.078125, "mean_viability": 0.42068986002604164, "nest_found": 0.0, "per_world_reward": [0.4206429411570231, 0.4202562967936198, 0.4209704777399699, 0.4204938952128092, 0.42132287247975664, 0.4203530807495117, 0.4213296724955241, 0.4201496435801188], "reward": 0.42068986002604164, "soldiers_end": 0.0, "survival": 1.0, "viability_end": 0.4000091552734375, "workers_end": 0.0}
+it  61/120 reward=0.4211 surv=1.00 workers=0.0 deliv=5043 ent=5.10 kl=0.0053 vloss=0.0007 ev=1.00 idev=1.9e-06 collect=8s update=21s
+it  62/120 reward=0.4214 surv=1.00 workers=0.0 deliv=5092 ent=5.09 kl=0.0062 vloss=0.0068 ev=0.99 idev=1.9e-06 collect=8s update=21s
+it  63/120 reward=0.4217 surv=1.00 workers=0.0 deliv=5163 ent=5.10 kl=0.0041 vloss=0.0006 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  64/120 reward=0.4215 surv=1.00 workers=0.0 deliv=5149 ent=5.12 kl=0.0045 vloss=0.0004 ev=1.00 idev=1.9e-06 collect=8s update=21s
+it  65/120 reward=0.4117 surv=0.99 workers=0.0 deliv=5150 ent=5.13 kl=0.0070 vloss=0.0097 ev=0.99 idev=1.9e-06 collect=8s update=21s
+it  66/120 reward=0.4217 surv=1.00 workers=0.0 deliv=5208 ent=5.13 kl=0.0046 vloss=0.0015 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  67/120 reward=0.4216 surv=1.00 workers=0.0 deliv=5142 ent=5.10 kl=0.0055 vloss=0.0006 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  68/120 reward=0.4221 surv=1.00 workers=0.0 deliv=5259 ent=5.12 kl=0.0049 vloss=0.0005 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  69/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5308 ent=5.10 kl=0.0049 vloss=0.0010 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  70/120 reward=0.4222 surv=1.00 workers=0.0 deliv=5271 ent=5.11 kl=0.0044 vloss=0.0013 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  71/120 reward=0.4220 surv=1.00 workers=0.0 deliv=5214 ent=5.08 kl=0.0048 vloss=0.0006 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  72/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5281 ent=5.08 kl=0.0043 vloss=0.0006 ev=1.00 idev=9.5e-07 collect=8s update=21s
+it  73/120 reward=0.4220 surv=1.00 workers=0.0 deliv=5238 ent=5.05 kl=0.0048 vloss=0.0006 ev=1.00 idev=1.9e-06 collect=8s update=21s
+it  74/120 reward=0.4226 surv=1.00 workers=0.0 deliv=5336 ent=5.05 kl=0.0035 vloss=0.0011 ev=1.00 idev=9.5e-07 collect=9s update=23s
+it  75/120 reward=0.4129 surv=0.99 workers=0.0 deliv=5331 ent=5.08 kl=0.0062 vloss=0.0182 ev=0.98 idev=4.8e-07 collect=9s update=23s
+it  76/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5306 ent=5.09 kl=0.0041 vloss=0.0032 ev=1.00 idev=0.0e+00 collect=9s update=23s
+it  77/120 reward=0.4111 surv=0.99 workers=0.0 deliv=5247 ent=5.13 kl=0.0048 vloss=0.0158 ev=0.98 idev=9.5e-07 collect=9s update=21s
+it  78/120 reward=0.4225 surv=1.00 workers=0.0 deliv=5359 ent=5.12 kl=0.0045 vloss=0.0012 ev=1.00 idev=1.9e-06 collect=9s update=23s
+it  79/120 reward=0.4228 surv=1.00 workers=0.0 deliv=5410 ent=5.13 kl=0.0041 vloss=0.0009 ev=1.00 idev=0.0e+00 collect=9s update=21s
+it  80/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5324 ent=5.13 kl=0.0045 vloss=0.0012 ev=1.00 idev=9.5e-07 collect=9s update=22s
+eval iteration 80: {"colonies": 64, "contact": 0.0, "delivered": 5282.6875, "discover": 0.0, "dispatch_attack": 0.0, "food_end": 593.03125, "mean_viability": 0.42217848229408267, "nest_found": 0.0, "per_world_reward": [0.4218267606099447, 0.42262082227071124, 0.42316383997599283, 0.4224024238586426, 0.4227135378519694, 0.42197071997324626, 0.4213692900339762, 0.4213604637781779], "reward": 0.42217848229408267, "soldiers_end": 0.0, "survival": 1.0, "viability_end": 0.4000091552734375, "workers_end": 0.0}
+it  81/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5404 ent=5.12 kl=0.0043 vloss=0.0017 ev=1.00 idev=9.5e-07 collect=9s update=23s
+it  82/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5372 ent=5.12 kl=0.0050 vloss=0.0012 ev=1.00 idev=9.5e-07 collect=9s update=22s
+it  83/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5317 ent=5.10 kl=0.0044 vloss=0.0044 ev=1.00 idev=0.0e+00 collect=9s update=23s
+it  84/120 reward=0.4226 surv=1.00 workers=0.0 deliv=5358 ent=5.11 kl=0.0041 vloss=0.0020 ev=1.00 idev=9.5e-07 collect=9s update=22s
+it  85/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5336 ent=5.09 kl=0.0052 vloss=0.0015 ev=1.00 idev=0.0e+00 collect=9s update=23s
+it  86/120 reward=0.4231 surv=1.00 workers=0.0 deliv=5486 ent=5.11 kl=0.0043 vloss=0.0097 ev=0.99 idev=0.0e+00 collect=9s update=22s
+it  87/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5309 ent=5.12 kl=0.0039 vloss=0.0021 ev=1.00 idev=0.0e+00 collect=9s update=22s
+it  88/120 reward=0.4226 surv=1.00 workers=0.0 deliv=5374 ent=5.10 kl=0.0040 vloss=0.0022 ev=1.00 idev=1.9e-06 collect=9s update=22s
+it  89/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5395 ent=5.12 kl=0.0052 vloss=0.0020 ev=1.00 idev=0.0e+00 collect=9s update=22s
+it  90/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5329 ent=5.11 kl=0.0039 vloss=0.0018 ev=1.00 idev=9.5e-07 collect=9s update=22s
+it  91/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5330 ent=5.11 kl=0.0050 vloss=0.0021 ev=1.00 idev=9.5e-07 collect=9s update=21s
+it  92/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5391 ent=5.12 kl=0.0058 vloss=0.0022 ev=1.00 idev=0.0e+00 collect=8s update=22s
+it  93/120 reward=0.4228 surv=1.00 workers=0.0 deliv=5424 ent=5.14 kl=0.0046 vloss=0.0015 ev=1.00 idev=0.0e+00 collect=9s update=24s
+it  94/120 reward=0.4221 surv=1.00 workers=0.0 deliv=5255 ent=5.10 kl=0.0044 vloss=0.0016 ev=1.00 idev=9.5e-07 collect=9s update=24s
+it  95/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5308 ent=5.11 kl=0.0047 vloss=0.0017 ev=1.00 idev=0.0e+00 collect=9s update=24s
+it  96/120 reward=0.4232 surv=1.00 workers=0.0 deliv=5468 ent=5.10 kl=0.0045 vloss=0.0028 ev=1.00 idev=9.5e-07 collect=9s update=23s
+it  97/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5402 ent=5.10 kl=0.0041 vloss=0.0019 ev=1.00 idev=1.9e-06 collect=10s update=23s
+it  98/120 reward=0.4223 surv=1.00 workers=0.0 deliv=5325 ent=5.10 kl=0.0043 vloss=0.0039 ev=1.00 idev=0.0e+00 collect=9s update=23s
+it  99/120 reward=0.4233 surv=1.00 workers=0.0 deliv=5514 ent=5.10 kl=0.0037 vloss=0.0067 ev=1.00 idev=9.5e-07 collect=9s update=23s
+it 100/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5362 ent=5.09 kl=0.0053 vloss=0.0026 ev=1.00 idev=0.0e+00 collect=9s update=23s
+eval iteration 100: {"colonies": 64, "contact": 0.0, "delivered": 5226.28125, "discover": 0.0, "dispatch_attack": 0.0, "food_end": 593.546875, "mean_viability": 0.4219601724545161, "nest_found": 0.0, "per_world_reward": [0.42160948053995767, 0.42269156233469646, 0.4229402831395467, 0.4220589014689128, 0.42242707188924156, 0.4217238365809123, 0.4211142463684082, 0.42111599731445315], "reward": 0.4219601724545161, "soldiers_end": 0.0, "survival": 1.0, "viability_end": 0.4000091552734375, "workers_end": 0.0}
+it 101/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5370 ent=5.07 kl=0.0035 vloss=0.0019 ev=1.00 idev=9.5e-07 collect=9s update=22s
+it 102/120 reward=0.4226 surv=1.00 workers=0.0 deliv=5345 ent=5.06 kl=0.0041 vloss=0.0025 ev=1.00 idev=0.0e+00 collect=9s update=23s
+it 103/120 reward=0.4147 surv=0.99 workers=0.0 deliv=5403 ent=5.07 kl=0.0068 vloss=0.0155 ev=0.98 idev=4.8e-07 collect=9s update=24s
+it 104/120 reward=0.4232 surv=1.00 workers=0.0 deliv=5489 ent=5.07 kl=0.0047 vloss=0.0035 ev=1.00 idev=0.0e+00 collect=9s update=22s
+it 105/120 reward=0.4232 surv=1.00 workers=0.0 deliv=5477 ent=5.06 kl=0.0036 vloss=0.0020 ev=1.00 idev=1.9e-06 collect=9s update=23s
+it 106/120 reward=0.4228 surv=1.00 workers=0.0 deliv=5377 ent=5.05 kl=0.0040 vloss=0.0018 ev=1.00 idev=9.5e-07 collect=10s update=23s
+it 107/120 reward=0.4231 surv=1.00 workers=0.0 deliv=5460 ent=5.05 kl=0.0038 vloss=0.0018 ev=1.00 idev=9.5e-07 collect=10s update=22s
+it 108/120 reward=0.4231 surv=1.00 workers=0.0 deliv=5443 ent=5.06 kl=0.0048 vloss=0.0037 ev=1.00 idev=9.5e-07 collect=9s update=22s
+it 109/120 reward=0.4232 surv=1.00 workers=0.0 deliv=5495 ent=5.07 kl=0.0044 vloss=0.0025 ev=1.00 idev=1.9e-06 collect=9s update=22s
+it 110/120 reward=0.4228 surv=1.00 workers=0.0 deliv=5409 ent=5.09 kl=0.0050 vloss=0.0027 ev=1.00 idev=1.9e-06 collect=9s update=22s
+it 111/120 reward=0.4139 surv=0.99 workers=0.0 deliv=5528 ent=5.11 kl=0.0047 vloss=0.0230 ev=0.96 idev=1.9e-06 collect=9s update=22s
+it 112/120 reward=0.4229 surv=1.00 workers=0.0 deliv=5419 ent=5.10 kl=0.0054 vloss=0.0056 ev=0.99 idev=1.9e-06 collect=9s update=23s
+it 113/120 reward=0.4228 surv=1.00 workers=0.0 deliv=5403 ent=5.13 kl=0.0048 vloss=0.0048 ev=0.99 idev=1.9e-06 collect=9s update=24s
+it 114/120 reward=0.4233 surv=1.00 workers=0.0 deliv=5517 ent=5.14 kl=0.0042 vloss=0.0060 ev=0.99 idev=1.9e-06 collect=9s update=24s
+it 115/120 reward=0.4229 surv=1.00 workers=0.0 deliv=5429 ent=5.16 kl=0.0044 vloss=0.0076 ev=0.99 idev=1.9e-06 collect=9s update=23s
+it 116/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5358 ent=5.16 kl=0.0046 vloss=0.0054 ev=0.99 idev=1.9e-06 collect=9s update=23s
+it 117/120 reward=0.4224 surv=1.00 workers=0.0 deliv=5379 ent=5.20 kl=0.0045 vloss=0.0050 ev=0.99 idev=1.9e-06 collect=9s update=25s
+it 118/120 reward=0.4229 surv=1.00 workers=0.0 deliv=5507 ent=5.23 kl=0.0049 vloss=0.0053 ev=0.99 idev=1.9e-06 collect=10s update=25s
+it 119/120 reward=0.4227 surv=1.00 workers=0.0 deliv=5424 ent=5.25 kl=0.0040 vloss=0.0049 ev=0.99 idev=1.9e-06 collect=10s update=25s
+it 120/120 reward=0.4229 surv=1.00 workers=0.0 deliv=5441 ent=5.24 kl=0.0041 vloss=0.0040 ev=0.99 idev=2.9e-06 collect=9s update=24s
+saved C:\Users\2BA0~1\AppData\Local\Temp\claude\2d06b71e7c66d2b1\6dfcfd9d-4bee-4bbc-9943-fdc175edacbc\scratchpad\pilot3\final (weights sha256 fa1a815761490967)
+final evaluation on held-out maps:
+  learned                reward=0.4227 survival=1.00 workers=0.0 delivered=5394 contacts=0.2 attacks=0.00
+  learned_greedy         reward=0.4238 survival=1.00 workers=0.0 delivered=5588 contacts=0.0 attacks=0.00
+  untrained_init         reward=-0.9983 survival=0.00 workers=0.0 delivered=73 contacts=0.2 attacks=0.02
+  random_valid           reward=-0.9985 survival=0.00 workers=0.0 delivered=41 contacts=0.1 attacks=0.00
+  heuristic:peaceful     reward=0.5096 survival=0.95 workers=20.9 delivered=51319 contacts=0.0 attacks=0.00
+  heuristic:explorer     reward=-0.2317 survival=0.42 workers=6.4 delivered=23577 contacts=3.1 attacks=0.00

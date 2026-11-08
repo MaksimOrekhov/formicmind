@@ -30,7 +30,7 @@ const COLONY_KEYS = ['id', 'status', 'food', 'queen_hp', 'workers', 'soldiers', 
 const MEMORY_KEYS = ['colony', 'visited', 'discovered', 'foreign', 'sightings']
 /** A run decided by independent policies (FOR-48) carries the policy specification in the header and the decision count and chain hash in the result. */
 const POLICY_SCHEMA = 'formicmind.eco.policy-run/1'
-const POLICY_KINDS = ['random_valid', 'heuristic']
+const POLICY_KINDS = ['random_valid', 'heuristic', 'learned']
 const COHORT_FIELDS = ['id', 'colony', 'caste', 'count', 'hp', 'load', 'kind', 'phase', 'where', 'a', 'b', 'depart', 'arrive', 'target_node', 'target_colony']
 const VISITED_FIELDS = ['node', 'seen_tick', 'last_stock', 'last_stock_tick', 'queen_seen', 'danger']
 const FOREIGN_FIELDS = ['colony', 'first_contact', 'last_seen', 'workers_bucket', 'soldiers_bucket', 'nest_node', 'they_attacked', 'i_attacked', 'kills_mine', 'kills_theirs']

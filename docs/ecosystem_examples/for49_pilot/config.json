@@ -1,0 +1,33 @@
+{
+  "colonies": 8,
+  "eval_every": 20,
+  "eval_seed0": 90000,
+  "eval_worlds": 8,
+  "iterations": 120,
+  "network": {
+    "hidden": 128,
+    "key_dim": 32,
+    "message_rounds": 2,
+    "node_dim": 64
+  },
+  "ppo": {
+    "clip": 0.2,
+    "ent_coef": 0.01,
+    "ent_coef_z": 0.001,
+    "epochs": 4,
+    "lr": 0.0003,
+    "max_grad_norm": 0.5,
+    "normalize_advantages": true,
+    "seqs_per_chunk": 4,
+    "seqs_per_minibatch": 16,
+    "target_kl": 0.03,
+    "vf_coef": 0.5
+  },
+  "reward_scale": 10.0,
+  "scenario": "moderate",
+  "seed": 1,
+  "ticks": 6000,
+  "train_seed0": 200000,
+  "workers": 8,
+  "worlds_per_iteration": 16
+}

@@ -20,10 +20,27 @@ ALLOWED_L0 = {"formicmind.canonical", "formicmind.rng"}
 BANNED_NAMES = {"importlib", "__import__", "exec", "eval", "runpy", "pkgutil"}
 
 
-def _eco_files() -> list[Path]:
-    files = sorted(ECO.rglob("*.py"))
+RL = ECO / "rl"
+# the one bridge from the torch-free core to the learning stack: cli.py may import formicmind.eco.rl (inside functions, so that PyTorch is only
+# loaded when a learning command runs)
+RL_BRIDGE = {"cli.py"}
+
+
+def _core_files() -> list[Path]:
+    """The rules, engine, observation, masks, decoder, replay ...: everything in formicmind/eco except the learning subpackage."""
+    files = sorted(path for path in ECO.rglob("*.py") if RL not in path.parents)
     assert files, "formicmind/eco has no sources"
     return files
+
+
+def _rl_files() -> list[Path]:
+    files = sorted(RL.glob("*.py"))
+    assert files, "formicmind/eco/rl has no sources"
+    return files
+
+
+def _eco_files() -> list[Path]:
+    return _core_files()
 
 
 def _module_name(path: Path) -> str:
@@ -105,6 +122,50 @@ def test_the_boundary_checker_catches_what_it_should(source, module, expected_vi
 ])
 def test_the_reverse_checker_separates_eco_from_the_l0_economy_module(source, module, is_eco_import):
     assert any(is_eco(n) for n in imports_of_source(source, module)) is is_eco_import
+
+
+RL_THIRD_PARTY = {"torch"}
+
+
+def test_the_learning_subpackage_imports_only_stdlib_torch_the_core_and_two_l0_utilities():
+    for path in _rl_files():
+        for name in _imports(path):
+            allowed = allowed_in_eco(name) or name.split(".")[0] in RL_THIRD_PARTY
+            assert allowed, f"{path.relative_to(ROOT)} imports {name!r}: only stdlib, torch, formicmind.eco, canonical and rng are allowed"
+        tree = ast.parse(path.read_text(encoding="utf-8"))
+        # ``module.eval()`` is torch's evaluation-mode switch: only the builtin ``eval`` (a Name) is banned here
+        names = ({n.id for n in ast.walk(tree) if isinstance(n, ast.Name)}
+                 | {n.attr for n in ast.walk(tree) if isinstance(n, ast.Attribute) and n.attr != "eval"})
+        assert not (names & BANNED_NAMES), f"{path.name} uses a dynamic import mechanism: {names & BANNED_NAMES}"
+
+
+def test_the_core_never_imports_the_learning_subpackage_except_the_cli_bridge():
+    for path in _core_files():
+        if path.name in RL_BRIDGE and path.parent == ECO:
+            continue
+        for name in _imports(path):
+            assert not (name == "formicmind.eco.rl" or name.startswith("formicmind.eco.rl.")), f"{path.name} imports {name}"
+    bridge = (ECO / "cli.py").read_text(encoding="utf-8")
+    for line in bridge.splitlines():
+        if "from .rl" in line and "cli_args" not in line:
+            assert line.startswith(" "), "cli.py may import formicmind.eco.rl only inside a function (PyTorch must stay lazy)"
+
+
+def test_importing_the_core_and_the_cli_does_not_load_torch():
+    import subprocess
+
+    script = ("import sys; sys.path.insert(0, 'src'); import formicmind.eco, formicmind.eco.cli, formicmind.eco.viability; "
+              "assert 'torch' not in sys.modules, 'torch was imported'")
+    subprocess.run([sys.executable, "-c", script], cwd=ROOT, check=True)
+
+
+def test_the_network_modules_see_only_observations_and_masks():
+    """The encoder, the heads and the sampler import no world state, map or engine: they cannot read a hidden fact."""
+    forbidden = {"formicmind.eco.model", "formicmind.eco.engine", "formicmind.eco.initial", "formicmind.eco.mapgen", "formicmind.eco.simulation",
+                 "formicmind.eco.apply", "formicmind.eco.orders", "formicmind.eco.cohorts", "formicmind.eco.combat", "formicmind.eco.serialization"}
+    for name in ("features.py", "network.py", "distribution.py", "learned.py"):
+        for imported in _imports(RL / name):
+            assert imported not in forbidden and not any(imported.startswith(f + ".") for f in forbidden), f"{name} imports {imported}"
 
 
 def test_eco_does_not_use_dynamic_imports_or_third_party_packages():
