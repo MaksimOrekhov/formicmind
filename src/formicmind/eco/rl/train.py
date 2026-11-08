@@ -21,7 +21,7 @@ from pathlib import Path
 import torch
 
 from ..config import default_config
-from ..viability import GAMMA_30, LAMBDA_30
+from ..viability import GAMMA_30, LAMBDA_30, REWARD_VERSION
 from .checkpoint import load_model, save_model
 from .network import ActorCriticE1, NetworkConfig
 from .ppo import PPOConfig, merge_episodes, ppo_update
@@ -142,7 +142,8 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
     untrained = None if init_model else copy.deepcopy(model)
     optimizer = torch.optim.Adam(model.parameters(), lr=config.ppo.lr, eps=1e-5)
     generator = torch.Generator().manual_seed(config.seed)
-    (out / "config.json").write_text(json.dumps(config.to_dict(), indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
+    (out / "config.json").write_text(json.dumps({**config.to_dict(), "reward_version": REWARD_VERSION}, indent=2, sort_keys=True) + "\n",
+                                       encoding="utf-8", newline="\n")
     pool = _Pool(config.workers)
     started = time.perf_counter()
     metrics_path = out / "metrics.jsonl"
@@ -186,7 +187,8 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
             for name in (k for k in final_eval if isinstance(final_eval[k], dict)):
                 row = final_eval[name]
                 log(f"  {name:22s} reward={row['reward']:.4f} survival={row['survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
-                    f"delivered={row['delivered']:.0f} contacts={row['contact']:.1f} attacks={row['dispatch_attack']:.2f}")
+                    f"brood={row['brood_end']:.1f} eggs={row['eggs_laid']:.0f} delivered={row['delivered']:.0f} contacts={row['contact']:.1f} "
+                    f"attacks={row['dispatch_attack']:.2f} combat={row['combat']:.1f}")
     finally:
         pool.close()
     return {"manifest": manifest, "first_eval": first_eval, "final_eval": final_eval, "wall_seconds": time.perf_counter() - started}

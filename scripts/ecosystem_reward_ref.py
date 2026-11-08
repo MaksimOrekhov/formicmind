@@ -20,12 +20,37 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 from dataclasses import dataclass
+from fractions import Fraction
 
 Q = 65536  # fixed point of the viability score (1.0 == Q)
 K = 30  # nominal decision interval, ticks
 GAMMA_30 = 0.997
 LAMBDA_30 = 0.95
 DEATH_PENALTY = 1.0
+
+
+def viability_exact(e_pop, income, burn, food, queen_alive: bool, version: int = 2) -> Fraction:
+    """Viability ``v`` of contracts 9.1 in exact rational arithmetic (no fixed point, no floor), from natural units:
+    ``e_pop`` workers-equivalents (the EMA), ``income`` / ``burn`` food per tick, ``food`` stored.
+
+    * reward v1 (first FOR-49 pilot): ``v = alive * (0.6 pop + 0.4 security)``;
+    * reward v2: ``security`` is multiplied by the population gate ``min(1, e_pop / 10)``, so a colony with no adults is paid nothing
+      for the food in its store.
+    Written without reading ``formicmind``; the engine's integer ``viability_q`` must stay within a few units of ``floor(Q * v)``."""
+    if version not in (1, 2):
+        raise ValueError(f"unknown reward version {version}")
+    if not queen_alive:
+        return Fraction(0)
+    e_pop, income, burn, food = Fraction(e_pop), Fraction(income), Fraction(burn), Fraction(food)
+    pop = min(Fraction(1), e_pop / 60)
+    security = Fraction(1) if burn <= income else min(Fraction(1), food / (burn - income) / 40)
+    if version == 2:
+        security *= min(Fraction(1), e_pop / 10)
+    return Fraction(6, 10) * pop + Fraction(4, 10) * security
+
+
+def viability_q_exact(e_pop, income, burn, food, queen_alive: bool, version: int = 2) -> int:
+    return math.floor(Q * viability_exact(e_pop, income, burn, food, queen_alive, version))
 
 
 @dataclass(frozen=True, slots=True)

@@ -12,8 +12,12 @@ Per tick ``tau`` (after the whole tick, Terminal/Log included), with ``Q = 65536
     burn    += (due - burn) / 120               upkeep due this tick (eggs are an investment, not burn)
     pop      = min(1, E_pop / 60)
     runway   = food / (burn - income)           if burn > income else +inf
-    security = min(1, runway / 40)
+    security = min(1, runway / 40) * gate       gate = min(1, E_pop / 10)   [reward v2; v1: gate = 1]
     v        = queen_alive * (0.6 pop + 0.4 security)        v_q = floor(Q v)
+
+Reward versions (contracts 9.1): v1 is the first FOR-49 pilot's reward. It paid ``security = 1`` to a colony with no adults at all (no upkeep, so an
+infinite runway), which PPO found and exploited. v2 multiplies ``security`` by the population gate ``min(1, E_pop / 10)``, so a hollow colony earns
+nothing for its stored food. ``REWARD_VERSION`` is the version used for training; v1 stays available only to re-score old runs.
 
 [CHOICE] The contract fixes tau = 300 only for the population EMA; income and burn use tau = 120 ticks (four planned decision windows), the
 same memory as the windowed EMAs of the observation (``observation.next_rolling``, weight 1/4 per 30 ticks), because deliveries are lumpy.
@@ -40,6 +44,9 @@ K_NOMINAL = 30
 GAMMA_30 = 0.997
 LAMBDA_30 = 0.95
 DEATH_PENALTY = 1.0
+REWARD_VERSION = 2          # contracts 9.1 revision of the reward; 1 = first FOR-49 pilot (no population gate on security)
+REWARD_VERSIONS = (1, 2)
+GATE_POP_WE = 10            # workers-equivalents of E_pop at which the population gate of ``security`` opens fully (v2)
 
 
 def _ema(previous: int, sample: int, tau: int) -> int:
@@ -47,13 +54,17 @@ def _ema(previous: int, sample: int, tau: int) -> int:
     return previous + ((sample - previous) * 2 + tau) // (2 * tau)
 
 
-def viability_q(pop_ema_q: int, income_ema_q: int, burn_ema_q: int, food: int, queen_alive: bool) -> int:
-    """``v_q = floor(Q * v)`` of contracts 9.1 from the three fixed-point EMAs, the stored food and the queen."""
+def viability_q(pop_ema_q: int, income_ema_q: int, burn_ema_q: int, food: int, queen_alive: bool, version: int = REWARD_VERSION) -> int:
+    """``v_q = floor(Q * v)`` of contracts 9.1 from the three fixed-point EMAs, the stored food and the queen (``version``: reward revision)."""
+    if version not in REWARD_VERSIONS:
+        raise ValueError(f"unknown reward version {version!r}")
     if not queen_alive:
         return 0
     pop_q = min(Q, pop_ema_q // POP_CAP)
     net = burn_ema_q - income_ema_q
     security_q = Q if net <= 0 else min(Q, max(0, food) * Q * Q // (RUNWAY_CAP * net))
+    if version >= 2:
+        security_q = security_q * min(Q, pop_ema_q // GATE_POP_WE) // Q
     return (W_POP_Q * pop_q + W_SECURITY_Q * security_q) // 10
 
 
@@ -69,7 +80,10 @@ class _ColonyTrace:
 class ViabilityTracker:
     """Per-tick viability of every colony of one world. Call ``update(state, record)`` once after each ``step_world_tick``."""
 
-    def __init__(self, state) -> None:
+    def __init__(self, state, version: int = REWARD_VERSION) -> None:
+        if version not in REWARD_VERSIONS:
+            raise ValueError(f"unknown reward version {version!r}")
+        self.version = version
         self.traces = [_ColonyTrace(c.rolling.pop_ema_q, 0, c.rolling.burn_ema_q) for c in state.colonies]
         self.tick = state.tick   # next tick to be recorded
 
@@ -88,7 +102,7 @@ class ViabilityTracker:
             trace.pop_ema_q = _ema(trace.pop_ema_q, (2 * workers + soldiers) * Q // 2, TAU_POP)
             trace.income_ema_q = _ema(trace.income_ema_q, record.delivered_by_colony.get(colony.colony_id, 0) * Q, TAU_ECON)
             trace.burn_ema_q = _ema(trace.burn_ema_q, record.upkeep_due_by_colony.get(colony.colony_id, 0) * Q, TAU_ECON)
-            trace.v_q.append(viability_q(trace.pop_ema_q, trace.income_ema_q, trace.burn_ema_q, colony.food, alive))
+            trace.v_q.append(viability_q(trace.pop_ema_q, trace.income_ema_q, trace.burn_ema_q, colony.food, alive, self.version))
             if not alive:
                 trace.death_tick = self.tick + 1
         self.tick += 1

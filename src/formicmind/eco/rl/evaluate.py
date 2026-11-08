@@ -15,6 +15,7 @@ from ...rng import new_stream
 from ..config import default_config
 from ..policy import PolicyRunSpec, PolicySpec, build_policies, stream_id_of
 from ..policy_run import PolicyController
+from ..viability import REWARD_VERSION
 from .learned import LearnedColonyPolicy
 from .network import ActorCriticE1, NetworkConfig
 from .play import colony_metrics, play_world, summarize
@@ -72,7 +73,7 @@ def evaluation_suite(model: ActorCriticE1, config, pool, *, label: str, baseline
                          "scenario": config.scenario, "seed": seed, "ticks": config.ticks})
             owners.append(name)
     results = pool.map(_eval_job, jobs)
-    report: dict = {"label": label, "seeds": seeds, "ticks": config.ticks, "colonies": config.colonies, "scenario": config.scenario}
+    report: dict = {"label": label, "reward_version": REWARD_VERSION, "seeds": seeds, "ticks": config.ticks, "colonies": config.colonies, "scenario": config.scenario}
     for name, _, _ in contestants:
         runs = [r for owner, r in zip(owners, results) if owner == name]
         report[name] = summarize(runs)

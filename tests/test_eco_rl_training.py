@@ -29,7 +29,7 @@ from formicmind.eco.rl.learned import LearnedColonyPolicy, register_model, varia
 from formicmind.eco.rl.network import ActorCriticE1
 from formicmind.eco.rl.ppo import PPOConfig, TrainingSet, merge_episodes, ppo_update
 from formicmind.eco.rl.rollout import MirrorRuntime, SlotPolicy, collect_episode
-from formicmind.eco.viability import interval_discount
+from formicmind.eco.viability import REWARD_VERSION, interval_discount
 from formicmind.rng import new_stream, policy_stream_id
 
 CONFIG = default_config(8, "moderate")
@@ -180,6 +180,7 @@ def test_a_model_survives_a_save_load_roundtrip_and_a_tampered_one_is_refused(tm
     manifest = save_model(tmp_path / "m", model, training={"iterations": 0})
     loaded, again = load_model(tmp_path / "m")
     assert again["weights_sha256"] == manifest["weights_sha256"] and again["observation_version"] == "ObservationE1/v2"
+    assert manifest["reward_version"] == again["reward_version"] == REWARD_VERSION == 2        # a new model says which reward it was trained on
     obs, masks = recorded_decisions()[5]
     batch = cat([step_batch(obs, masks)])
     zero = torch.zeros(1, model.config.hidden)
@@ -270,6 +271,14 @@ def test_the_committed_pilot_model_replays_the_committed_viewer_sample_byte_for_
     assert document.header["seed"] == "90000" and document.header["ticks_requested"] == 6000
     assert {p.variant for p in document.policy.policies} == {variant_for(manifest, "sample")}
     assert document.result["decision_count"] == 1600 and [o["status"] for o in document.result["colony_outcomes"]] == ["alive"] * 8
+
+
+def test_the_first_pilot_model_is_marked_as_trained_on_reward_v1():
+    """Its manifest predates the field (the model files are kept byte for byte); the loader reads a missing field as the first reward."""
+    raw = json.loads((PILOT / "model" / MANIFEST).read_text(encoding="utf-8"))
+    assert "reward_version" not in raw
+    _, manifest = load_model(PILOT / "model")
+    assert manifest["reward_version"] == 1 != REWARD_VERSION
 
 
 def test_the_committed_pilot_numbers_say_what_the_report_says():

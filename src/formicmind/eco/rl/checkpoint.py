@@ -13,6 +13,7 @@ from pathlib import Path
 import torch
 
 from ..versions import ACTION_VERSION, ECO_RULES_VERSION, OBSERVATION_VERSION
+from ..viability import REWARD_VERSION
 from .network import ActorCriticE1, NetworkConfig
 
 MODEL_SCHEMA = "formicmind.eco.rl.model/1"
@@ -40,7 +41,7 @@ def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | 
     torch.save(state, folder / WEIGHTS)
     manifest = {
         "schema": MODEL_SCHEMA, "eco_rules_version": ECO_RULES_VERSION, "observation_version": OBSERVATION_VERSION,
-        "action_version": ACTION_VERSION, "network": model.config.to_dict(), "weights_file": WEIGHTS,
+        "action_version": ACTION_VERSION, "reward_version": REWARD_VERSION, "network": model.config.to_dict(), "weights_file": WEIGHTS,
         "weights_sha256": sha256_file(folder / WEIGHTS), "parameters": sum(p.numel() for p in model.parameters()),
         "torch": torch.__version__, "training": training or {},
     }
@@ -69,6 +70,7 @@ def load_model(directory: str | Path) -> tuple[ActorCriticE1, dict]:
     except (RuntimeError, TypeError, KeyError) as exc:
         raise ModelError(f"{folder}: the weights do not fit the network of the manifest: {exc}") from exc
     model.eval()
+    manifest.setdefault("reward_version", 1)     # models trained before the reward revision (first FOR-49 pilot) carry no field: they were trained on v1
     return model, manifest
 
 
