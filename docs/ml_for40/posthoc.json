@@ -1,0 +1,391 @@
+{
+  "dataset_sha256": "786f6adaeaa93ed599d69014ff0be242f7729624b1bd285ac7f3dee5264c103c",
+  "funnel_by_split_source_opponent": {
+    "heldout/H_det/balanced:v2": {
+      "decisions_lost_to_global_deduplication": 0,
+      "matches": 8,
+      "mean_final_tick": 1573.0,
+      "mean_source_decisions_per_match": 52.625,
+      "reasons": {
+        "queen_death": 4,
+        "timeout": 4
+      },
+      "retained_decisions": 421,
+      "source_decisions": 421
+    },
+    "heldout/H_det/raider:v2": {
+      "decisions_lost_to_global_deduplication": 8,
+      "matches": 8,
+      "mean_final_tick": 124.875,
+      "mean_source_decisions_per_match": 4.5,
+      "reasons": {
+        "queen_death": 8
+      },
+      "retained_decisions": 28,
+      "source_decisions": 36
+    },
+    "heldout/H_det/rush:v2": {
+      "decisions_lost_to_global_deduplication": 8,
+      "matches": 8,
+      "mean_final_tick": 123.5,
+      "mean_source_decisions_per_match": 4.5,
+      "reasons": {
+        "economic_collapse": 1,
+        "queen_death": 7
+      },
+      "retained_decisions": 28,
+      "source_decisions": 36
+    },
+    "heldout/H_det/turtle:v2": {
+      "decisions_lost_to_global_deduplication": 8,
+      "matches": 8,
+      "mean_final_tick": 1682.875,
+      "mean_source_decisions_per_match": 56.25,
+      "reasons": {
+        "economic_collapse": 1,
+        "queen_death": 3,
+        "timeout": 4
+      },
+      "retained_decisions": 442,
+      "source_decisions": 450
+    },
+    "heldout/H_random/*": {
+      "decisions_lost_to_global_deduplication": 65,
+      "matches": 64,
+      "mean_final_tick": 212.40625,
+      "mean_source_decisions_per_match": 7.484375,
+      "reasons": {
+        "economic_collapse": 26,
+        "queen_death": 38
+      },
+      "retained_decisions": 414,
+      "source_decisions": 479
+    },
+    "train/P_det/balanced:v2": {
+      "decisions_lost_to_global_deduplication": 0,
+      "matches": 24,
+      "mean_final_tick": 816.125,
+      "mean_source_decisions_per_match": 27.375,
+      "reasons": {
+        "queen_death": 18,
+        "timeout": 6
+      },
+      "retained_decisions": 657,
+      "source_decisions": 657
+    },
+    "train/P_det/turtle:v2": {
+      "decisions_lost_to_global_deduplication": 24,
+      "matches": 24,
+      "mean_final_tick": 2338.125,
+      "mean_source_decisions_per_match": 78.0,
+      "reasons": {
+        "economic_collapse": 2,
+        "queen_death": 4,
+        "timeout": 18
+      },
+      "retained_decisions": 1848,
+      "source_decisions": 1872
+    },
+    "train/P_random/*": {
+      "decisions_lost_to_global_deduplication": 198,
+      "matches": 192,
+      "mean_final_tick": 335.4895833333333,
+      "mean_source_decisions_per_match": 11.640625,
+      "reasons": {
+        "economic_collapse": 79,
+        "queen_death": 113
+      },
+      "retained_decisions": 2037,
+      "source_decisions": 2235
+    },
+    "train/S_eps/*": {
+      "decisions_lost_to_global_deduplication": 789,
+      "matches": 171,
+      "mean_final_tick": 431.4795321637427,
+      "mean_source_decisions_per_match": 14.742690058479532,
+      "reasons": {
+        "economic_collapse": 61,
+        "queen_death": 108,
+        "timeout": 2
+      },
+      "retained_decisions": 1732,
+      "source_decisions": 2521
+    },
+    "train/S_switch/*": {
+      "decisions_lost_to_global_deduplication": 121,
+      "matches": 21,
+      "mean_final_tick": 465.14285714285717,
+      "mean_source_decisions_per_match": 15.714285714285714,
+      "reasons": {
+        "queen_death": 19,
+        "timeout": 2
+      },
+      "retained_decisions": 209,
+      "source_decisions": 330
+    },
+    "validation/P_det/balanced:v2": {
+      "decisions_lost_to_global_deduplication": 0,
+      "matches": 8,
+      "mean_final_tick": 2271.5,
+      "mean_source_decisions_per_match": 75.75,
+      "reasons": {
+        "queen_death": 2,
+        "timeout": 6
+      },
+      "retained_decisions": 606,
+      "source_decisions": 606
+    },
+    "validation/P_det/turtle:v2": {
+      "decisions_lost_to_global_deduplication": 8,
+      "matches": 8,
+      "mean_final_tick": 2714.375,
+      "mean_source_decisions_per_match": 90.5,
+      "reasons": {
+        "queen_death": 1,
+        "timeout": 7
+      },
+      "retained_decisions": 716,
+      "source_decisions": 724
+    },
+    "validation/P_random/*": {
+      "decisions_lost_to_global_deduplication": 67,
+      "matches": 64,
+      "mean_final_tick": 265.1875,
+      "mean_source_decisions_per_match": 9.25,
+      "reasons": {
+        "economic_collapse": 20,
+        "queen_death": 44
+      },
+      "retained_decisions": 525,
+      "source_decisions": 592
+    },
+    "validation/S_eps/*": {
+      "decisions_lost_to_global_deduplication": 300,
+      "matches": 40,
+      "mean_final_tick": 668.25,
+      "mean_source_decisions_per_match": 22.625,
+      "reasons": {
+        "economic_collapse": 9,
+        "queen_death": 29,
+        "timeout": 2
+      },
+      "retained_decisions": 605,
+      "source_decisions": 905
+    },
+    "validation/S_switch/*": {
+      "decisions_lost_to_global_deduplication": 88,
+      "matches": 11,
+      "mean_final_tick": 592.1818181818181,
+      "mean_source_decisions_per_match": 20.0,
+      "reasons": {
+        "queen_death": 10,
+        "timeout": 1
+      },
+      "retained_decisions": 132,
+      "source_decisions": 220
+    }
+  },
+  "heldout_deferred_opponent_matches": [
+    {
+      "final_tick": 117,
+      "map_id": "g400000007",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 3,
+      "source_decisions": 4
+    },
+    {
+      "final_tick": 86,
+      "map_id": "g400000012",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 2,
+      "source_decisions": 3
+    },
+    {
+      "final_tick": 87,
+      "map_id": "g400000026",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 2,
+      "source_decisions": 3
+    },
+    {
+      "final_tick": 172,
+      "map_id": "g400000043",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 5,
+      "source_decisions": 6
+    },
+    {
+      "final_tick": 123,
+      "map_id": "g400000045",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 4,
+      "source_decisions": 5
+    },
+    {
+      "final_tick": 87,
+      "map_id": "g400000046",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 2,
+      "source_decisions": 3
+    },
+    {
+      "final_tick": 242,
+      "map_id": "g400000051",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 8,
+      "source_decisions": 9
+    },
+    {
+      "final_tick": 85,
+      "map_id": "g400000072",
+      "opponent_id": "raider:v2",
+      "reason": "queen_death",
+      "retained_decisions": 2,
+      "source_decisions": 3
+    },
+    {
+      "final_tick": 209,
+      "map_id": "g400000007",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 6,
+      "source_decisions": 7
+    },
+    {
+      "final_tick": 139,
+      "map_id": "g400000012",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 4,
+      "source_decisions": 5
+    },
+    {
+      "final_tick": 55,
+      "map_id": "g400000026",
+      "opponent_id": "rush:v2",
+      "reason": "economic_collapse",
+      "retained_decisions": 1,
+      "source_decisions": 2
+    },
+    {
+      "final_tick": 122,
+      "map_id": "g400000043",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 4,
+      "source_decisions": 5
+    },
+    {
+      "final_tick": 110,
+      "map_id": "g400000045",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 3,
+      "source_decisions": 4
+    },
+    {
+      "final_tick": 134,
+      "map_id": "g400000046",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 4,
+      "source_decisions": 5
+    },
+    {
+      "final_tick": 107,
+      "map_id": "g400000051",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 3,
+      "source_decisions": 4
+    },
+    {
+      "final_tick": 112,
+      "map_id": "g400000072",
+      "opponent_id": "rush:v2",
+      "reason": "queen_death",
+      "retained_decisions": 3,
+      "source_decisions": 4
+    }
+  ],
+  "label_diversity": {
+    "heldout": {
+      "army_shares": {
+        "defend": 0.14928732183045762,
+        "garrison": 0.7959489872468117,
+        "raid": 0.05476369092273068
+      },
+      "decisions": 1333,
+      "distinct_forage_tuples": 417,
+      "distinct_lay_army_avoid": 11,
+      "lay_shares": {
+        "none": 0.7449362340585146,
+        "soldier": 0.18529632408102026,
+        "worker": 0.06976744186046512
+      }
+    },
+    "train": {
+      "army_shares": {
+        "defend": 0.13897886780811353,
+        "garrison": 0.8162887552059231,
+        "raid": 0.04473237698596329
+      },
+      "decisions": 6483,
+      "distinct_forage_tuples": 2098,
+      "distinct_lay_army_avoid": 11,
+      "lay_shares": {
+        "none": 0.728057997840506,
+        "soldier": 0.20345519049822613,
+        "worker": 0.06848681166126794
+      }
+    },
+    "validation": {
+      "army_shares": {
+        "defend": 0.08746130030959752,
+        "garrison": 0.8591331269349846,
+        "raid": 0.053405572755417956
+      },
+      "decisions": 2584,
+      "distinct_forage_tuples": 583,
+      "distinct_lay_army_avoid": 11,
+      "lay_shares": {
+        "none": 0.7202012383900929,
+        "soldier": 0.21362229102167182,
+        "worker": 0.0661764705882353
+      }
+    }
+  },
+  "note": "Descriptive diagnostics computed after the DATA NO-GO result; they do not change the gate decision.",
+  "observation_coverage_l2_nearest_neighbor": {
+    "heldout_to_train": {
+      "max": 3.6262855529785156,
+      "median": 2.336435556411743,
+      "min": 0.8660253882408142,
+      "p10": 1.654251980781555,
+      "p90": 3.0680326938629148
+    },
+    "train_to_train_leave_one_out": {
+      "max": 3.26664400100708,
+      "median": 0.11353352665901184,
+      "min": 0.012352647259831429,
+      "p10": 0.024472586810588837,
+      "p90": 1.5487641096115115
+    },
+    "validation_to_train": {
+      "max": 3.8238961696624756,
+      "median": 2.0798391103744507,
+      "min": 0.8660265207290649,
+      "p10": 1.4518443584442138,
+      "p90": 2.6231257200241087
+    }
+  },
+  "preregistered": false,
+  "schema": "formicmind.ml-for40-posthoc/v1"
+}
