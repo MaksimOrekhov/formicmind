@@ -1,7 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { EcoReplayError, EcoReplayVersionError, parseEcoReplayBytes } from './parseEcoReplay'
-import { joinLines, policySampleBytes, policySampleReplay, pythonRun, rechain, sampleBytes, sampleReplay, textLines } from './testing'
+import { joinLines, policySampleBytes, policySampleReplay, pythonRun, rechain, sampleBytes, sampleReplay, textLines, unknownFoodReplayBytes } from './testing'
+import { colonyView } from './model'
 import { utf8 } from '../data/replayCrypto'
+
+it('keeps the first food node hidden in colony view until the scout visits it', () => {
+  const bytes = unknownFoodReplayBytes()
+  const replay = parseEcoReplayBytes(bytes)
+  expect(replay.initialKnowledge).toBe('unknown-food-v1')
+  const first = colonyView(replay, replay.frames[0], 1)
+  expect(first.nodes.find((node) => node.id === 46)).toMatchObject({ kind: 'unknown', status: 'discovered', stock: null, capacity: 0 })
+  const later = colonyView(replay, replay.frames.find((frame) => frame.tick === 30)!, 1)
+  expect(later.nodes.find((node) => node.id === 46)).toMatchObject({ kind: 'patch', status: 'visited' })
+  const invalid = rechain(textLines(bytes), (record) => record.type === 'header' ? { ...record, initial_knowledge: 'default' } : record)
+  expect(() => parseEcoReplayBytes(invalid)).toThrow(/initial_knowledge/)
+})
 
 describe('E1 replay parser on the real seed-50004 run', () => {
   const replay = sampleReplay()

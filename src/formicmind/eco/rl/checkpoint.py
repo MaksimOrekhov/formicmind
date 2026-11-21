@@ -13,6 +13,7 @@ from pathlib import Path
 import torch
 
 from ..curriculum import validate_profile
+from ..knowledge import DEFAULT_KNOWLEDGE, validate_initial_knowledge
 from ..versions import ACTION_VERSION, ECO_RULES_VERSION, OBSERVATION_VERSION
 from ..viability import REWARD_VERSION
 from .network import ActorCriticE1, NetworkConfig
@@ -34,10 +35,12 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | None = None, curriculum: str = "none") -> dict:
+def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | None = None, curriculum: str = "none",
+               initial_knowledge: str = DEFAULT_KNOWLEDGE) -> dict:
     """Write ``weights.pt`` and ``manifest.json`` into ``directory`` and return the manifest. ``curriculum`` is the action-mask profile the model was
     trained under (FOR-50): a model of ``nest-v1`` is a diagnostic policy of a restricted action space, never to be mistaken for a free agent."""
     folder = Path(directory)
+    validate_initial_knowledge(initial_knowledge)
     folder.mkdir(parents=True, exist_ok=True)
     state = {k: v.detach().cpu().contiguous() for k, v in model.state_dict().items()}
     torch.save(state, folder / WEIGHTS)
@@ -47,6 +50,8 @@ def save_model(directory: str | Path, model: ActorCriticE1, *, training: dict | 
         "weights_sha256": sha256_file(folder / WEIGHTS), "parameters": sum(p.numel() for p in model.parameters()),
         "torch": torch.__version__, "training": training or {}, "curriculum": validate_profile(curriculum),
     }
+    if initial_knowledge != DEFAULT_KNOWLEDGE:
+        manifest["initial_knowledge"] = initial_knowledge
     (folder / MANIFEST).write_text(json.dumps(manifest, indent=2, sort_keys=True, ensure_ascii=True) + "\n", encoding="utf-8", newline="\n")
     return manifest
 
@@ -60,6 +65,10 @@ def load_model(directory: str | Path) -> tuple[ActorCriticE1, dict]:
         raise ModelError(f"{folder}: no readable {MANIFEST}: {exc}") from exc
     if manifest.get("schema") != MODEL_SCHEMA:
         raise ModelError(f"{folder}: not a {MODEL_SCHEMA} model")
+    try:
+        validate_initial_knowledge(manifest.get("initial_knowledge", DEFAULT_KNOWLEDGE))
+    except ValueError as exc:
+        raise ModelError(f"{folder}: {exc}") from exc
     for key, current in (("eco_rules_version", ECO_RULES_VERSION), ("observation_version", OBSERVATION_VERSION), ("action_version", ACTION_VERSION)):
         if manifest.get(key) != current:
             raise ModelError(f"{folder}: trained for {key}={manifest.get(key)!r}, this code is {current!r}")

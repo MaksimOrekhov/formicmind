@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import EcoApp from './EcoApp.vue'
 import Root from '../Root.vue'
-import { learnedSampleBytes, policySampleBytes, rechain, sampleBytes, textLines, joinLines } from './testing'
+import { learnedSampleBytes, policySampleBytes, rechain, sampleBytes, textLines, joinLines, unknownFoodReplayBytes } from './testing'
 
 function respondWithSample() {
   const bytes = sampleBytes()
@@ -37,7 +37,18 @@ describe('E1 viewer application', () => {
     expect(wrapper.findAll('.eco-node')).toHaveLength(96)
     expect(wrapper.findAll('.eco-node.kind-nest')).toHaveLength(8)
     expect(wrapper.find('[data-testid="tick"]').text()).toBe('0')
+    expect(wrapper.find('[data-testid="initial-knowledge-chip"]').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('Файл не открыт')
+    wrapper.unmount()
+  })
+
+  it('labels the initial knowledge separately from the action curriculum', async () => {
+    const bytes = unknownFoodReplayBytes()
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, arrayBuffer: async () => bytes.slice().buffer })))
+    const wrapper = mount(EcoApp)
+    await settle(wrapper)
+    expect(wrapper.get('[data-testid="initial-knowledge-chip"]').text()).toBe('initial_knowledge: unknown-food-v1')
+    expect(wrapper.get('[data-testid="curriculum-chip"]').text()).toBe('curriculum: scout-v1')
     wrapper.unmount()
   })
 

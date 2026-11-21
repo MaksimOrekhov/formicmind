@@ -29,6 +29,7 @@ from .config import ConfigE1
 from .curriculum import apply_curriculum_masks, validate_profile
 from .decoder import decode
 from .engine import RouteTable
+from .knowledge import DEFAULT_KNOWLEDGE, validate_initial_knowledge
 from .model import MapE1, WindowStatsE1, WorldStateE1
 from .observation import build_observation, next_rolling, observation_hash
 from .policy import PolicyE1
@@ -66,10 +67,12 @@ class PolicyController:
     are validated and applied exactly as before; the batcher sees the same private observations and nothing else.
     """
 
-    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None, curriculum: str = "none") -> None:
+    def __init__(self, policies: Sequence[PolicyE1], log: DecisionLog | None = None, batcher=None, curriculum: str = "none",
+                 *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> None:
         self.policies = list(policies)
         self.batcher = batcher
         self.curriculum = validate_profile(curriculum)
+        self.initial_knowledge = validate_initial_knowledge(initial_knowledge)
         self.log = DecisionLog() if log is None else log
         self.last_decision = [-1] * len(self.policies)
         self.decisions = [0] * len(self.policies)
@@ -146,11 +149,15 @@ class PolicyController:
             data["retired"] = sorted(self.retired)
         if self.curriculum != "none":
             data["curriculum"] = self.curriculum
+        if self.initial_knowledge != DEFAULT_KNOWLEDGE:
+            data["initial_knowledge"] = self.initial_knowledge
         return data
 
     def restore(self, data: dict) -> None:
         if data.get("curriculum", "none") != self.curriculum:
             raise ValueError(f"the checkpoint was taken under curriculum {data.get('curriculum', 'none')!r}, this controller runs {self.curriculum!r}")
+        if data.get("initial_knowledge", DEFAULT_KNOWLEDGE) != self.initial_knowledge:
+            raise ValueError("controller checkpoint initial_knowledge does not match the run")
         self.last_decision, self.decisions = list(data["last_decision"]), list(data["decisions"])
         self.retired = set(data.get("retired", ()))
         self.log.head, self.log.count = data["log"]["head"], data["log"]["count"]
@@ -175,7 +182,8 @@ class PolicyRunResult:
     decisions_hash: str
 
 
-def run_policies(config: ConfigE1, seed: int, spec, ticks: int | None = None) -> PolicyRunResult:
+def run_policies(config: ConfigE1, seed: int, spec, ticks: int | None = None, *,
+                 initial_knowledge: str = DEFAULT_KNOWLEDGE) -> PolicyRunResult:
     """Headless run of a real generated world with one independent policy per colony. Same inputs give the same hashes."""
     from .engine import step_world_tick
     from .events import EventLog
@@ -186,9 +194,10 @@ def run_policies(config: ConfigE1, seed: int, spec, ticks: int | None = None) ->
     duration = config.horizon if ticks is None else ticks
     if type(duration) is not int or not 0 <= duration <= config.horizon:
         raise ValueError("ticks must be an integer between zero and the configured horizon")
-    world = build_world(config, seed)
+    world = build_world(config, seed, initial_knowledge=initial_knowledge)
     routes = RouteTable(world.world_map)
-    controller = PolicyController(build_policies(spec, config), curriculum=spec.curriculum)
+    controller = PolicyController(build_policies(spec, config, initial_knowledge=initial_knowledge), curriculum=spec.curriculum,
+                                  initial_knowledge=initial_knowledge)
     events = EventLog()
     for _ in range(duration):
         record = step_world_tick(world.state, world.run, config, world.world_map, controller, routes=routes,

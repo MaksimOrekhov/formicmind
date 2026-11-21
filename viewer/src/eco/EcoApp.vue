@@ -87,6 +87,7 @@ onMounted(() => { if (typeof fetch === 'function') void loadSample() })
         <span class="top-chip" :title="`chain_head ${replay.chainHead}`">hash состояния: из Python (python -m formicmind.eco replay-verify)</span>
         <span v-if="replay.policy" class="top-chip ok" data-testid="policy-chip" :title="`policy_seed ${replay.policy.seed} · decisions_hash ${replay.policy.decisionsHash}`">{{ policySummary }}</span>
         <span v-if="curriculumLabel" class="top-chip warn" data-testid="curriculum-chip" :title="curriculumHint">{{ curriculumLabel }}</span>
+        <span v-if="replay.initialKnowledge" class="top-chip warn" data-testid="initial-knowledge-chip" title="В начале колония знает гнездо и выходы из него. Источники пищи открываются при посещении.">initial_knowledge: {{ replay.initialKnowledge }}</span>
       </span>
       <span class="eco-top-actions">
         <button type="button" :disabled="isLoading" @click="loadSample()">Пример: seed 50004</button>

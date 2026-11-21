@@ -25,3 +25,5 @@ docs/ecosystem_examples/for52_scout/train.log text eol=lf
 docs/ecosystem_examples/for52_scout/model/*.json text eol=lf
 docs/ecosystem_examples/for52_scout/model/weights.pt binary
 docs/ecosystem_examples/for53_scout_value/*.json text eol=lf
+docs/ecosystem_examples/for54_unknown_food/*.json text eol=lf
+docs/ecosystem_examples/for54_unknown_food/*.jsonl text eol=lf

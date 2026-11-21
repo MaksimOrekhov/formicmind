@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 from ..config import default_config
+from ..knowledge import DEFAULT_KNOWLEDGE
 from ..policy import PolicyRunSpec, PolicySpec
 from ..replay_file import export_policy_replay, read_replay, verify_replay
 from .checkpoint import load_model
@@ -26,7 +27,7 @@ def cmd_train(args) -> int:
     config = TrainConfig(
         colonies=args.colonies, scenario=args.scenario, ticks=args.ticks, iterations=args.iterations, worlds_per_iteration=args.worlds,
         workers=args.workers, seed=args.seed, train_seed0=args.train_seed0, eval_seed0=args.eval_seed0, eval_worlds=args.eval_worlds,
-        eval_every=args.eval_every, reward_scale=args.reward_scale, curriculum=args.curriculum,
+        eval_every=args.eval_every, reward_scale=args.reward_scale, curriculum=args.curriculum, initial_knowledge=args.initial_knowledge,
         ppo=PPOConfig(lr=args.lr, epochs=args.epochs, seqs_per_minibatch=args.minibatch_seqs))
     train(config, args.out, init_model=args.init, log=lambda text: (sys.stderr.write(text + "\n"), sys.stderr.flush()))
     return 0
@@ -35,14 +36,18 @@ def cmd_train(args) -> int:
 def cmd_eval(args) -> int:
     model, manifest = load_model(args.model)
     curriculum = args.curriculum if args.curriculum is not None else manifest["curriculum"]
+    trained_knowledge = manifest.get("initial_knowledge", DEFAULT_KNOWLEDGE)
+    initial_knowledge = trained_knowledge if args.initial_knowledge is None else args.initial_knowledge
     config = TrainConfig(colonies=args.colonies, scenario=args.scenario, ticks=args.ticks, workers=args.workers,
-                         eval_seed0=args.seed0, eval_worlds=args.worlds, curriculum=curriculum)
+                         eval_seed0=args.seed0, eval_worlds=args.worlds, curriculum=curriculum, initial_knowledge=initial_knowledge)
     pool = _Pool(args.workers)
     try:
         report = evaluation_suite(model, config, pool, label=str(args.model), baselines=not args.no_baselines, greedy=True)
     finally:
         pool.close()
     report["model"] = {"weights_sha256": manifest["weights_sha256"], "path": str(args.model), "trained_curriculum": manifest["curriculum"]}
+    if trained_knowledge != DEFAULT_KNOWLEDGE:
+        report["model"]["trained_initial_knowledge"] = trained_knowledge
     for name in (k for k in report if isinstance(report[k], dict) and "reward" in report[k]):
         row = report[name]
         sys.stderr.write(f"{name:22s} reward={row['reward']:.4f} phys={row['physical_survival']:.2f} func={row['functional_survival']:.2f} hollow={row['hollow']:.2f} workers={row['workers_end']:.1f} "
@@ -59,7 +64,8 @@ def cmd_eval(args) -> int:
         variant = variant_for(manifest, args.replay_mode)
         spec = PolicyRunSpec(args.policy_seed, tuple(PolicySpec("learned", variant) for _ in range(replay_config.n_colonies)), curriculum)
         started = time.perf_counter()
-        replay, decisions = export_policy_replay(replay_config, seed, spec, args.replay_ticks, args.frame_every)
+        replay, decisions = export_policy_replay(replay_config, seed, spec, args.replay_ticks, args.frame_every,
+                                                 initial_knowledge=initial_knowledge)
         Path(args.replay_out).write_bytes(replay)
         if args.decisions:
             Path(args.decisions).write_bytes(decisions)

@@ -48,6 +48,10 @@ export function policySampleReplay(): EcoReplay {
   return cachedPolicyReplay
 }
 
+export function unknownFoodReplayBytes(): Uint8Array {
+  return new Uint8Array(readFileSync(resolve(process.cwd(), '../docs/ecosystem_examples/for54_unknown_food/replay_seed90000.jsonl')))
+}
+
 /** The Python ``run`` report of the same scenario (events_hash, per-kind counts, queen deaths ...). */
 export function pythonRun(): { interaction: Record<string, any>; hashes: Record<string, string> } {
   return JSON.parse(readFileSync(PYTHON_RUN_PATH, 'utf-8'))

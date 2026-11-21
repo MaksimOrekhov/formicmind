@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from ..curriculum import CURRICULUM_PROFILES
+from ..knowledge import DEFAULT_KNOWLEDGE, INITIAL_KNOWLEDGE_PROFILES
 
 SCENARIOS = ("scarcity", "moderate", "abundance")
 
@@ -28,6 +29,8 @@ def add_rl_commands(sub, add_world_args) -> None:
     t.add_argument("--init", default=None, help="start from the weights of this model directory instead of a fresh network")
     t.add_argument("--curriculum", default="none", choices=CURRICULUM_PROFILES,
                    help="action-mask profile of every rollout and evaluation (FOR-50): nest-v1 = workers only, no scouts, no squad orders (a diagnostic stage, not a free agent)")
+    t.add_argument("--initial-knowledge", default=DEFAULT_KNOWLEDGE, choices=INITIAL_KNOWLEDGE_PROFILES,
+                   help="initial private memory profile of all rollouts and evaluations")
 
     e = sub.add_parser("eval", help="evaluate a trained model next to scripted baselines on held-out maps; optionally export a viewer replay")
     e.add_argument("--model", required=True, help="model directory (weights.pt + manifest.json)")
@@ -40,6 +43,8 @@ def add_rl_commands(sub, add_world_args) -> None:
     e.add_argument("--no-baselines", action="store_true", help="evaluate only the learned policy")
     e.add_argument("--curriculum", default=None, choices=CURRICULUM_PROFILES,
                    help="action-mask profile of the evaluation and of the replay (default: the profile the model was trained under; `none` tests the transfer to the full action space)")
+    e.add_argument("--initial-knowledge", default=None, choices=INITIAL_KNOWLEDGE_PROFILES,
+                   help="initial private memory profile for eval and replay (defaults to the profile in the model manifest)")
     e.add_argument("--out", default=None, help="write the evaluation report (JSON) here")
     e.add_argument("--replay-out", default=None, help="also export one evaluation replay of the learned policy for the E1 viewer")
     e.add_argument("--replay-seed", type=int, default=None, help="map seed of the replay (default: the first held-out seed)")

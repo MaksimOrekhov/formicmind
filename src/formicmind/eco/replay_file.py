@@ -27,7 +27,8 @@ from .config import ConfigE1, config_from_canonical, config_hash
 from .engine import RouteTable, step_world_tick
 from .events import EVENT_KINDS, EventE1, EventLog
 from .fixtures import fixture_controller, normalize_fixture
-from .initial import build_world
+from .initial import build_world, initial_world_state
+from .knowledge import DEFAULT_KNOWLEDGE, UNKNOWN_FOOD_V1, validate_initial_knowledge
 from .model import MapE1, WorldStateE1
 from .policy import PolicyRunSpec, build_policies, spec_from_canonical, spec_to_canonical
 from .policy_run import PolicyController
@@ -130,34 +131,39 @@ def _event_record(item: EventE1) -> dict:
 
 
 def export_replay(config: ConfigE1, seed: int, fixture: str = "peaceful_fair", roles: dict[int, str] | None = None,
-                  ticks: int | None = None, frame_every: int = 20) -> bytes:
+                  ticks: int | None = None, frame_every: int = 20, *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> bytes:
     """Run the real engine and return the replay file bytes. Deterministic: no clock, no environment."""
+    validate_initial_knowledge(initial_knowledge)
     fixture = normalize_fixture(fixture)
     controller = fixture_controller(fixture, roles)
-    return _export(config, seed, controller, fixture, {str(k): v for k, v in sorted(controller.roles.items())}, ticks, frame_every, None, None)
+    if initial_knowledge != DEFAULT_KNOWLEDGE and (fixture != "idle" or any(role != "idle" for role in controller.roles.values())):
+        raise ValueError("unknown-food-v1 requires policy-run for active colonies; fixture replay-export supports only idle")
+    return _export(config, seed, controller, fixture, {str(k): v for k, v in sorted(controller.roles.items())}, ticks, frame_every, None, None,
+                   initial_knowledge)
 
 
 def export_policy_replay(config: ConfigE1, seed: int, spec: PolicyRunSpec, ticks: int | None = None,
-                         frame_every: int = 20) -> tuple[bytes, bytes]:
+                         frame_every: int = 20, *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> tuple[bytes, bytes]:
     """Run the real engine with one independent ``PolicyE1`` per colony; returns ``(replay bytes, decision records as JSONL)``.
 
     The replay has the ordinary ``formicmind.eco.replay/1`` records (so the viewer shows the movements and events) plus the specification of the
     policies in the header and the count and chain hash of the decision records in the result; the decision records themselves are the sidecar.
     """
-    controller = PolicyController(build_policies(spec, config), curriculum=spec.curriculum)
+    controller = PolicyController(build_policies(spec, config, initial_knowledge=initial_knowledge), curriculum=spec.curriculum,
+                                  initial_knowledge=initial_knowledge)
     roles ={str(i): (p.kind if not p.variant else f"{p.kind}:{p.variant}") for i, p in enumerate(spec.policies)}
-    replay = _export(config, seed, controller, "policy", roles, ticks, frame_every, spec_to_canonical(spec), controller.log)
+    replay = _export(config, seed, controller, "policy", roles, ticks, frame_every, spec_to_canonical(spec), controller.log, initial_knowledge)
     return replay, controller.log.to_bytes()
 
 
 def _export(config: ConfigE1, seed: int, controller, fixture: str, roles: dict[str, str], ticks: int | None, frame_every: int,
-            policy: dict | None, decisions) -> bytes:
+            policy: dict | None, decisions, initial_knowledge: str) -> bytes:
     duration = config.horizon if ticks is None else ticks
     if type(duration) is not int or not 0 <= duration <= config.horizon:
         raise ValueError("ticks must be an integer between zero and the configured horizon")
     if type(frame_every) is not int or frame_every < 1:
         raise ValueError("frame_every must be a positive integer")
-    world = build_world(config, seed)
+    world = build_world(config, seed, initial_knowledge=initial_knowledge)
     routes = RouteTable(world.world_map)
     chain, log = _Chain(), EventLog()
     header = {
@@ -172,6 +178,8 @@ def _export(config: ConfigE1, seed: int, controller, fixture: str, roles: dict[s
     }
     if policy is not None:
         header["policy"] = policy
+    if initial_knowledge != DEFAULT_KNOWLEDGE:
+        header["initial_knowledge"] = initial_knowledge
     chain.add(header)
     frames = 0
     chain.add(_frame_record(world.state, "start"))
@@ -225,6 +233,7 @@ class ReplayDocument:
     result: dict
     chain_head: str
     policy: PolicyRunSpec | None = None
+    initial_knowledge: str = DEFAULT_KNOWLEDGE
 
 
 def _need(condition: bool, message: str) -> None:
@@ -274,13 +283,20 @@ def read_replay(data: bytes) -> ReplayDocument:
     _need(len(records) >= 3, "a replay needs a header, a frame and a result")
     header, result = records[0], records[-1]
     policy = None
-    _need(header.get("type") == "header" and set(header) in (HEADER_KEYS, HEADER_KEYS | {"policy"}), "the first record must be a complete header")
+    _need(header.get("type") == "header" and set(header) - {"policy", "initial_knowledge"} == HEADER_KEYS,
+          "the first record must be a complete header")
+    initial_knowledge = header.get("initial_knowledge", DEFAULT_KNOWLEDGE)
+    if "initial_knowledge" in header:
+        _need(initial_knowledge == UNKNOWN_FOOD_V1, "header.initial_knowledge: unknown or redundant profile")
     if "policy" in header:
         try:
             policy = spec_from_canonical(header["policy"])
         except CanonicalError as exc:
             raise ReplayFormatError(f"header.policy: {exc}") from exc
         _need(header["fixture"] == "policy", "a policy replay has the fixture name 'policy'")
+    elif initial_knowledge == UNKNOWN_FOOD_V1:
+        _need(header["fixture"] == "idle" and type(header["roles"]) is dict and all(role == "idle" for role in header["roles"].values()),
+              "unknown-food-v1 fixture replays must be idle")
     if header["schema"] != REPLAY_SCHEMA:
         _fail(f"unsupported replay schema {header['schema']!r}; this reader understands {REPLAY_SCHEMA!r}")
     _need(result.get("type") == "result" and set(result) == (POLICY_RESULT_KEYS if policy else RESULT_KEYS), "the last record must be a complete result")
@@ -322,6 +338,10 @@ def read_replay(data: bytes) -> ReplayDocument:
         else:
             _fail(f"unknown record type {kind!r}")
     _need(frames and frames[0]["tick"] == 0 and frames[0]["reason"] == "start", "the first frame must be the start state")
+    if initial_knowledge != DEFAULT_KNOWLEDGE:
+        expected = _frame_record(initial_world_state(config, world_map, initial_knowledge=initial_knowledge), "start")
+        _need(expected == {key: value for key, value in frames[0].items() if key not in {"seq", "chain"}},
+              "start frame disagrees with initial_knowledge")
     _need(frames[-1]["reason"] == "final" and frames[-1]["tick"] == result["ticks_completed"], "the last frame must be the final state")
     _need(result["event_count"] == len(events) and result["events_hash"] == log.head, "events_hash does not match the event records")
     _need(result["frame_count"] == len(frames) and result["record_count"] == len(records), "record counts do not match")
@@ -329,7 +349,7 @@ def read_replay(data: bytes) -> ReplayDocument:
     _need(all(e.tick < result["ticks_completed"] for e in events), "an event lies beyond the last completed tick")
     if policy is not None:
         _need(len(policy.policies) == config.n_colonies, "one policy per colony is required")
-    return ReplayDocument(header, config, world_map, events, frames, result, prev, policy)
+    return ReplayDocument(header, config, world_map, events, frames, result, prev, policy, initial_knowledge)
 
 
 def _validate_frame(frame: dict, config: ConfigE1, world_map: MapE1, patch_nodes: int, last_tick: int) -> None:
@@ -376,12 +396,13 @@ def verify_replay(data: bytes, sidecar: bytes | None = None) -> ReplayDocument:
     header = document.header
     if document.policy is not None:
         regenerated, decisions = export_policy_replay(document.config, int(header["seed"]), document.policy, header["ticks_requested"],
-                                                      header["frame_every"])
+                                                      header["frame_every"], initial_knowledge=document.initial_knowledge)
         _need(regenerated == bytes(data), "re-executing the simulation from the header does not reproduce this file")
         if sidecar is not None:
             _need(decisions == sidecar, "the decision records are not those this run produces")
         return document
     regenerated = export_replay(document.config, int(header["seed"]), header["fixture"],
-                                {int(k): v for k, v in header["roles"].items()}, header["ticks_requested"], header["frame_every"])
+                                {int(k): v for k, v in header["roles"].items()}, header["ticks_requested"], header["frame_every"],
+                                initial_knowledge=document.initial_knowledge)
     _need(regenerated == bytes(data), "re-executing the simulation from the header does not reproduce this file")
     return document

@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from typing import Literal
 
 from .codec import U64
+from .knowledge import DEFAULT_KNOWLEDGE
 
 Caste = Literal["worker", "soldier"]
 NodeKind = Literal["junction", "patch", "nest"]
@@ -334,3 +335,4 @@ class StreamState:
 class RunStateE1:
     root_seed: U64
     streams: list[StreamState]
+    initial_knowledge: str = DEFAULT_KNOWLEDGE

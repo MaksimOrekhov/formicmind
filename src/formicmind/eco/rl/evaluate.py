@@ -13,6 +13,7 @@ import torch
 
 from ...rng import new_stream
 from ..config import default_config
+from ..knowledge import DEFAULT_KNOWLEDGE
 from ..policy import PolicyRunSpec, PolicySpec, build_policies, stream_id_of
 from ..policy_run import PolicyController
 from ..viability import REWARD_VERSION
@@ -26,6 +27,8 @@ EVAL_POLICY_SEED = 1
 
 def _controller(job: dict, config):
     kind = job["kind"]
+    profile = job.get("initial_knowledge", DEFAULT_KNOWLEDGE)
+    curriculum = job.get("curriculum", "none")
     if kind.startswith("learned"):
         model = ActorCriticE1(NetworkConfig(**job["network"]))
         model.load_state_dict(torch.load(io.BytesIO(job["weights"]), weights_only=True))
@@ -36,15 +39,16 @@ def _controller(job: dict, config):
                     for c in range(config.n_colonies)]
     else:
         base, _, variant = kind.partition(":")
-        spec = PolicyRunSpec(EVAL_POLICY_SEED, tuple(PolicySpec(base, variant) for _ in range(config.n_colonies)))
-        policies = build_policies(spec, config)
-    return PolicyController(policies, curriculum=job.get("curriculum", "none"))       # baselines and the learned policy play under the same masks
+        spec = PolicyRunSpec(EVAL_POLICY_SEED, tuple(PolicySpec(base, variant) for _ in range(config.n_colonies)), curriculum)
+        policies = build_policies(spec, config, initial_knowledge=profile)
+    return PolicyController(policies, curriculum=curriculum, initial_knowledge=profile)
 
 
 def _eval_job(job: dict) -> list[dict]:
     torch.set_num_threads(1)
     config = default_config(job["colonies"], job["scenario"])
-    result = play_world(config, job["seed"], _controller(job, config), job["ticks"])
+    result = play_world(config, job["seed"], _controller(job, config), job["ticks"],
+                        initial_knowledge=job.get("initial_knowledge", DEFAULT_KNOWLEDGE))
     return colony_metrics(result)
 
 
@@ -70,11 +74,14 @@ def evaluation_suite(model: ActorCriticE1, config, pool, *, label: str, baseline
         weights = _weights(net) if net is not None else b""
         for seed in seeds:
             jobs.append({"kind": kind, "weights": weights, "network": net.config.to_dict() if net is not None else {}, "colonies": config.colonies,
-                         "scenario": config.scenario, "seed": seed, "ticks": config.ticks, "curriculum": config.curriculum})
+                         "scenario": config.scenario, "seed": seed, "ticks": config.ticks, "curriculum": config.curriculum,
+                         "initial_knowledge": config.initial_knowledge})
             owners.append(name)
     results = pool.map(_eval_job, jobs)
     report: dict = {"label": label, "reward_version": REWARD_VERSION, "seeds": seeds, "ticks": config.ticks, "colonies": config.colonies, "scenario": config.scenario,
                     "curriculum": config.curriculum}
+    if config.initial_knowledge != DEFAULT_KNOWLEDGE:
+        report["initial_knowledge"] = config.initial_knowledge
     for name, _, _ in contestants:
         runs = [r for owner, r in zip(owners, results) if owner == name]
         report[name] = summarize(runs)

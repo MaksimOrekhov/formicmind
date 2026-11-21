@@ -9,7 +9,7 @@ nothing, so decisions are independent by construction.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol, runtime_checkable
 
 from ..canonical import CanonicalError
@@ -18,6 +18,7 @@ from .action import ActionE1, ActionMasksE1, SquadActionE1, NO_SQUAD
 from .config import ConfigE1
 from .curriculum import CURRICULUM_PROFILES
 from .decoder import LATENT_SIZE
+from .knowledge import DEFAULT_KNOWLEDGE, UNKNOWN_FOOD_V1
 from .observation import ObservationE1
 
 POLICY_KINDS = ("random_valid", "heuristic", "learned")
@@ -31,6 +32,7 @@ def register_policy_factory(kind: str, factory) -> None:
         raise ValueError(f"unknown policy kind {kind!r}")
     _FACTORIES[kind] = factory
 HEURISTIC_VARIANTS = ("peaceful", "explorer", "raider", "aggressor")
+BOUNDED_UNKNOWN_FOOD = "bounded-unknown-food"
 
 
 @runtime_checkable
@@ -146,6 +148,22 @@ class ObservationHeuristicPolicy:
         return None
 
 
+class UnknownFoodScoutPolicy(ObservationHeuristicPolicy):
+    """FOR-54 diagnostic: use peaceful orders and one idle worker for the nearest frontier."""
+
+    def __init__(self, config: ConfigE1) -> None:
+        super().__init__(config, "peaceful")
+        self.name = f"heuristic:{BOUNDED_UNKNOWN_FOOD}"
+
+    def act(self, obs: ObservationE1, masks: ActionMasksE1) -> ActionE1:
+        economy = super().act(obs, masks)
+        if obs.facts.scouts_out or not obs.facts.idle_workers_home or not masks.scout_n[1]:
+            return economy
+        best = min(((path, slot) for slot, (_, visited, _, path) in enumerate(obs.node_ints)
+                    if not visited and masks.scout_target[slot]), default=None)
+        return economy if best is None else replace(economy, scout_n=1, scout_targets=(best[1],))
+
+
 # ------------------------------------------------------------------------------------------------ run specification
 
 
@@ -175,7 +193,7 @@ def stream_id_of(spec: PolicySpec, colony: int) -> str:
     return policy_stream_id(spec.kind, colony)
 
 
-def build_policies(spec: PolicyRunSpec, config: ConfigE1) -> list[PolicyE1]:
+def build_policies(spec: PolicyRunSpec, config: ConfigE1, *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> list[PolicyE1]:
     """One independent policy per colony; each random one draws from its own stream derived from the policy seed and the colony index."""
     if len(spec.policies) != config.n_colonies:
         raise ValueError("one policy per colony is required")
@@ -184,7 +202,12 @@ def build_policies(spec: PolicyRunSpec, config: ConfigE1) -> list[PolicyE1]:
         if item.kind == "random_valid":
             out.append(RandomValidPolicy(new_stream(spec.policy_seed, stream_id_of(item, colony))))
         elif item.kind == "heuristic":
-            out.append(ObservationHeuristicPolicy(config, item.variant or "peaceful"))
+            if item.variant == BOUNDED_UNKNOWN_FOOD:
+                if initial_knowledge != UNKNOWN_FOOD_V1 or spec.curriculum != "scout-v1":
+                    raise ValueError(f"{BOUNDED_UNKNOWN_FOOD} requires {UNKNOWN_FOOD_V1} and scout-v1")
+                out.append(UnknownFoodScoutPolicy(config))
+            else:
+                out.append(ObservationHeuristicPolicy(config, item.variant or "peaceful"))
         elif item.kind in _FACTORIES:
             out.append(_FACTORIES[item.kind](item, colony, config, spec.policy_seed))
         elif item.kind in POLICY_KINDS:

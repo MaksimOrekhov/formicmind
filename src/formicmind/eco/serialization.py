@@ -8,6 +8,7 @@ from ..canonical import CanonicalError, canonical_dumps, canonical_loads, domain
 from ..rng import Pcg32
 from .codec import from_canonical, to_canonical
 from .config import ConfigE1, config_hash
+from .knowledge import DEFAULT_KNOWLEDGE, validate_initial_knowledge
 from .model import MapE1, RunStateE1, StreamState, WorldStateE1
 from .validate import validate_map, validate_run_state, validate_state
 from .versions import CHECKPOINT_SCHEMA, HASH_DOMAIN_CHECKPOINT, HASH_DOMAIN_MAP, HASH_DOMAIN_STATE
@@ -67,11 +68,19 @@ def state_hash(state: WorldStateE1) -> str:
 # ---------------------------------------------------------------------------------------------------------------- run / checkpoint
 
 
-def new_run_state(root_seed: int, streams: dict[str, Pcg32]) -> RunStateE1:
+def new_run_state(root_seed: int, streams: dict[str, Pcg32], *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> RunStateE1:
     ordered = [StreamState(sid, rng.state, rng.inc) for sid, rng in sorted(streams.items())]
-    run = RunStateE1(root_seed, ordered)
+    run = RunStateE1(root_seed, ordered, validate_initial_knowledge(initial_knowledge))
     validate_run_state(run)
     return run
+
+
+def _run_to_canonical(run: RunStateE1) -> dict:
+    profile = validate_initial_knowledge(run.initial_knowledge)
+    data = to_canonical(run)
+    if profile == DEFAULT_KNOWLEDGE:
+        del data["initial_knowledge"]
+    return data
 
 
 def checkpoint_to_canonical(config: ConfigE1, world_map: MapE1, state: WorldStateE1, run: RunStateE1) -> dict:
@@ -80,13 +89,13 @@ def checkpoint_to_canonical(config: ConfigE1, world_map: MapE1, state: WorldStat
         "config": to_canonical(config),
         "map": to_canonical(world_map),
         "state": to_canonical(state),
-        "run": to_canonical(run),
+        "run": _run_to_canonical(run),
     }
 
 
 def checkpoint_hash(state: WorldStateE1, run: RunStateE1) -> str:
     """State + all RNG streams: everything needed to continue (contracts 10.1)."""
-    return domain_hash(HASH_DOMAIN_CHECKPOINT, canonical_dumps({"state": to_canonical(state), "run": to_canonical(run)}))
+    return domain_hash(HASH_DOMAIN_CHECKPOINT, canonical_dumps({"state": to_canonical(state), "run": _run_to_canonical(run)}))
 
 
 def checkpoint_to_bytes(config: ConfigE1, world_map: MapE1, state: WorldStateE1, run: RunStateE1) -> bytes:
@@ -102,7 +111,14 @@ def checkpoint_from_bytes(data: bytes) -> tuple[ConfigE1, MapE1, WorldStateE1, R
     config = config_from_canonical(doc["config"])
     world_map = map_from_canonical(doc["map"], config)
     state = state_from_canonical(doc["state"], config, world_map)
-    run = from_canonical(RunStateE1, doc["run"])
+    run_data = doc["run"]
+    if type(run_data) is not dict or run_data.get("initial_knowledge") == DEFAULT_KNOWLEDGE:
+        raise CanonicalError("checkpoint run must omit default initial_knowledge")
+    run = from_canonical(RunStateE1, {"initial_knowledge": DEFAULT_KNOWLEDGE, **run_data})
+    try:
+        validate_initial_knowledge(run.initial_knowledge)
+    except ValueError as exc:
+        raise CanonicalError(str(exc)) from exc
     validate_run_state(run)
     if state.config_hash != config_hash(config) or state.map_hash != world_map.map_hash:
         raise CanonicalError("checkpoint parts do not belong together (config/map hash mismatch)")
