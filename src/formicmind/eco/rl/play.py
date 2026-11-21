@@ -5,12 +5,14 @@ the learned policy. The measures use the omniscient world only for *reporting*; 
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from ..config import ConfigE1
-from ..engine import RouteTable, step_world_tick
+from ..engine import RouteTable, TickRecord, step_world_tick
 from ..events import EventLog
 from ..initial import build_world
+from ..model import MapE1, WorldStateE1
 from ..viability import DEATH_PENALTY, Q, REWARD_VERSION, ViabilityTracker
 
 
@@ -80,7 +82,8 @@ class PlayResult:
         return self.stats.delivered
 
 
-def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_version: int = REWARD_VERSION) -> PlayResult:
+def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_version: int = REWARD_VERSION,
+               observe_tick: Callable[[WorldStateE1, MapE1, TickRecord], None] | None = None) -> PlayResult:
     """Run ``ticks`` ticks (or until the world ends) with the trackers watching from outside. ``controller`` is any engine controller.
 
     The world is the natural one: nothing is retired when a colony's agent episode ends (reward v3 ``functional_extinction``), the policy keeps
@@ -96,13 +99,15 @@ def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_ve
     stats = PlayStats(config.n_colonies)
     for _ in range(ticks):
         record = step_world_tick(world.state, world.run, config, world.world_map, controller, routes=routes,
-                                 validate_input=world.state.tick == 0)
+                                 validate_input=world.state.tick == 0, track_forage_flows=observe_tick is not None)
         events.extend(record.events)
         tracker.update(world.state, record)
         for other in legacy.values():
             if other is not tracker:
                 other.update(world.state, record)
         stats.tick(world.state, record)
+        if observe_tick is not None:
+            observe_tick(world.state, world.world_map, record)
         if world.state.world_outcome.finished:
             break
     return PlayResult(config, seed, world.state, tracker, events, stats, world.state.tick, time.perf_counter() - started, legacy)
