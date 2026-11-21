@@ -154,6 +154,7 @@ def test_saved_negative_gate_matches_the_verified_diagnostic_replay():
     assert scout["functional_survival"] == 0 and scout["scouts_active_peak"] == 1
     replay = verify_replay((folder / f"replay_seed{report['replay_seed']}.jsonl").read_bytes())
     assert replay.chain_head == report["replay_chain_head"]
+    assert replay.header["frame_every"] == report["replay_frame_every"] == 1
     assert replay.initial_knowledge == report["initial_knowledge"] == UNKNOWN_FOOD_V1
 
 

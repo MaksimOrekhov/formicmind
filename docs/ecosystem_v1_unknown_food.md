@@ -30,7 +30,7 @@
 
 ### Проверяемый цикл на карте 90000
 
-У колонии с индексом 1 разведчик вышел на тике 0, прибыл на узел 46 и раскрыл пищевой patch на тике 3. В этот момент обычная маска разрешила `forage` на открытом узле. Колония отдала приказ на тике 30, начала добычу на 33 и получила 16 единиц в гнезде на 43. Этот груз отсрочил коллапс до тика 93. Сведения о прибывших разведчиках, посещениях, фактической добыче и приёме груза связаны по колонии и узлу. [Replay](ecosystem_examples/for54_unknown_food/replay_seed90000.jsonl) · [Оценки и тики](ecosystem_examples/for54_unknown_food/preflight.json).
+У колонии с индексом 1 разведчик вышел на тике 0, прибыл на узел 46 и раскрыл пищевой patch на тике 3. В этот момент обычная маска разрешила `forage` на открытом узле. Колония отдала приказ на тике 30, начала добычу на 33 и получила 16 единиц в гнезде на 43. Этот груз отсрочил коллапс до тика 93. Сведения о прибывших разведчиках, посещениях, фактической добыче и приёме груза связаны по колонии и узлу. Replay сохраняет кадр каждого тика, чтобы в viewer были видны выход разведчика, добыча, обратный путь и приём груза. [Replay](ecosystem_examples/for54_unknown_food/replay_seed90000.jsonl) · [Оценки и тики](ecosystem_examples/for54_unknown_food/preflight.json).
 
 ### Предложение для отдельной задачи
 
@@ -48,7 +48,7 @@ python -m formicmind.eco replay-verify docs/ecosystem_examples/for54_unknown_foo
 Записать тот же опытный replay через обычный вход независимых политик:
 
 ```powershell
-python -m formicmind.eco policy-run --scenario moderate --seed 90000 --colonies 8 --ticks 6000 --frame-every 30 --policy heuristic:bounded-unknown-food --curriculum scout-v1 --initial-knowledge unknown-food-v1 --out unknown_food.jsonl --verify
+python -m formicmind.eco policy-run --scenario moderate --seed 90000 --colonies 8 --ticks 6000 --frame-every 1 --policy heuristic:bounded-unknown-food --curriculum scout-v1 --initial-knowledge unknown-food-v1 --out unknown_food.jsonl --verify
 ```
 
 `replay-export --fixture idle --initial-knowledge unknown-food-v1` записывает пассивный мир. Активные прогоны используют `policy-run`, чтобы омнисциентные fixtures не могли обойти границу наблюдения. `eval` и `train` принимают тот же флаг `--initial-knowledge`. Штатный `replay-verify` берёт режим из заголовка и побайтно сверяет повторное исполнение.

@@ -23,6 +23,7 @@ from scripts.ecosystem_scout_value import ScoutFoodTrace
 SEEDS = tuple(range(90000, 90008))
 COLONIES = 8
 HORIZON = 6000
+REPLAY_FRAME_EVERY = 1
 POLICY_SEED = 1
 SCENARIO = "moderate"
 CONTROLS = {"no_scout": ("peaceful", "nest-v1"), "bounded": (BOUNDED_UNKNOWN_FOOD, "scout-v1")}
@@ -119,7 +120,7 @@ def main() -> None:
     world = next((r for r in results["bounded"]["worlds"] if any(row["scout_patches_delivered"] for row in r["colonies"])),
                  results["bounded"]["worlds"][0])
     config = default_config(COLONIES, SCENARIO)
-    replay, decisions = export_policy_replay(config, world["seed"], spec_for(*CONTROLS["bounded"]), HORIZON, config.decision_k,
+    replay, decisions = export_policy_replay(config, world["seed"], spec_for(*CONTROLS["bounded"]), HORIZON, REPLAY_FRAME_EVERY,
                                              initial_knowledge=UNKNOWN_FOOD_V1)
     verified = verify_replay(replay, decisions)
     if verified.result["final_state_hash"] != world["state_hash"] or verified.result["decisions_hash"] != world["decisions_hash"]:
@@ -131,7 +132,7 @@ def main() -> None:
               "start_food": config.economy.start_food, "start_workers": config.economy.start_workers,
               "reward_version": REWARD_VERSION, "eco_rules_version": ECO_RULES_VERSION, "observation_version": OBSERVATION_VERSION,
               "action_version": ACTION_VERSION, "controls": results, "gate": {**gate, "passed": all(gate.values())},
-              "replay_seed": world["seed"], "replay_chain_head": verified.chain_head}
+              "replay_seed": world["seed"], "replay_frame_every": REPLAY_FRAME_EVERY, "replay_chain_head": verified.chain_head}
     (args.out / "preflight.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps({"gate": report["gate"], "no_scout": control, "bounded": scout}, sort_keys=True))
 
