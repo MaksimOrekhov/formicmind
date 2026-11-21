@@ -106,7 +106,13 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
     throw new EcoReplayVersionError(`Неподдерживаемая версия файла: «${String(header.schema)}». Этот viewer читает «${ECO_REPLAY_SCHEMA}».`)
   }
   const policy = 'policy' in header ? parsePolicy(header.policy, header) : null
-  exactKeys(header, policy ? [...HEADER_KEYS, 'policy'] : HEADER_KEYS, 'header')
+  const initialKnowledge = header.initial_knowledge
+  need(!('initial_knowledge' in header) || initialKnowledge === 'unknown-food-v1', 'header.initial_knowledge: неизвестный профиль.')
+  exactKeys(header, [...HEADER_KEYS, ...(policy ? ['policy'] : []), ...(initialKnowledge ? ['initial_knowledge'] : [])], 'header')
+  if (initialKnowledge && !policy) {
+    need(header.fixture === 'idle' && isRec(header.roles) && Object.values(header.roles).every((role) => role === 'idle'),
+      'unknown-food-v1: активные колонии требуют независимой политики.')
+  }
   need(isRec(header.config) && isRec(header.map), 'header: нет config или map.')
   need(hashDomain(CONFIG_DOMAIN, utf8(canonicalString(header.config))) === header.config_hash, 'header.config_hash не совпадает с конфигурацией в файле.')
   const rawMap = header.map as Rec
@@ -168,6 +174,18 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
     }
   }
   need(frames.length > 0 && frames[0].tick === 0 && frames[0].reason === 'start', 'Первый кадр должен быть начальным состоянием.')
+  if (initialKnowledge === 'unknown-food-v1') {
+    const { memory } = frames[0]
+    need(memory.length === colonyCount, 'unknown-food-v1: отсутствует начальная память колонии.')
+    for (const [colony, nest] of nests.entries()) {
+      const known = memory.find((entry) => entry.colony === colony)
+      const frontier = new Set(edges.filter((edge) => edge.a === nest || edge.b === nest).map((edge) => edge.a === nest ? edge.b : edge.a))
+      need(known?.visited.length === 1 && known.visited[0].node === nest && known.visited[0].lastStock === -1
+        && known.visited[0].lastStockTick === -1 && known.foreign.length === 0 && known.sightings.length === 0
+        && known.discovered.length === frontier.size && new Set(known.discovered).size === frontier.size
+        && known.discovered.every((node) => frontier.has(node)), 'unknown-food-v1: начальная память не совпадает с профилем.')
+    }
+  }
 
   const result = records[records.length - 1]
   need(result.type === 'result', 'Последняя запись должна быть result.')
@@ -192,6 +210,7 @@ export function parseEcoReplayBytes(bytes: Uint8Array, fileName = 'eco-replay.js
 
   return {
     fileName, seed: header.seed as string, fixture: String(header.fixture), roles: header.roles as Record<string, string>, colonyCount,
+    ...(initialKnowledge === 'unknown-food-v1' ? { initialKnowledge } : {}),
     ticksRequested: header.ticks_requested as number, ticksCompleted: result.ticks_completed as number, frameEvery: header.frame_every as number,
     configHash: header.config_hash as string, mapHash: header.map_hash as string, rulesVersion: String(header.rules_version),
     nodes, edges, nests, patchNodes, worldSide, queenMaxHp, decisionK: header.decision_k as number, frames, events, eventsHash: eventsHead, finalStateHash: result.final_state_hash as string,

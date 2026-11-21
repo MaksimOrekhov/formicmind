@@ -22,6 +22,7 @@ import torch
 
 from ..config import default_config
 from ..curriculum import describe_profile, validate_profile
+from ..knowledge import DEFAULT_KNOWLEDGE, validate_initial_knowledge
 from ..viability import GAMMA_30, LAMBDA_30, REWARD_VERSION
 from .checkpoint import load_model, save_model
 from .network import ActorCriticE1, NetworkConfig
@@ -46,9 +47,13 @@ class TrainConfig:
     reward_scale: float = 10.0        # the trainer multiplies the (tiny, 1/H-scaled) interval rewards; advantages are normalised anyway
     network: NetworkConfig = field(default_factory=NetworkConfig)
     ppo: PPOConfig = field(default_factory=PPOConfig)
+    initial_knowledge: str = DEFAULT_KNOWLEDGE
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        data = asdict(self)
+        if self.initial_knowledge == DEFAULT_KNOWLEDGE:
+            del data["initial_knowledge"]
+        return data
 
 
 def _policy_seed(config: TrainConfig, index: int) -> int:
@@ -64,7 +69,8 @@ def _collect_job(job: dict) -> bytes:
     model.load_state_dict(torch.load(io.BytesIO(job["weights"]), weights_only=True))
     config = default_config(job["colonies"], job["scenario"])
     episode = collect_episode(config, job["seed"], model, job["policy_seed"], job["ticks"], reward_scale=job["reward_scale"],
-                              gamma30=GAMMA_30, lambda30=LAMBDA_30, curriculum=job["curriculum"])
+                              gamma30=GAMMA_30, lambda30=LAMBDA_30, curriculum=job["curriculum"],
+                              initial_knowledge=job.get("initial_knowledge", DEFAULT_KNOWLEDGE))
     buffer = io.BytesIO()
     torch.save(episode, buffer)
     return buffer.getvalue()
@@ -113,7 +119,7 @@ def collect(pool: _Pool, model: ActorCriticE1, config: TrainConfig, iteration: i
         index = iteration * config.worlds_per_iteration + j
         jobs.append({"weights": weights, "network": config.network.to_dict(), "colonies": config.colonies, "scenario": config.scenario,
                      "seed": config.train_seed0 + index, "policy_seed": _policy_seed(config, index), "ticks": config.ticks,
-                     "reward_scale": config.reward_scale, "curriculum": config.curriculum})
+                     "reward_scale": config.reward_scale, "curriculum": config.curriculum, "initial_knowledge": config.initial_knowledge})
     return [torch.load(io.BytesIO(blob), weights_only=False) for blob in pool.map(_collect_job, jobs)]
 
 
@@ -138,6 +144,7 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
     from .evaluate import evaluation_suite
 
     validate_profile(config.curriculum)
+    validate_initial_knowledge(config.initial_knowledge)
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     torch.manual_seed(config.seed)
@@ -178,13 +185,15 @@ def train(config: TrainConfig, out_dir: str | Path, *, init_model: str | Path | 
                 f"workers={row['workers_mean']:.1f}/{row['workers_end']:.1f} eggs={row['eggs_laid']:.0f} deliv={row['delivered']:.0f} ent={row['ppo_entropy']:.2f} kl={row['ppo_approx_kl']:.4f} vloss={row['ppo_value_loss']:.4f} "
                 f"ev={row['ppo_explained_variance']:.2f} idev={row['ppo_identity_ratio_max_dev']:.1e} collect={row['collect_s']:.0f}s "
                 f"update={row['update_s']:.0f}s")
-            save_model(out / "latest", model, training={"iteration": iteration + 1, "config": config.to_dict()}, curriculum=config.curriculum)
+            save_model(out / "latest", model, training={"iteration": iteration + 1, "config": config.to_dict()}, curriculum=config.curriculum,
+                       initial_knowledge=config.initial_knowledge)
             if config.eval_every and (iteration + 1) % config.eval_every == 0 and iteration + 1 < config.iterations:
                 report = evaluation_suite(model, config, pool, label=f"iteration {iteration + 1}", baselines=False)
                 (out / f"eval_{iteration + 1:04d}.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
                 log(f"eval iteration {iteration + 1}: {json.dumps(report['learned'], sort_keys=True)}")
         manifest = save_model(out / "final", model, training={"iterations": config.iterations, "config": config.to_dict(),
-                                                              "wall_seconds": time.perf_counter() - started}, curriculum=config.curriculum)
+                                                              "wall_seconds": time.perf_counter() - started}, curriculum=config.curriculum,
+                              initial_knowledge=config.initial_knowledge)
         log(f"saved {out / 'final'} (weights sha256 {manifest['weights_sha256'][:16]})")
         final_eval = None
         if config.eval_worlds:

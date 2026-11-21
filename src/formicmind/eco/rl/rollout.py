@@ -23,6 +23,7 @@ from ..curriculum import apply_curriculum_masks, validate_profile
 from ..engine import RouteTable, step_world_tick
 from ..events import EventLog
 from ..initial import build_world
+from ..knowledge import DEFAULT_KNOWLEDGE
 from ..observation import build_observation
 from ..policy_run import PolicyController
 from ..viability import GAMMA_30, LAMBDA_30, IntervalStep, ViabilityTracker, gae_intervals, interval_rewards
@@ -170,15 +171,17 @@ class SlotPolicy:
 
 
 def collect_episode(config: ConfigE1, seed: int, model: ActorCriticE1, policy_seed: int, ticks: int, *, reward_scale: float = 1.0,
-                    gamma30: float = GAMMA_30, lambda30: float = LAMBDA_30, curriculum: str = "none") -> Episode:
+                    gamma30: float = GAMMA_30, lambda30: float = LAMBDA_30, curriculum: str = "none",
+                    initial_knowledge: str = DEFAULT_KNOWLEDGE) -> Episode:
     """One world of ``config.n_colonies`` mirrored colonies, played for ``ticks`` ticks with the stochastic policy and recorded for PPO."""
     started = time.perf_counter()
-    world = build_world(config, seed)
+    world = build_world(config, seed, initial_knowledge=initial_knowledge)
     routes = RouteTable(world.world_map)
     tracker = ViabilityTracker(world.state)
     runtime = MirrorRuntime(model, config.n_colonies, policy_seed, record=True, tracker=tracker, horizon=config.horizon,
                             reward_scale=reward_scale, curriculum=curriculum)
-    controller = PolicyController([SlotPolicy(runtime, c) for c in range(config.n_colonies)], batcher=runtime, curriculum=curriculum)
+    controller = PolicyController([SlotPolicy(runtime, c) for c in range(config.n_colonies)], batcher=runtime, curriculum=curriculum,
+                                  initial_knowledge=initial_knowledge)
     events, stats = EventLog(), PlayStats(config.n_colonies)
     model.eval()
     for _ in range(ticks):

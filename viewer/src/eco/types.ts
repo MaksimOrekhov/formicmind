@@ -126,6 +126,8 @@ export interface EcoReplay {
   configHash: string
   mapHash: string
   rulesVersion: string
+  /** The opt-in initial private memory profile, when present in the header. */
+  initialKnowledge?: 'unknown-food-v1'
   nodes: EcoNode[]
   edges: EcoEdge[]
   nests: number[]

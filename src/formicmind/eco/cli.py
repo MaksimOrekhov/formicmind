@@ -33,10 +33,11 @@ from .curriculum import CURRICULUM_PROFILES
 from .config import SCENARIOS, SIZES, ConfigE1, ConfigError, config_from_canonical, config_hash, default_config
 from .fairness import evaluate, report_hash
 from .initial import build_world, initial_world_state
+from .knowledge import DEFAULT_KNOWLEDGE, INITIAL_KNOWLEDGE_PROFILES
 from .mapgen import MapGenerationError, generate
 from .serialization import compute_map_hash, map_from_canonical, state_hash
 from .fixtures import FIXTURE_CHOICES, normalize_fixture
-from .policy import HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec
+from .policy import BOUNDED_UNKNOWN_FOOD, HEURISTIC_VARIANTS, POLICY_KINDS, PolicyRunSpec, PolicySpec
 from .rl.cli_args import add_rl_commands
 from .replay_file import ReplayFormatError, export_policy_replay, export_replay, read_replay, verify_replay
 from .simulation import benchmark_simulation, interaction_sweep, run_simulation, sweep_simulations
@@ -325,7 +326,7 @@ def cmd_sim_sweep(args: argparse.Namespace) -> int:
 def cmd_replay_export(args: argparse.Namespace) -> int:
     config = _config_from_args(args)
     roles = _parse_roles(args.role, config.n_colonies)
-    data = export_replay(config, args.seed, args.fixture, roles, args.ticks, args.frame_every)
+    data = export_replay(config, args.seed, args.fixture, roles, args.ticks, args.frame_every, initial_knowledge=args.initial_knowledge)
     with open(args.out, "wb") as handle:
         handle.write(data)
     records = data.count(b"\n")
@@ -346,8 +347,9 @@ def _parse_policy(text: str) -> PolicySpec:
         raise ValueError("learned needs a variant: learned:<sample|greedy>-<weights sha256 prefix>")
     if kind == "heuristic":
         variant = variant or "peaceful"
-        if variant not in HEURISTIC_VARIANTS:
-            raise ValueError(f"heuristic variant must be one of {HEURISTIC_VARIANTS}, got {variant!r}")
+        variants = (*HEURISTIC_VARIANTS, BOUNDED_UNKNOWN_FOOD)
+        if variant not in variants:
+            raise ValueError(f"heuristic variant must be one of {variants}, got {variant!r}")
     return PolicySpec(kind, variant)
 
 
@@ -372,7 +374,7 @@ def cmd_policy_run(args: argparse.Namespace) -> int:
     config = _config_from_args(args)
     spec = _policy_spec(args, config.n_colonies)
     started = time.perf_counter()
-    replay, decisions = export_policy_replay(config, args.seed, spec, args.ticks, args.frame_every)
+    replay, decisions = export_policy_replay(config, args.seed, spec, args.ticks, args.frame_every, initial_knowledge=args.initial_knowledge)
     elapsed = time.perf_counter() - started
     with open(args.out, "wb") as handle:
         handle.write(replay)
@@ -385,6 +387,7 @@ def cmd_policy_run(args: argparse.Namespace) -> int:
         f"wrote {args.out}: {len(replay)} bytes, {result['record_count']} records; decisions: {result['decision_count']} "
         f"(hash {result['decisions_hash'][:16]}){' -> ' + args.decisions if args.decisions else ''}\n"
         f"  colonies={config.n_colonies} scenario={config.scenario} seed={args.seed} policy_seed={args.policy_seed} curriculum={spec.curriculum} "
+        f"{'initial_knowledge=' + args.initial_knowledge + ' ' if args.initial_knowledge != DEFAULT_KNOWLEDGE else ''}"
         f"policies={[p.kind + (':' + p.variant if p.variant else '') for p in spec.policies]}\n"
         f"  ticks={result['ticks_completed']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
         f"final_state={result['final_state_hash'][:16]} statuses={[o['status'] for o in result['colony_outcomes']]} ({elapsed:.1f} s)\n")
@@ -425,7 +428,8 @@ def cmd_replay_verify(args: argparse.Namespace) -> int:
         f"frames={result['frame_count']} events={result['event_count']} events_hash={result['events_hash'][:16]} "
         f"{'strict read only' if args.read_only else 'byte-exact re-execution'}"
         f"{' decisions=' + str(result['decision_count']) if 'decision_count' in result else ''}"
-        f"{' curriculum=' + document.policy.curriculum if document.policy is not None and document.policy.curriculum != 'none' else ''}\n")
+        f"{' curriculum=' + document.policy.curriculum if document.policy is not None and document.policy.curriculum != 'none' else ''}"
+        f"{' initial_knowledge=' + document.initial_knowledge if document.initial_knowledge != DEFAULT_KNOWLEDGE else ''}\n")
     return 0
 
 
@@ -527,6 +531,8 @@ def build_parser() -> argparse.ArgumentParser:
     rx.add_argument("--seed", type=int, default=50004, help="map seed (u64)")
     _add_world_args(rx)
     rx.add_argument("--fixture", default="peaceful_fair", choices=FIXTURE_CHOICES, help="behaviour of every colony not named by --role")
+    rx.add_argument("--initial-knowledge", default=DEFAULT_KNOWLEDGE, choices=INITIAL_KNOWLEDGE_PROFILES,
+                    help="initial private memory profile (unknown-food-v1 requires an idle fixture; use policy-run for active colonies)")
     rx.add_argument("--role", action="append", default=[], metavar="COLONY=NAME", help="e.g. --role 3=raider (repeatable)")
     rx.add_argument("--ticks", type=int, default=None, help="world ticks (default: configured horizon)")
     rx.add_argument("--frame-every", type=int, default=20, help="write a frame every N ticks (plus start, end and key events)")
@@ -544,7 +550,7 @@ def build_parser() -> argparse.ArgumentParser:
     pr = sub.add_parser("policy-run", help="run a real world whose colonies are decided by independent policies (ObservationE1 -> ActionE1)")
     pr.add_argument("--seed", type=int, default=50011, help="map seed (u64)")
     _add_world_args(pr)
-    pr.add_argument("--policy", default="random_valid", help="policy of every colony: random_valid | heuristic[:peaceful|explorer|raider]")
+    pr.add_argument("--policy", default="random_valid", help="policy of every colony, e.g. heuristic:peaceful or heuristic:bounded-unknown-food")
     pr.add_argument("--policy-for", action="append", default=[], metavar="COLONY=KIND[:VARIANT]", help="override one colony (repeatable)")
     pr.add_argument("--policy-seed", type=int, default=1, help="root seed of the colonies' private policy random streams (u64)")
     pr.add_argument("--ticks", type=int, default=3000, help="world ticks (default 3000)")
@@ -554,6 +560,8 @@ def build_parser() -> argparse.ArgumentParser:
     pr.add_argument("--out", required=True, help="output replay .jsonl path (opens in the E1 viewer)")
     pr.add_argument("--curriculum", default="none", choices=CURRICULUM_PROFILES,
                     help="action-mask profile of every decision (FOR-50; recorded in the replay header): nest-v1 = diagnostic stage, workers only, no scouts, no squad orders")
+    pr.add_argument("--initial-knowledge", default=DEFAULT_KNOWLEDGE, choices=INITIAL_KNOWLEDGE_PROFILES,
+                    help="initial private memory profile recorded in the replay header when selected")
     pr.add_argument("--model", action="append", default=[], help="model directory for --policy learned:<sample|greedy>-<sha prefix> (repeatable)")
     pr.set_defaults(run=cmd_policy_run)
 

@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from ..rng import new_stream
 from .config import ConfigE1, config_hash
 from .graph import adjacency, dijkstra
+from .knowledge import DEFAULT_KNOWLEDGE, UNKNOWN_FOOD_V1, validate_initial_knowledge
 from .mapgen import GenerationResult, generate
 from .model import (
     AgeBucket, AgeLedger, CohortE1, ColonyMemoryE1, ColonyOrders, ColonyOutcome, ColonyStateE1, KnownEdge, KnownNode, Location,
@@ -29,12 +30,15 @@ def _seed_ledger(count: int, lifespan: int, spread_permille: int, bucket: int) -
     return [AgeBucket(start, counts[start]) for start in sorted(counts)]
 
 
-def _initial_memory(config: ConfigE1, world_map: MapE1, colony: int, adj: list, dist: list[int]) -> ColonyMemoryE1:
-    """Own nest and everything within ``initial_known_radius`` ticks is *visited* at tick 0; the other ends of the edges seen from there
-    are *discovered* only (kind unknown). Nothing else of the map is present."""
-    radius = config.economy.initial_known_radius
-    visited = sorted((v for v, d in enumerate(dist) if d <= radius), key=lambda v: (dist[v], v))
+def _initial_memory(config: ConfigE1, world_map: MapE1, colony: int, adj: list, initial_knowledge: str) -> ColonyMemoryE1:
+    """Seed the visited area and the unknown endpoints of its visible edges."""
     nest = world_map.nests[colony]
+    if initial_knowledge == UNKNOWN_FOOD_V1:
+        visited = [nest]
+    else:
+        dist = dijkstra(adj, nest)
+        radius = config.economy.initial_known_radius
+        visited = sorted((v for v, d in enumerate(dist) if d <= radius), key=lambda v: (dist[v], v))
     assert visited[0] == nest
     slot = {v: i for i, v in enumerate(visited)}
     discovered: list[int] = []
@@ -42,13 +46,18 @@ def _initial_memory(config: ConfigE1, world_map: MapE1, colony: int, adj: list, 
         for w, _ in adj[v]:
             if w not in slot and w not in discovered:
                 discovered.append(w)
-    for w in sorted(discovered, key=lambda w: (min(dist[v] for v, _ in adj[w] if v in slot), w)):
+    if initial_knowledge == UNKNOWN_FOOD_V1:
+        # World IDs can encode construction order. Label the nest's frontier by geometry only.
+        discovered.sort(key=lambda w: (world_map.nodes[w].x, world_map.nodes[w].y))
+    else:
+        discovered.sort(key=lambda w: (min(dist[v] for v, _ in adj[w] if v in slot), w))
+    for w in discovered:
         slot[w] = len(slot)
     order = sorted(slot, key=slot.get)  # type: ignore[arg-type]
     nodes = []
     for v in order:
-        truth = world_map.nodes[v]
         if v in visited:
+            truth = world_map.nodes[v]
             if truth.kind == "nest" and v != nest:
                 raise AssertionError("a foreign nest inside the initial known radius")
             capacity = truth.patch[0].capacity if truth.patch else 0
@@ -67,7 +76,8 @@ def _initial_memory(config: ConfigE1, world_map: MapE1, colony: int, adj: list, 
     return ColonyMemoryE1(nodes=nodes, edges=edges)
 
 
-def initial_world_state(config: ConfigE1, world_map: MapE1) -> WorldStateE1:
+def initial_world_state(config: ConfigE1, world_map: MapE1, *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> WorldStateE1:
+    validate_initial_knowledge(initial_knowledge)
     e = config.economy
     n_col = config.n_colonies
     adj = adjacency(len(world_map.nodes), [(ed.a, ed.b, ed.length) for ed in world_map.edges])
@@ -90,7 +100,7 @@ def initial_world_state(config: ConfigE1, world_map: MapE1) -> WorldStateE1:
         )
         upkeep_tenths = e.worker_upkeep_tenths * e.start_workers + e.soldier_upkeep_tenths * e.start_soldiers
         rolling = RollingE1(0, upkeep_tenths * Q // 10, (2 * e.start_workers + e.start_soldiers) * Q // 2)
-        memory = _initial_memory(config, world_map, c, adj, dijkstra(adj, nest))
+        memory = _initial_memory(config, world_map, c, adj, initial_knowledge)
         colonies.append(ColonyStateE1(c, "alive", e.start_food, e.queen_hp, 0, 0, 0, 0, 0, [], ledger, orders, memory,
                                       WindowStatsE1(), rolling))
     state = WorldStateE1(STATE_SCHEMA, config_hash(config), world_map.map_hash, 0, patches, [], colonies, cohorts, next_id, [],
@@ -108,9 +118,10 @@ class World:
     generation: GenerationResult
 
 
-def build_world(config: ConfigE1, map_seed: int) -> World:
+def build_world(config: ConfigE1, map_seed: int, *, initial_knowledge: str = DEFAULT_KNOWLEDGE) -> World:
     """Generate the map for ``map_seed`` and create the tick-0 state and run state (the ``map`` stream is saved after generation)."""
     generation = generate(config, map_seed)
-    state = initial_world_state(config, generation.world_map)
-    run = new_run_state(map_seed, {MAP_STREAM_ID: generation.rng, WORLD_STREAM_ID: new_stream(map_seed, WORLD_STREAM_ID)})
+    state = initial_world_state(config, generation.world_map, initial_knowledge=initial_knowledge)
+    run = new_run_state(map_seed, {MAP_STREAM_ID: generation.rng, WORLD_STREAM_ID: new_stream(map_seed, WORLD_STREAM_ID)},
+                        initial_knowledge=initial_knowledge)
     return World(config, generation.world_map, state, run, generation)

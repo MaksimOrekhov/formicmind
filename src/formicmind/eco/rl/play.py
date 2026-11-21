@@ -12,6 +12,7 @@ from ..config import ConfigE1
 from ..engine import RouteTable, TickRecord, step_world_tick
 from ..events import EventLog
 from ..initial import build_world
+from ..knowledge import DEFAULT_KNOWLEDGE
 from ..model import MapE1, WorldStateE1
 from ..viability import DEATH_PENALTY, Q, REWARD_VERSION, ViabilityTracker
 
@@ -83,7 +84,8 @@ class PlayResult:
 
 
 def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_version: int = REWARD_VERSION,
-               observe_tick: Callable[[WorldStateE1, MapE1, TickRecord], None] | None = None) -> PlayResult:
+               observe_tick: Callable[[WorldStateE1, MapE1, TickRecord], None] | None = None,
+               initial_knowledge: str = DEFAULT_KNOWLEDGE) -> PlayResult:
     """Run ``ticks`` ticks (or until the world ends) with the trackers watching from outside. ``controller`` is any engine controller.
 
     The world is the natural one: nothing is retired when a colony's agent episode ends (reward v3 ``functional_extinction``), the policy keeps
@@ -91,7 +93,7 @@ def play_world(config: ConfigE1, seed: int, controller, ticks: int, *, reward_ve
     it (``reward_v1``, ``reward_v2``) so that old and new scores of the same run can be compared - but never as numbers on one scale."""
     import time
     started = time.perf_counter()
-    world = build_world(config, seed)
+    world = build_world(config, seed, initial_knowledge=initial_knowledge)
     routes = RouteTable(world.world_map)
     tracker = ViabilityTracker(world.state, reward_version)
     legacy = {v: tracker if v == reward_version else ViabilityTracker(world.state, v) for v in LEGACY_VERSIONS}
