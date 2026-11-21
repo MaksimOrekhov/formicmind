@@ -102,6 +102,10 @@ class TickRecord:
     combat_nodes: tuple[int, ...] = ()
     combat_losses_workers: int = 0
     combat_losses_soldiers: int = 0
+    # reporting only (FOR-52), in no hash and in no policy input: ``(colony, node, count)`` of scout cohorts that reached their target this tick, and
+    # ``(colony, node, source)`` of every first visit with the kind of mission that made it (``memory.discovery_source``)
+    scout_arrivals: list[tuple[int, int, int]] = field(default_factory=list)
+    discoveries: list[tuple[int, int, str]] = field(default_factory=list)
 
 
 Controller = Callable[[WorldStateE1, ConfigE1, MapE1, RouteTable], None]
@@ -194,6 +198,8 @@ def _arrivals(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: T
                         cohort.mission.phase = "return"
             elif cohort.mission.phase == "go" and node_id == cohort.mission.target_node:
                 _reached_target(cohort, economy)
+                if cohort.mission.kind == "scout":
+                    record.scout_arrivals.append((cohort.colony_id, node_id, cohort.count))
         if (cohort.loc.kind == "node" and cohort.loc.node_id == world_map.nests[cohort.colony_id]
                 and cohort.mission.phase == "return"):
             colony = state.colonies[cohort.colony_id]
@@ -576,7 +582,7 @@ def step_world_tick(state: WorldStateE1, run: RunStateE1, config: ConfigE1, worl
 
     _hatch_and_age(state, config, world_map, record)
     _arrivals(state, config, world_map, record)
-    sense(state, world_map, record.events)
+    sense(state, world_map, record.events, record.discoveries)
     queen_terminal(state, config, world_map, resolve_combat(state, config, world_map, record.events, record),
                    record.events)
     _harvest(state, config, world_map, record)

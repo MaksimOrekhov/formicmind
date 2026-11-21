@@ -11,6 +11,11 @@ against it and only then are the orders applied. Nothing is masked after the fac
   as usual), ``scout_n`` is 0 (no scouts) and all three squads are ``none`` (no guard, attack or withdraw). Egg level, forage fraction, forage
   targets and shares, and ``workers_flee`` stay entirely the policy's choice, as do all physical rules.
 
+* ``scout-v1`` (stage 3 "Scout", FOR-52): ``nest-v1`` except that ``scout_n`` and the scout targets stay *entirely* the masks that
+  ``action_masks(obs)`` derived from the observation (the network chooses how many scouts, where, or none). ``soldier_share`` is still 0 and all
+  three squads are still ``none``: no soldier orders, no guard / attack / withdraw. Nothing is forced and nothing is rewarded: a scout is an
+  ordinary idle worker the colony chooses to send, with the usual cost of one fewer forager.
+
 This module imports only ``action`` (itself observation-only): it can read nothing but the observation and the static profile.
 """
 
@@ -23,7 +28,8 @@ from .observation import ObservationE1
 
 CURRICULUM_NONE = "none"
 CURRICULUM_NEST_V1 = "nest-v1"
-CURRICULUM_PROFILES = (CURRICULUM_NONE, CURRICULUM_NEST_V1)
+CURRICULUM_SCOUT_V1 = "scout-v1"
+CURRICULUM_PROFILES = (CURRICULUM_NONE, CURRICULUM_NEST_V1, CURRICULUM_SCOUT_V1)
 CURRICULUM_VERSION = "curriculum/1"
 # the squad mission order of ``action.SQUAD_MISSIONS``: only "none" stays legal under the nest profile
 _ONLY_NONE = (True, False, False, False)
@@ -50,10 +56,12 @@ def apply_curriculum_masks(obs: ObservationE1, base: ActionMasksE1, profile: str
     if profile == CURRICULUM_NONE:
         return base
     only_zero_soldiers = tuple(i == 0 and flag for i, flag in enumerate(base.soldier_share))
-    no_scouts = tuple(i == 0 and flag for i, flag in enumerate(base.scout_n))
     no_missions = tuple(tuple(flag and allowed for flag, allowed in zip(row, _ONLY_NONE)) for row in base.squad_mission)
     if len(no_missions) != SQUADS:
         raise CurriculumError("the masks do not describe three squads")
+    if profile == CURRICULUM_SCOUT_V1:      # scout_n and scout_target stay exactly what the observation-derived base masks say
+        return replace(base, soldier_share=only_zero_soldiers, squad_mission=no_missions)
+    no_scouts = tuple(i == 0 and flag for i, flag in enumerate(base.scout_n))
     return replace(base, soldier_share=only_zero_soldiers, scout_n=no_scouts, squad_mission=no_missions)
 
 
@@ -62,4 +70,7 @@ def describe_profile(profile: str) -> str:
     validate_profile(profile)
     if profile == CURRICULUM_NONE:
         return "none (full action space)"
+    if profile == CURRICULUM_SCOUT_V1:
+        return ("scout-v1 (diagnostic: new eggs are workers only, no squad orders; the number of scouts and their targets are free, "
+                "as are egg level, foraging and the flee flag)")
     return "nest-v1 (diagnostic: new eggs are workers only, no scouts, no squad orders; egg level, foraging and the flee flag are free)"

@@ -50,7 +50,7 @@ def test_an_unknown_profile_is_refused():
             validate_profile(bad)
     with pytest.raises(CurriculumError):
         apply_curriculum_masks(None, None, "moderate")      # type: ignore[arg-type]
-    assert CURRICULUM_PROFILES == ("none", "nest-v1") and validate_profile("nest-v1") == "nest-v1"
+    assert CURRICULUM_PROFILES == ("none", "nest-v1", "scout-v1") and validate_profile("nest-v1") == "nest-v1"
     assert "nest-v1" in describe_profile("nest-v1") and "full" in describe_profile("none")
 
 

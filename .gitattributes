@@ -19,3 +19,8 @@ docs/ecosystem_examples/for50_nest_pilot/model/*.json text eol=lf
 docs/ecosystem_examples/for50_nest_pilot/model/weights.pt binary
 docs/ecosystem_examples/for51_moderate_transfer/*.json text eol=lf
 docs/ecosystem_examples/for51_moderate_transfer/*.jsonl text eol=lf
+docs/ecosystem_examples/for52_scout/*.json text eol=lf
+docs/ecosystem_examples/for52_scout/*.jsonl text eol=lf
+docs/ecosystem_examples/for52_scout/train.log text eol=lf
+docs/ecosystem_examples/for52_scout/model/*.json text eol=lf
+docs/ecosystem_examples/for52_scout/model/weights.pt binary

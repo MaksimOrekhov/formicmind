@@ -1,0 +1,22 @@
+{
+  "stage": "FOR-52 curriculum stage 3 (scout)",
+  "note": "the model manifest written by `train --init` does not record where the initial weights came from; this file does",
+  "initial_weights": {
+    "path": "docs/ecosystem_examples/for50_nest_pilot/model",
+    "sha256": "1b4f8740a1b5ea3d5c2e5c9012c9dd23959c84eca25640f8b33c21a782c55d44",
+    "curriculum_of_origin": "nest-v1"
+  },
+  "final_weights": {
+    "path": "docs/ecosystem_examples/for52_scout/model",
+    "sha256": "49e942b0c8dbd48198bcfcd1e3db3931abd8b1459f237a8c70799ed7ab6d471d",
+    "curriculum": "scout-v1",
+    "parameters": 430693
+  },
+  "profile_difference": "nest-v1 -> scout-v1: scout_n and scout_target masks are released (exactly the observation-derived masks); soldier_share stays 0 and the three squad_mission stay none",
+  "command": "python -u -m formicmind.eco train --scenario moderate --curriculum scout-v1 --init docs/ecosystem_examples/for50_nest_pilot/model --iterations 80 --worlds 16 --ticks 6000 --workers 8 --seed 1 --eval-every 20 --eval-worlds 8 --out <dir>",
+  "single_pilot": true,
+  "stop_rule_fired": false,
+  "wall_seconds": 3671.14,
+  "kept_checkpoint": "final (iteration 80)",
+  "not_copied": "latest/ (resume checkpoint with optimizer state)"
+}

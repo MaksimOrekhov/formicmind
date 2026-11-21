@@ -176,6 +176,7 @@ describe('E1 replay of independent policies (FOR-48)', () => {
     const lines = textLines(policySampleBytes())
     const withProfile = (curriculum: unknown) => rechain(lines, (record) => (record.type === 'header' ? { ...record, policy: { ...record.policy, curriculum } } : record))
     expect(parseEcoReplayBytes(withProfile('nest-v1')).policy!.curriculum).toBe('nest-v1')
+    expect(parseEcoReplayBytes(withProfile('scout-v1')).policy!.curriculum).toBe('scout-v1')
     for (const bad of ['none', 'nest', 1]) expect(() => parseEcoReplayBytes(withProfile(bad))).toThrow(EcoReplayError)
   })
 
