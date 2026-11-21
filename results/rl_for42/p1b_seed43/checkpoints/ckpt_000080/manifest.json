@@ -1,0 +1,138 @@
+{
+  "config_identity_sha256": "f7ae2699bc3d7351ca4c611f1aa447a501dcac206634ddf85e78a498559314fe",
+  "contracts": {
+    "action": "ActionV2",
+    "decoder": "FOR-2-decoder-v0.2.1",
+    "head_dim": 32,
+    "model": "formicmind.rl-actor-critic/v1",
+    "observation": "FOR-2-v0.2+errata-v0.2.1"
+  },
+  "counters": {
+    "decisions": 95239,
+    "matches": 10240,
+    "samples": 95239,
+    "ticks": 1702450,
+    "updates": 900,
+    "wall_seconds": 87.67027260000395
+  },
+  "hidden_sizes": [
+    256,
+    256,
+    256
+  ],
+  "iteration": 80,
+  "run_seed": 43,
+  "schema": "formicmind.rl-checkpoint/v1",
+  "snapshots": [
+    {
+      "iteration": 0,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0000\\weights.pt",
+      "sha256": "66703475f536279883550c729c7a121421670654b05c1a0b9733b6cca4e085e8",
+      "snapshot_id": 0
+    },
+    {
+      "iteration": 5,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0001\\weights.pt",
+      "sha256": "e0570e5e42bd29025866e20290c3fe37f90a3357f5abda473a1cb42d7ccfcf3b",
+      "snapshot_id": 1
+    },
+    {
+      "iteration": 10,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0002\\weights.pt",
+      "sha256": "d749eba7e07a6c30ad469afa1ae2c5c5b19c50ea60afcf3aa03434e04b21da12",
+      "snapshot_id": 2
+    },
+    {
+      "iteration": 15,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0003\\weights.pt",
+      "sha256": "befad16982d8bf26b11818f6ed117f4685e4ce0d5540c7b5df561eb1a7c7a643",
+      "snapshot_id": 3
+    },
+    {
+      "iteration": 20,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0004\\weights.pt",
+      "sha256": "dd35c80f93cc2ce9985be3c6d59dfd685c0b6d106ea15a410368b30d19fa6e14",
+      "snapshot_id": 4
+    },
+    {
+      "iteration": 25,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0005\\weights.pt",
+      "sha256": "128b44942df7f84b1a521c0bd98c174668de43d3598a8991ad4fc397a9cc3651",
+      "snapshot_id": 5
+    },
+    {
+      "iteration": 30,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0006\\weights.pt",
+      "sha256": "ebaae00a4b906772e1eb7d76f9e38d5bf69485a8e17cb02ec5c5878bac7d39a7",
+      "snapshot_id": 6
+    },
+    {
+      "iteration": 35,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0007\\weights.pt",
+      "sha256": "9b4088f786097ed9e8ad9d6d9904214c9b24f18714a123ba279eea22dbc02c25",
+      "snapshot_id": 7
+    },
+    {
+      "iteration": 40,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0008\\weights.pt",
+      "sha256": "cbc0c0d9e783571aa69cdf1ed7c9b4acb6bb2a5091b428856d0b200a4f3c3da5",
+      "snapshot_id": 8
+    },
+    {
+      "iteration": 45,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0009\\weights.pt",
+      "sha256": "de02e6dbb93feb3166661cf2b6361bb0fd01cfe1198cb132802aa084b78055e4",
+      "snapshot_id": 9
+    },
+    {
+      "iteration": 50,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0010\\weights.pt",
+      "sha256": "f23bdf33a5230301e6d656b8563ae56cec7e7b468ac88e74738c6178890ae0a4",
+      "snapshot_id": 10
+    },
+    {
+      "iteration": 55,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0011\\weights.pt",
+      "sha256": "807bbdce551040c423273a28d2087529fddc5e1260ce5c692033a78bf33d1b48",
+      "snapshot_id": 11
+    },
+    {
+      "iteration": 60,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0012\\weights.pt",
+      "sha256": "cdb8183fbe01064171c70b0ffa562d972a14316d2796355030e5f41bb9b95129",
+      "snapshot_id": 12
+    },
+    {
+      "iteration": 65,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0013\\weights.pt",
+      "sha256": "6fcda61136336c8a1c5d9130d2594548fd63c2a083d4dd978a050fe5eb1036b1",
+      "snapshot_id": 13
+    },
+    {
+      "iteration": 70,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0014\\weights.pt",
+      "sha256": "1fdc480fc35b4bc818cfdbb8da8d268116eec0bc7dd7e8465c07c2b4c75af48b",
+      "snapshot_id": 14
+    },
+    {
+      "iteration": 75,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0015\\weights.pt",
+      "sha256": "832495614ad5d680a59836aa80aeafda5f0b9af4af58d703003d0b083eb608bc",
+      "snapshot_id": 15
+    },
+    {
+      "iteration": 80,
+      "path": "results\\rl_for42\\p1b_seed43\\snapshots\\snap_0016\\weights.pt",
+      "sha256": "8702bd8273fcca6611a14ae257d5686966825634fe325e71ef2fcc6d603ccb7e",
+      "snapshot_id": 16
+    }
+  ],
+  "train_state": {
+    "file": "train_state.pt",
+    "sha256": "ca112afe6d98a6f96e79d804005f63c3defe2759d5beca137a536995b5d2ee32"
+  },
+  "weights": {
+    "file": "weights.pt",
+    "sha256": "e4898a956700758d733f855528b7952f8d19293e53b92534604de17e9f7c433b"
+  }
+}

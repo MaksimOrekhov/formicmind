@@ -12,6 +12,7 @@ dependencies = []
 [project.scripts]
 sim = "formicmind.cli:main"
 formicmind-ml = "formicmind.ml.cli:main"
+formicmind-rl = "formicmind.rl.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]

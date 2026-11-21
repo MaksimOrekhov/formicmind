@@ -1,0 +1,13 @@
+{
+  "actor_changed": true,
+  "counters": {
+    "decisions": 2290,
+    "matches": 128,
+    "samples": 2290,
+    "ticks": 42105,
+    "updates": 24,
+    "wall_seconds": 6.19548069999928
+  },
+  "final_actor_sha256": "e06d91843a6bd2f7f454a256f4cbb22b14e6445b87d36fff8cea676ee53a88d9",
+  "initial_actor_sha256": "e4058105d16271c52a491ab839850969bbf777a9303c62a9587556aa03036ccc"
+}
