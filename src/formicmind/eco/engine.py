@@ -76,6 +76,14 @@ class RouteTable:
 
 
 @dataclass(slots=True)
+class ForageFlows:
+    """Optional reporting totals keyed by (colony, source node) for one tick."""
+
+    harvested: dict[tuple[int, int], int] = field(default_factory=dict)
+    delivered: dict[tuple[int, int], int] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
 class TickRecord:
     tick: int
     harvested: int = 0
@@ -106,6 +114,7 @@ class TickRecord:
     # ``(colony, node, source)`` of every first visit with the kind of mission that made it (``memory.discovery_source``)
     scout_arrivals: list[tuple[int, int, int]] = field(default_factory=list)
     discoveries: list[tuple[int, int, str]] = field(default_factory=list)
+    forage_flows: ForageFlows | None = None
 
 
 Controller = Callable[[WorldStateE1, ConfigE1, MapE1, RouteTable], None]
@@ -209,6 +218,11 @@ def _arrivals(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: T
             colony.window.delivered += accepted
             record.delivered += accepted
             record.delivered_by_colony[cohort.colony_id] = record.delivered_by_colony.get(cohort.colony_id, 0) + accepted
+            if accepted and record.forage_flows is not None and cohort.mission.kind == "forage":
+                # A forager loads only at its mission target, which it retains on the home leg.
+                key = (cohort.colony_id, cohort.mission.target_node)
+                delivered = record.forage_flows.delivered
+                delivered[key] = delivered.get(key, 0) + accepted
             if cohort.load == 0:
                 cohort.mission = _home_mission()
 
@@ -301,6 +315,8 @@ def _harvest(state: WorldStateE1, config: ConfigE1, world_map: MapE1, record: Ti
         for colony_id in sorted(groups):
             claims = sorted(groups[colony_id], key=lambda pair: pair[0].cohort_id)
             grant = colony_allocations[colony_id]
+            if grant and record.forage_flows is not None:
+                record.forage_flows.harvested[colony_id, node_id] = grant
             allocations = [grant * demand // colony_demands[colony_id] for _, demand in claims]
             remainder = grant - sum(allocations)
             for index, (_, demand) in enumerate(claims):
@@ -549,7 +565,7 @@ def _alert_colonies(state: WorldStateE1, window: int) -> frozenset[int]:
 
 def step_world_tick(state: WorldStateE1, run: RunStateE1, config: ConfigE1, world_map: MapE1,
                     controller: Controller | None = None, *, routes: RouteTable | None = None,
-                    validate_input: bool = True) -> TickRecord:
+                    validate_input: bool = True, track_forage_flows: bool = False) -> TickRecord:
     """Apply one deterministic world tick in place and return its economic/demographic counters.
 
     The reserved world RNG stream is intentionally unused. With the same checkpoint and the same
@@ -567,7 +583,7 @@ def step_world_tick(state: WorldStateE1, run: RunStateE1, config: ConfigE1, worl
         validate_state(state, config, world_map)
     route_table = routes or RouteTable(world_map)
     before_food = _food_total(state)
-    record = TickRecord(state.tick)
+    record = TickRecord(state.tick, forage_flows=ForageFlows() if track_forage_flows else None)
     if controller is not None:
         planned = state.tick % config.decision_k == 0
         alert = frozenset()
